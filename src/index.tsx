@@ -11,22 +11,23 @@ import {
   showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
-import { useState, VFC } from "react";
+import { VFC } from "react";
 import { FaShip } from "react-icons/fa";
 
-import logo from "../assets/logo.png";
+// import logo from "../assets/logo.png";
 
-interface AddMethodArgs {
-  left: number;
-  right: number;
-}
+// interface AddMethodArgs {
+//   left: number;
+//   right: number;
+// }
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
-  const [rr, setResult] = useState<any>(0);
-
   const openConfig = async (backend: "onedrive") => {
     const response = await serverAPI.callPluginMethod<{ backend_type: "onedrive" }, string>("spawn", { backend_type: backend });
     if (response.success) {
+      // Hack process to make sure process exits.
+      serverAPI.callPluginMethod("spawn_callback", {}).then(e => console.log(e));
+
       Router.CloseSideMenus();
       Router.NavigateToExternalWeb(response.result);
     } else {
@@ -34,20 +35,10 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
     }
   };
 
-  const onClick = async () => {
-    const result = await serverAPI.callPluginMethod<AddMethodArgs, number>("add", {
-      left: rr,
-      right: 2,
-    });
-    if (result.success) {
-      setResult(result.result);
-    }
-  };
-
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
-        Close browser after configuration completes.
+        Close browser after configuration.
         <ButtonItem
           layout="below"
           onClick={(e) =>
@@ -61,16 +52,13 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
         >
           Configure
         </ButtonItem>
-        <ButtonItem layout="below" onClick={() => onClick()}>
-          {JSON.stringify(debug)}
-        </ButtonItem>
       </PanelSectionRow>
 
-      <PanelSectionRow>
+      {/* <PanelSectionRow>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <img src={logo} />
         </div>
-      </PanelSectionRow>
+      </PanelSectionRow> */}
 
       <PanelSectionRow>
         <ButtonItem
