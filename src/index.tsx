@@ -1,7 +1,6 @@
 import {
   ButtonItem,
   definePlugin,
-  DialogButton,
   Menu,
   MenuItem,
   PanelSection,
@@ -13,6 +12,7 @@ import {
 } from "decky-frontend-lib";
 import { VFC } from "react";
 import { FaShip } from "react-icons/fa";
+import DeckyPluginRouterTest from "./DeckyPluginRouterTest";
 
 // import logo from "../assets/logo.png";
 
@@ -25,8 +25,8 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   const openConfig = async (backend: "onedrive") => {
     const response = await serverAPI.callPluginMethod<{ backend_type: "onedrive" }, string>("spawn", { backend_type: backend });
     if (response.success) {
-      // Hack process to make sure process exits.
-      serverAPI.callPluginMethod("spawn_callback", {}).then(e => console.log(e));
+      // Process hack to make sure successful subprocess exit.
+      serverAPI.callPluginMethod("spawn_callback", {}).then((e) => console.log(e));
 
       Router.CloseSideMenus();
       Router.NavigateToExternalWeb(response.result);
@@ -43,7 +43,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
           layout="below"
           onClick={(e) =>
             showContextMenu(
-              <Menu label="Menu" cancelText="Cancel" onCancel={() => {}}>
+              <Menu label="Select Back-end" cancelText="Cancel" onCancel={() => {}}>
                 <MenuItem onSelected={() => openConfig("onedrive")}>OneDrive</MenuItem>
               </Menu>,
               e.currentTarget ?? window
@@ -65,27 +65,18 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
           layout="below"
           onClick={() => {
             Router.CloseSideMenus();
-            Router.Navigate("/decky-plugin-test");
+            Router.Navigate("/dcs-configure");
           }}
         >
-          Router
+          Open Page
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>
   );
 };
 
-const DeckyPluginRouterTest: VFC = () => {
-  return (
-    <div style={{ marginTop: "50px", color: "white" }}>
-      Hello World!
-      <DialogButton onClick={() => Router.NavigateToChat()}>Go to Chat</DialogButton>
-    </div>
-  );
-};
-
 export default definePlugin((serverApi: ServerAPI) => {
-  serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
+  serverApi.routerHook.addRoute("/dcs-configure", () => <DeckyPluginRouterTest serverApi={serverApi} />, {
     exact: true,
   });
 
@@ -94,7 +85,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     content: <Content serverAPI={serverApi} />,
     icon: <FaShip />,
     onDismount() {
-      serverApi.routerHook.removeRoute("/decky-plugin-test");
+      serverApi.routerHook.removeRoute("/dcs-configure");
     },
   };
 });

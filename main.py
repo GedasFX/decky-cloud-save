@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -53,12 +54,18 @@ class Plugin:
         logger.info("Updated rclone.conf")
         self.current_spawn = None
 
+    async def get_syncpaths(self):
+        with open(f"{plugin_dir}/syncpaths.txt", "r", encoding="utf-8") as f:
+            return "\n".join(f.readlines())
+
     # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
 
     async def _main(self):
         logger.debug(f"rclone exe path: {rclone_bin}")
         logger.debug(f"rclone cfg path: {rclone_cfg}")
         logger.info("Hello World!")
+
+        pathlib.Path(f"{plugin_dir}/syncpaths.txt").touch()
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
