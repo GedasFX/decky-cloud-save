@@ -11,49 +11,58 @@ import {
   showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { useState, VFC } from "react";
 import { FaShip } from "react-icons/fa";
 
 import logo from "../assets/logo.png";
 
-// interface AddMethodArgs {
-//   left: number;
-//   right: number;
-// }
+interface AddMethodArgs {
+  left: number;
+  right: number;
+}
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({}) => {
-  // const [result, setResult] = useState<number | undefined>();
+const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
+  const [rr, setResult] = useState<any>(0);
 
-  // const onClick = async () => {
-  //   const result = await serverAPI.callPluginMethod<AddMethodArgs, number>(
-  //     "add",
-  //     {
-  //       left: 2,
-  //       right: 2,
-  //     }
-  //   );
-  //   if (result.success) {
-  //     setResult(result.result);
-  //   }
-  // };
+  const openConfig = async (backend: "onedrive") => {
+    const response = await serverAPI.callPluginMethod<{ backend_type: "onedrive" }, string>("spawn", { backend_type: backend });
+    if (response.success) {
+      Router.CloseSideMenus();
+      Router.NavigateToExternalWeb(response.result);
+    } else {
+      console.error(response.result);
+    }
+  };
+
+  const onClick = async () => {
+    const result = await serverAPI.callPluginMethod<AddMethodArgs, number>("add", {
+      left: rr,
+      right: 2,
+    });
+    if (result.success) {
+      setResult(result.result);
+    }
+  };
 
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
+        Close browser after configuration completes.
         <ButtonItem
           layout="below"
           onClick={(e) =>
             showContextMenu(
-              <Menu label="Menu" cancelText="CAAAANCEL" onCancel={() => {}}>
-                <MenuItem onSelected={() => {}}>Item #1</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #2</MenuItem>
-                <MenuItem onSelected={() => {}}>Item #3</MenuItem>
+              <Menu label="Menu" cancelText="Cancel" onCancel={() => {}}>
+                <MenuItem onSelected={() => openConfig("onedrive")}>OneDrive</MenuItem>
               </Menu>,
               e.currentTarget ?? window
             )
           }
         >
-          Server says yolo
+          Configure
+        </ButtonItem>
+        <ButtonItem layout="below" onClick={() => onClick()}>
+          {JSON.stringify(debug)}
         </ButtonItem>
       </PanelSectionRow>
 
@@ -82,9 +91,7 @@ const DeckyPluginRouterTest: VFC = () => {
   return (
     <div style={{ marginTop: "50px", color: "white" }}>
       Hello World!
-      <DialogButton onClick={() => Router.NavigateToStore()}>
-        Go to Store
-      </DialogButton>
+      <DialogButton onClick={() => Router.NavigateToChat()}>Go to Chat</DialogButton>
     </div>
   );
 };
