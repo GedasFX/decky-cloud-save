@@ -1,10 +1,10 @@
 {
-  "name": "Example Plugin",
-  "author": "John Doe",
-  "flags": ["debug", "_root"],
+  "name": "Decky Cloud Saves",
+  "author": "GedasFX",
+  "flags": [],
   "publish": {
-    "tags": ["template", "root"],
-    "description": "Decky example plugin.",
-    "image": "https://opengraph.githubassets.com/1/SteamDeckHomebrew/PluginLoader"
+    "tags": [],
+    "description": "Manage cloud saves for games that do not support it in [current year].",
+    "image": "https://opengraph.githubassets.com/0/GedasFX/decky-cloud-save"
   }
 }

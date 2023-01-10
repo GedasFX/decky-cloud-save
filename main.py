@@ -5,16 +5,13 @@ import re
 import subprocess
 import sys
 
-# append py_modules to PYTHONPATH
 plugin_dir = os.path.dirname(os.path.realpath(__file__))
 rclone_bin = f"{plugin_dir}/bin/rclone"
 rclone_cfg = f"{plugin_dir}/rclone.conf"
 rclone_exe = [rclone_bin, "--config", rclone_cfg]
 
-sys.path.append(plugin_dir + "/py_modules")
-
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 def is_port_in_use(port: int) -> bool:
