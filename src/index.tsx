@@ -1,13 +1,10 @@
 import {
   ButtonItem,
   definePlugin,
-  Menu,
-  MenuItem,
   PanelSection,
   PanelSectionRow,
   Router,
   ServerAPI,
-  showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
 import { useState, VFC } from "react";
