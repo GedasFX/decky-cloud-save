@@ -28,6 +28,17 @@ function ConfigureSection({ serverApi }: PageProps) {
         <Button onClick={() => openConfig("onedrive")}>
           <GrOnedrive /> OneDrive
         </Button>
+
+        <Button
+          onClick={() =>
+            serverApi
+              .openFilePicker("/home/deck", false)
+              .then((e) => console.log(e))
+              .catch((e) => console.warn(e))
+          }
+        >
+          <GrOnedrive /> Debug
+        </Button>
       </div>
     </div>
   );
