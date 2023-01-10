@@ -10,9 +10,9 @@ import {
   showContextMenu,
   staticClasses,
 } from "decky-frontend-lib";
-import { VFC } from "react";
+import { useState, VFC } from "react";
 import { FaShip } from "react-icons/fa";
-import DeckyPluginRouterTest from "./DeckyPluginRouterTest";
+import DeckyPluginRouterTest from "./pages/ConfigurePage";
 
 // import logo from "../assets/logo.png";
 
@@ -22,35 +22,20 @@ import DeckyPluginRouterTest from "./DeckyPluginRouterTest";
 // }
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
-  const openConfig = async (backend: "onedrive") => {
-    const response = await serverAPI.callPluginMethod<{ backend_type: "onedrive" }, string>("spawn", { backend_type: backend });
-    if (response.success) {
-      // Process hack to make sure successful subprocess exit.
-      serverAPI.callPluginMethod("spawn_callback", {}).then((e) => console.log(e));
-
-      Router.CloseSideMenus();
-      Router.NavigateToExternalWeb(response.result);
-    } else {
-      console.error(response.result);
-    }
-  };
-
+  const [syncing, setSyncing] = useState(false);
+  
   return (
     <PanelSection title="Panel Section">
       <PanelSectionRow>
-        Close browser after configuration.
         <ButtonItem
           layout="below"
-          onClick={(e) =>
-            showContextMenu(
-              <Menu label="Select Back-end" cancelText="Cancel" onCancel={() => {}}>
-                <MenuItem onSelected={() => openConfig("onedrive")}>OneDrive</MenuItem>
-              </Menu>,
-              e.currentTarget ?? window
-            )
-          }
+          disabled={syncing}
+          onClick={() => {
+            setSyncing(true);
+            serverAPI.callPluginMethod("sync_now", {}).then(() => setSyncing(false));
+          }}
         >
-          Configure
+          Sync Now
         </ButtonItem>
       </PanelSectionRow>
 
@@ -68,7 +53,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
             Router.Navigate("/dcs-configure");
           }}
         >
-          Open Page
+          Open Setup
         </ButtonItem>
       </PanelSectionRow>
     </PanelSection>

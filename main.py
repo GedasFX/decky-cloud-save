@@ -54,6 +54,10 @@ class Plugin:
         logger.info("Updated rclone.conf")
         self.current_spawn = None
 
+    async def sync_now(self):
+        subprocess.run(rclone_exe + ["sync", "--filter-from",
+                       f"{plugin_dir}/syncpaths.txt", "/home/deck", "backend:decky-cloud-save"])
+
     async def get_syncpaths(self):
         with open(f"{plugin_dir}/syncpaths.txt", "r", encoding="utf-8") as f:
             return "\n".join(f.readlines())
@@ -63,12 +67,27 @@ class Plugin:
     async def _main(self):
         logger.debug(f"rclone exe path: {rclone_bin}")
         logger.debug(f"rclone cfg path: {rclone_cfg}")
-        logger.info("Hello World!")
 
-        pathlib.Path(f"{plugin_dir}/syncpaths.txt").touch()
+        sync_paths = pathlib.Path(f"{plugin_dir}/syncpaths.txt")
+        if not sync_paths.is_file():
+            with open(sync_paths, "w", encoding="utf-8") as f:
+                f.writelines(line + '\n' for line in [
+                    "# # Is used for comments",
+                    "# + Adds files",
+                    "# - Ignores files",
+                    "",
+                    "# Root sync path is /home/deck, which means that path '+ Desktop' will keep everything in Desktop",
+                    "# Rules can get really complex, and I suggest you go trough https://rclone.org/filtering/#filter-from-read-filtering-patterns-from-a-file",
+                    "",
+                    "# Add Rules below",
+                    "# Games/epic-games-store/drive_c/users/deck/Saved Games/**",
+                    "# Games/epic-games-store/drive_c/users/deck/Documents/**",
+                    "",
+                    "# IT IS VERY IMPORTANT THAT THE LAST LINE OF THIS FILE IS '- *'! OTHERWISE YOU WILL START BACKING UP THE ENTIRE STEAM DECK!",
+                    "- *"
+                ])
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
-        logger.info("Goodbye World!")
         if self.current_spawn is not None:
             self.current_spawn.kill()
