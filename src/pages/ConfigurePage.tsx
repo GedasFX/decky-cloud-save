@@ -2,9 +2,9 @@ import { Button, Router, ButtonItem, PanelSectionRow, PanelSection } from "decky
 import { useEffect, useState } from "react";
 import { FaFile, FaFolder, FaTrash } from "react-icons/fa";
 import { GrOnedrive } from "react-icons/gr";
-import { ButtonPlayground } from "../ButtonPlayground";
 import { PageProps } from "../types";
 import AddNewPathButton from "../components/AddNewPathButton";
+import { toastError } from "../utils";
 
 function ConfigureSection({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive") => {
@@ -48,34 +48,33 @@ function SyncPathsSection({ serverApi }: PageProps<{}>) {
   const [paths, setPaths] = useState<string[] | undefined>(undefined);
 
   const onPathsUpdated = () => {
-    serverApi.callPluginMethod<{}, string>("get_syncpaths", {}).then((r) => {
+    console.log("Updating");
+    serverApi.callPluginMethod<{}, string[]>("get_syncpaths", {}).then((r) => {
       if (r.success) {
-        setPaths(r.result.split("\n"));
+        setPaths(r.result.map((r) => r.trimEnd()));
+      } else {
+        toastError(serverApi, r.result);
       }
     });
   };
 
-  useEffect(onPathsUpdated, []);
+  useEffect(() => onPathsUpdated(), []);
 
   return (
     <div>
       <h2>Sync Paths</h2>
-      <small>To update paths to sync, switch to desktop mode and edit</small> <code>/home/deck/homebrew/plugins/decky-cloud-save/syncpaths.txt</code>
-      <div>
-        <h4 style={{ marginBottom: "0.25em" }}>Active Paths:</h4>
-        <PanelSection>
+      <PanelSection>
+        <PanelSectionRow>
+          <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />
+        </PanelSectionRow>
+        {paths?.map((p, i) => (
           <PanelSectionRow>
-            <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />
+            <ButtonItem key={i} icon={p.endsWith("**") ? <FaFolder /> : <FaFile />} label={p}>
+              <FaTrash />
+            </ButtonItem>
           </PanelSectionRow>
-          {paths?.map((p, i) => (
-            <PanelSectionRow>
-              <ButtonItem key={i} icon={p.endsWith("**") ? <FaFolder /> : <FaFile />} label={p}>
-                <FaTrash />
-              </ButtonItem>
-            </PanelSectionRow>
-          ))}
-        </PanelSection>
-      </div>
+        ))}
+      </PanelSection>
     </div>
   );
 }

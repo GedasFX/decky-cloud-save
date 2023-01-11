@@ -70,13 +70,25 @@ class Plugin:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
-        return glob(path, recursive=True)
+        logger.debug("test_syncpath: Getting amount of file matches for glob.")
+        items = glob(path, recursive=True)
+        logger.debug(
+            f"test_syncpath: Matching items for path '{path}':\n" + "\n".join(items))
+        return len(items)
 
     async def add_syncpath(self, path: str):
         logger.info(f"Adding Path to Sync: '{path}'")
-        with open(cfg_syncpath_file, "a") as f:
-            f.write(path)
-            f.write("\n")
+        with open(cfg_syncpath_file, "r") as f:
+            lines = f.readlines()
+        for line in lines:
+            if line.strip("\n") == path:
+                return
+
+        lines.sort()
+        with open(cfg_syncpath_file, "w") as f:
+            for line in lines:
+                f.write(line)
+                f.write("\n")
 
     async def remove_syncpath(self, path: str):
         logger.info(f"Removing Path from Sync: '{path}'")
@@ -105,4 +117,4 @@ class Plugin:
             self.current_spawn.kill()
 
 
-asyncio.run(Plugin().remove_syncpath("/home/user/source/decky-cloud-save/*"))
+# asyncio.run(Plugin().remove_syncpath("/home/user/source/decky-cloud-save/*"))
