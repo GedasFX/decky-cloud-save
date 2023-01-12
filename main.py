@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import re
+import signal
 import subprocess
 import sys
 from glob import glob
@@ -24,6 +25,29 @@ def is_port_in_use(port: int) -> bool:
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
+
+
+async def analyze_shit(path: str):
+    files = [f for f in glob(path, recursive=True) if os.path.isfile(f)]
+    # print("test_syncpath: Path %s matched %i files: %s", path, len(files), files)
+    return len(files)
+
+
+class timeout:
+    def __init__(self, seconds=1, error_message='Timeout'):
+        self.seconds = seconds
+        self.error_message = error_message
+
+    def handle_timeout(self, signum, frame):
+        print("asdasdasdasdasdasd")
+        raise TimeoutError(self.error_message)
+
+    def __enter__(self):
+        signal.signal(signal.SIGALRM, self.handle_timeout)
+        signal.alarm(self.seconds)
+
+    def __exit__(self, type, value, traceback):
+        signal.alarm(0)
 
 
 class Plugin:
@@ -70,25 +94,49 @@ class Plugin:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
-        logger.debug("test_syncpath: Getting amount of file matches for glob.")
-        items = glob(path, recursive=True)
-        logger.debug(
-            f"test_syncpath: Matching items for path '{path}':\n" + "\n".join(items))
-        return len(items)
+        count = 0
+        for root, os_dirs, os_files in os.walk(path):
+            for file in os_files:
+                count += 1
+                if count == 9001:
+                    return "Over 9000 files"
+        
+        print(len(files))
+        # try:
+        #     with timeout(1):
+        #         files = [f for f in glob(
+        #             path, recursive=True) if os.path.isfile(f)]
+        #         # print("test_syncpath: Path %s matched %i files: %s", path, len(files), files)
+        #         return len(files)
+        #     # a = subprocess.check_output(
+        #     #     ("find", path, "-type",  "f", "-printf", "."), timeout=1)
+        #     # logger.debug(a)
+        #     # return a
+        # except TimeoutError:
+        #     raise Exception("Too many items!")
+
+        # items = glob(path, recursive=True)
+        # logger.debug(
+        #     f"test_syncpath: Matching items for path '{path}':\n" + "\n".join(items))
+        # items = [f for f in items if os.path.isfile(f)]
+        # logger.debug(
+        #     f"test_syncpath: Matching files for path '{path}':\n" + "\n".join(items))
+        # return len(items)
 
     async def add_syncpath(self, path: str):
         logger.info(f"Adding Path to Sync: '{path}'")
+
         with open(cfg_syncpath_file, "r") as f:
             lines = f.readlines()
         for line in lines:
             if line.strip("\n") == path:
                 return
 
-        lines.sort()
+        lines += [f"{path}\n"]
+
         with open(cfg_syncpath_file, "w") as f:
             for line in lines:
                 f.write(line)
-                f.write("\n")
 
     async def remove_syncpath(self, path: str):
         logger.info(f"Removing Path from Sync: '{path}'")
@@ -117,4 +165,5 @@ class Plugin:
             self.current_spawn.kill()
 
 
-# asyncio.run(Plugin().remove_syncpath("/home/user/source/decky-cloud-save/*"))
+asyncio.run(Plugin().test_syncpath("/"))
+

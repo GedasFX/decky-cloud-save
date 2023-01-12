@@ -1,10 +1,10 @@
-import { Button, Router, ButtonItem, PanelSectionRow, PanelSection } from "decky-frontend-lib";
+import { Button, Router, PanelSectionRow, PanelSection } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { FaFile, FaFolder, FaTrash } from "react-icons/fa";
 import { GrOnedrive } from "react-icons/gr";
 import { PageProps } from "../types";
 import AddNewPathButton from "../components/AddNewPathButton";
 import { toastError } from "../utils";
+import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 
 function ConfigureSection({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive") => {
@@ -51,6 +51,16 @@ function SyncPathsSection({ serverApi }: PageProps<{}>) {
     console.log("Updating");
     serverApi.callPluginMethod<{}, string[]>("get_syncpaths", {}).then((r) => {
       if (r.success) {
+        if (r.result.length === 0) {
+          setPaths([]);
+          return;
+        }
+
+        r.result.sort();
+        while (r.result[0] === "\n") {
+          r.result = r.result.slice(1);
+        }
+
         setPaths(r.result.map((r) => r.trimEnd()));
       } else {
         toastError(serverApi, r.result);
@@ -67,11 +77,9 @@ function SyncPathsSection({ serverApi }: PageProps<{}>) {
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />
         </PanelSectionRow>
-        {paths?.map((p, i) => (
+        {paths?.map((p) => (
           <PanelSectionRow>
-            <ButtonItem key={i} icon={p.endsWith("**") ? <FaFolder /> : <FaFile />} label={p}>
-              <FaTrash />
-            </ButtonItem>
+            <RenderExistingPathButton key={p} path={p} serverApi={serverApi} onPathRemoved={onPathsUpdated} />
           </PanelSectionRow>
         ))}
       </PanelSection>
