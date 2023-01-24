@@ -1,62 +1,70 @@
 import { ButtonItem, definePlugin, LifetimeNotification, PanelSection, PanelSectionRow, Router, ServerAPI, staticClasses } from "decky-frontend-lib";
 import { useState, VFC } from "react";
 import { FaSave } from "react-icons/fa";
-import ConfigurePage from "./pages/ConfigurePage";
+import { FiEdit3 } from "react-icons/fi";
+import { AiOutlineCloudUpload } from "react-icons/ai";
+import ConfigurePathsPage from "./pages/ConfigurePathsPage";
+import { startSync } from "./util/sync";
+import Head from "./components/Head";
+import ConfigureBackendPage from "./pages/ConfigureBackendPage";
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   const [syncing, setSyncing] = useState(false);
 
   return (
-    <PanelSection title="Panel Section">
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          disabled={syncing}
-          onClick={() => {
-            setSyncing(true);
-            serverAPI.callPluginMethod("sync_now", {}).then(() => setSyncing(false));
-          }}
-        >
-          Sync Now
-        </ButtonItem>
-      </PanelSectionRow>
+    <>
+      <Head />
+      <PanelSection title="Panel Section">
+        <PanelSectionRow>
+          <ButtonItem
+            icon={<FaSave className={syncing ? "dcs-rotate" : ""} />}
+            layout="below"
+            disabled={syncing}
+            onClick={() => {
+              setSyncing(true);
+              startSync(serverAPI).finally(() => setSyncing(false));
+            }}
+          >
+            Sync Now <div className="rotate">aaads</div>
+          </ButtonItem>
+        </PanelSectionRow>
 
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Router.CloseSideMenus();
-            Router.Navigate("/dcs-configure");
-          }}
-        >
-          Open Setup
-        </ButtonItem>
-      </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            icon={<FiEdit3 />}
+            layout="below"
+            onClick={() => {
+              Router.CloseSideMenus();
+              Router.Navigate("/dcs-configure-paths");
+            }}
+          >
+            Configure Paths
+          </ButtonItem>
+        </PanelSectionRow>
 
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Router.Navigate("/dcs-configure");
-          }}
-        >
-          Open Files
-        </ButtonItem>
-      </PanelSectionRow>
-    </PanelSection>
+        <PanelSectionRow>
+          <ButtonItem
+            icon={<AiOutlineCloudUpload />}
+            layout="below"
+            onClick={() => {
+              Router.Navigate("/dcs-configure-backend");
+            }}
+          >
+            Configure Cloud
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+    </>
   );
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
-  serverApi.routerHook.addRoute("/dcs-configure", () => <ConfigurePage serverApi={serverApi} />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
 
   const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (!e.bRunning) {
-      const start = new Date();
-      serverApi.toaster.toast({ title: "Decky Cloud Save", body: "Starting Sync" });
-      serverApi
-        .callPluginMethod("sync_now", {})
-        .then(() => serverApi.toaster.toast({ title: "Decky Cloud Save", body: `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.` }));
+      startSync(serverApi);
     }
   });
 
@@ -65,7 +73,8 @@ export default definePlugin((serverApi: ServerAPI) => {
     content: <Content serverAPI={serverApi} />,
     icon: <FaSave />,
     onDismount() {
-      serverApi.routerHook.removeRoute("/dcs-configure");
+      serverApi.routerHook.removeRoute("/dcs-configure-paths");
+      serverApi.routerHook.removeRoute("/dcs-configure-backend");
       removeGameExitListener();
     },
   };

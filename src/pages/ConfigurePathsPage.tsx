@@ -1,0 +1,49 @@
+import { PanelSectionRow, PanelSection } from "decky-frontend-lib";
+import { useEffect, useState } from "react";
+import { PageProps } from "../types";
+import AddNewPathButton from "../components/AddNewPathButton";
+import { toastError } from "../utils";
+import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
+import { ButtonPlayground } from "../ButtonPlayground";
+import Container from "../components/Container";
+
+export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
+  const [paths, setPaths] = useState<string[] | undefined>(undefined);
+
+  const onPathsUpdated = () => {
+    serverApi.callPluginMethod<{}, string[]>("get_syncpaths", {}).then((r) => {
+      if (r.success) {
+        if (r.result.length === 0) {
+          setPaths([]);
+          return;
+        }
+
+        r.result.sort();
+        while (r.result[0] === "\n") {
+          r.result = r.result.slice(1);
+        }
+
+        setPaths(r.result.map((r) => r.trimEnd()));
+      } else {
+        toastError(serverApi, r.result);
+      }
+    });
+  };
+
+  useEffect(() => onPathsUpdated(), []);
+
+  return (
+    <Container title="Sync Paths">
+      <PanelSection>
+        <PanelSectionRow>
+          <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />
+        </PanelSectionRow>
+        {paths?.map((p) => (
+          <PanelSectionRow>
+            <RenderExistingPathButton key={p} path={p} serverApi={serverApi} onPathRemoved={onPathsUpdated} />
+          </PanelSectionRow>
+        ))}
+      </PanelSection>
+    </Container>
+  );
+}

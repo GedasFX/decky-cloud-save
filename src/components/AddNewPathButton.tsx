@@ -8,10 +8,10 @@ export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const onFileChosen = (res: FilePickerRes, mode: "file" | "directory") => {
-    // if (res.realpath === "/") {
-    //   showModal(<ConfirmModal strTitle="Are you mad??" strDescription="For your own safety, ability to sync the whole file system is disabled." />);
-    //   return;
-    // }
+    if (res.realpath === "/") {
+      showModal(<ConfirmModal strTitle="Are you mad??" strDescription="For your own safety, ability to sync the whole file system is disabled." />);
+      return;
+    }
 
     setButtonDisabled(true);
 
@@ -52,6 +52,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{
   return (
     <ButtonItem
       // icon={<FaPlus />}
+      layout="below"
       onClick={() =>
         showContextMenu(
           <Menu label="Select Path to Sync">

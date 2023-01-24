@@ -27,29 +27,6 @@ def is_port_in_use(port: int) -> bool:
         return s.connect_ex(('localhost', port)) == 0
 
 
-async def analyze_shit(path: str):
-    files = [f for f in glob(path, recursive=True) if os.path.isfile(f)]
-    # print("test_syncpath: Path %s matched %i files: %s", path, len(files), files)
-    return len(files)
-
-
-class timeout:
-    def __init__(self, seconds=1, error_message='Timeout'):
-        self.seconds = seconds
-        self.error_message = error_message
-
-    def handle_timeout(self, signum, frame):
-        print("asdasdasdasdasdasd")
-        raise TimeoutError(self.error_message)
-
-    def __enter__(self):
-        signal.signal(signal.SIGALRM, self.handle_timeout)
-        signal.alarm(self.seconds)
-
-    def __exit__(self, type, value, traceback):
-        signal.alarm(0)
-
-
 class Plugin:
     current_spawn = None
 
@@ -63,7 +40,13 @@ class Plugin:
             raise Exception('RCLONE_PORT_IN_USE')
 
         subprocess.run(rclone_exe + ["config", "touch"])
-        self.current_spawn = subprocess.Popen(rclone_exe + ["config", "create", "backend", backend_type],
+
+        if backend_type == "drive":
+            additional_args = ["scope=drive.file"]
+        else:
+            additional_args = []
+
+        self.current_spawn = subprocess.Popen(rclone_exe + ["config", "create", "backend", backend_type] + additional_args,
                                               stderr=subprocess.PIPE, universal_newlines=True, bufsize=1)
 
         line = self.current_spawn.stderr.readline()
@@ -81,11 +64,16 @@ class Plugin:
         logger.info("Updated rclone.conf")
         self.current_spawn = None
 
+    async def get_backend_type(self):
+        with open(rclone_cfg, "r") as f:
+            l = f.readlines()
+            return l[1]
+
 #
 
     async def sync_now(self):
-        subprocess.run(rclone_exe + ["sync", "--filter-from",
-                       f"{plugin_dir}/syncpaths.txt", "/home/deck", "backend:decky-cloud-save"])
+        subprocess.run(rclone_exe + ["copy", "--include-from",
+                       cfg_syncpath_file, "/", "backend:decky-cloud-save", "--copy-links"])
 
 #
 
@@ -94,34 +82,17 @@ class Plugin:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
-        count = 0
-        for root, os_dirs, os_files in os.walk(path):
-            for file in os_files:
-                count += 1
-                if count == 9001:
-                    return "Over 9000 files"
-        
-        print(len(files))
-        # try:
-        #     with timeout(1):
-        #         files = [f for f in glob(
-        #             path, recursive=True) if os.path.isfile(f)]
-        #         # print("test_syncpath: Path %s matched %i files: %s", path, len(files), files)
-        #         return len(files)
-        #     # a = subprocess.check_output(
-        #     #     ("find", path, "-type",  "f", "-printf", "."), timeout=1)
-        #     # logger.debug(a)
-        #     # return a
-        # except TimeoutError:
-        #     raise Exception("Too many items!")
+        if not path.endswith("/**"):
+            return int(Path(path).is_file())
 
-        # items = glob(path, recursive=True)
-        # logger.debug(
-        #     f"test_syncpath: Matching items for path '{path}':\n" + "\n".join(items))
-        # items = [f for f in items if os.path.isfile(f)]
-        # logger.debug(
-        #     f"test_syncpath: Matching files for path '{path}':\n" + "\n".join(items))
-        # return len(items)
+        count = 0
+        for root, os_dirs, os_files in os.walk(path[:-3], followlinks=True):
+            logger.debug("%s %s %s", root, os_dirs, os_files)
+            count += len(os_files)
+            if count > 9000:
+                return "9000+"
+
+        return count
 
     async def add_syncpath(self, path: str):
         logger.info(f"Adding Path to Sync: '{path}'")
@@ -147,7 +118,8 @@ class Plugin:
                 if line.strip("\n") != path:
                     f.write(line)
 
-    # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
+
+# Asyncio-compatible long-running code, executed in a task when the plugin is loaded
 
     async def _main(self):
         logger.debug(f"rclone exe path: {rclone_bin}")
@@ -165,5 +137,5 @@ class Plugin:
             self.current_spawn.kill()
 
 
-asyncio.run(Plugin().test_syncpath("/"))
-
+# res = asyncio.run(Plugin().test_syncpath("/home/user/source/decky-cloud-save/**"))
+# print(res)
