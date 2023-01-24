@@ -1,4 +1,4 @@
-import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
+import { ButtonItem, ConfirmModal, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { ImOnedrive, ImGoogleDrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
