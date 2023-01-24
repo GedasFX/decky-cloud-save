@@ -1,57 +1,64 @@
 import { ButtonItem, definePlugin, LifetimeNotification, PanelSection, PanelSectionRow, Router, ServerAPI, staticClasses } from "decky-frontend-lib";
-import { useState, VFC } from "react";
+import { useEffect, useState, VFC } from "react";
 import { FaSave } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
 import { AiOutlineCloudUpload } from "react-icons/ai";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
-import { startSync } from "./util/sync";
+import { getCloudBackend, syncNow } from "./apiClient";
 import Head from "./components/Head";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
+import DeckyStoreButton from "./components/DeckyStoreButton";
 
 const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
   const [syncing, setSyncing] = useState(false);
 
+  const [hasProvider, setHasProvider] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    getCloudBackend(serverAPI).then((e) => setHasProvider(!!e));
+  }, []);
+
   return (
     <>
       <Head />
-      <PanelSection title="Panel Section">
+      <PanelSection title="Sync Now">
         <PanelSectionRow>
           <ButtonItem
-            icon={<FaSave className={syncing ? "dcs-rotate" : ""} />}
             layout="below"
-            disabled={syncing}
+            disabled={syncing || !hasProvider}
             onClick={() => {
               setSyncing(true);
-              startSync(serverAPI).finally(() => setSyncing(false));
+              syncNow(serverAPI).finally(() => setSyncing(false));
             }}
           >
-            Sync Now <div className="rotate">aaads</div>
+            <DeckyStoreButton icon={<FaSave className={syncing ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
           </ButtonItem>
+          {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
         </PanelSectionRow>
+      </PanelSection>
 
+      <PanelSection title="Configuration">
         <PanelSectionRow>
           <ButtonItem
-            icon={<FiEdit3 />}
             layout="below"
             onClick={() => {
               Router.CloseSideMenus();
               Router.Navigate("/dcs-configure-paths");
             }}
           >
-            Configure Paths
+            <DeckyStoreButton icon={<FiEdit3 />}>Sync Paths</DeckyStoreButton>
           </ButtonItem>
         </PanelSectionRow>
 
         <PanelSectionRow>
           <ButtonItem
-            icon={<AiOutlineCloudUpload />}
             layout="below"
             onClick={() => {
               Router.CloseSideMenus();
               Router.Navigate("/dcs-configure-backend");
             }}
           >
-            Configure Cloud
+            <DeckyStoreButton icon={<AiOutlineCloudUpload />}>Cloud Provider</DeckyStoreButton>
           </ButtonItem>
         </PanelSectionRow>
       </PanelSection>
@@ -65,7 +72,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (!e.bRunning) {
-      startSync(serverApi);
+      syncNow(serverApi);
     }
   });
 

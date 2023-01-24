@@ -19,14 +19,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-# async def _read_stream(stream: asyncio.StreamReader, cb):
-#     while True:
-#         line = await stream.readline()
-#         if line:
-#             cb(line)
-#         else:
-#             break
-
 async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
     while True:
         line = (await process.stderr.readline()).decode()
@@ -36,22 +28,6 @@ async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
             "(http:\/\/127\.0\.0\.1:53682\/auth\?state=.*)\\n$", line)
         if url_re_match:
             return url_re_match.group(1)
-
-
-# async def _stream_subprocess(cmd, stdout_cb, stderr_cb):
-#     process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-
-#     await asyncio.wait([
-#         _read_stream(process.stdout, stdout_cb),
-#         _read_stream(process.stderr, stderr_cb)
-#     ])
-
-#     return await process.wait()
-
-# async def start_ui(cmd):
-#     process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-#     url = await stream_get_url(process.stderr)
-#     await process.wait()
 
 
 def _is_port_in_use(port: int) -> bool:
@@ -64,7 +40,7 @@ async def _kill_previous_spawn(process: asyncio.subprocess.Process):
     if process and process.returncode is None:
         logger.warn("Killing previous Process")
         process.kill()
-        await asyncio.sleep(0.1) # Give time for OS to clear up the port
+        await asyncio.sleep(0.1)  # Give time for OS to clear up the port
 
 
 class Plugin:
@@ -89,37 +65,11 @@ class Plugin:
 
         return url
 
-    async def spawn_callback(self):
-        if not self.current_spawn:
-            return
-
-        logger.debug("Waiting for Spwan to exit")
-
-        # Awful hack as you cannot just use .Wait() as it blocks for some reason.
-        while self.current_spawn.returncode is None:
-            await asyncio.sleep(0.1)
-
-        if self.current_spawn.returncode > 0:
-            raise 'Cancelled'
-
-        logger.info("Updated rclone.conf")
-
     async def spawn_probe(self):
         if not self.current_spawn:
             return 0
 
         return self.current_spawn.returncode
-
-        logger.debug("Waiting for Spwan to exit")
-
-        # Awful hack as you cannot just use .Wait() as it blocks for some reason.
-        while self.current_spawn.returncode is None:
-            await asyncio.sleep(0.1)
-
-        if self.current_spawn.returncode > 0:
-            raise 'Cancelled'
-
-        logger.info("Updated rclone.conf")
 
     async def get_backend_type(self):
         with open(rclone_cfg, "r") as f:
@@ -134,7 +84,6 @@ class Plugin:
 
 
 #
-
 
     async def get_syncpaths(self):
         with open(cfg_syncpath_file, "r") as f:
@@ -179,7 +128,6 @@ class Plugin:
 
 
 # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
-
 
     async def _main(self):
         logger.debug(f"rclone exe path: {rclone_bin}")

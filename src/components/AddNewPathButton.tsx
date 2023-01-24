@@ -1,6 +1,5 @@
 import { ButtonItem, showContextMenu, Menu, MenuItem, FilePickerRes, showModal, ConfirmModal } from "decky-frontend-lib";
 import { useState } from "react";
-import { FaPlus } from "react-icons/fa";
 import { PageProps } from "../types";
 import { toastError } from "../utils";
 

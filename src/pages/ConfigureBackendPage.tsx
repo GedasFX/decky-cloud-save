@@ -1,15 +1,14 @@
-import { ButtonItem, ConfirmModal, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
+import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { ImOnedrive, ImGoogleDrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
 import Container from "../components/Container";
 import { PageProps } from "../types";
+import { getCloudBackend } from "../apiClient";
 
 export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive" | "drive" | "dropbox") => {
-    // await serverApi.callPluginMethod<{}, {}>("spawn_nukeall", {});
     const response = await serverApi.callPluginMethod<{ backend_type: "onedrive" | "drive" | "dropbox" }, string>("spawn", { backend_type: backend });
-    console.log("respones", response);
     if (response.success) {
       // Process hack to make sure successful subprocess exit.
       (async () => {
@@ -19,6 +18,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           console.log("callback", res);
 
           if (res.success && res.result === 0) {
+            Navigation.
             Router.Navigate("/dcs-configure-backend");
             break;
           }
@@ -37,34 +37,11 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const [provider, setProvider] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    serverApi.callPluginMethod<{}, string>("get_backend_type", {}).then((e) => {
-      console.log(e);
-      if (e.success) {
-        switch (e.result) {
-          case "type = onedrive":
-            setProvider("OneDrive");
-            break;
-          case "type = drive":
-            setProvider("Google Drive");
-            break;
-          case "type = dropbox":
-            setProvider("Dropbox");
-            break;
-          case undefined:
-            setProvider("N/A");
-            break;
-          default:
-            setProvider("Other: " + e.result);
-            break;
-        }
-      } else {
-        setProvider("N/A");
-      }
-    });
+    getCloudBackend(serverApi).then((e) => setProvider(e ?? "N/A"));
   }, []);
 
   return (
-    <Container title="Configure Cloud Destination">
+    <Container title="Configure Cloud Storage Provider">
       <PanelSection>
         <strong>Currently using: {provider}</strong>
       </PanelSection>
@@ -76,7 +53,11 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           </ButtonItem>
         </PanelSectionRow>
         <PanelSectionRow>
-          <ButtonItem onClick={() => openConfig("drive")} icon={<ImGoogleDrive />} label="Google Drive">
+          <ButtonItem
+            onClick={() => openConfig("drive")}
+            icon={<ImGoogleDrive />}
+            label="Google Drive (may not work if Google does not trust the Steam Browser)"
+          >
             <BsGearFill />
           </ButtonItem>
         </PanelSectionRow>
@@ -86,7 +67,18 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           </ButtonItem>
         </PanelSectionRow>
         <PanelSectionRow>
-          <ButtonItem onClick={() => showModal(<ConfirmModal />)} icon={<ImHome />} label="Other (Advanced)">
+          <ButtonItem
+            onClick={() =>
+              showModal(
+                <ConfirmModal
+                  strTitle="Adding other providers"
+                  strDescription="In addition to the 3 providers listed above, you can configure other providers (backends). Unfortunately, setup for those providers must be done via desktop mode. Instructions for such task can be found on the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/README_CUSTOM_BACKEND.txt)."
+                />
+              )
+            }
+            icon={<ImHome />}
+            label="Other (Advanced)"
+          >
             <BsPatchQuestionFill />
           </ButtonItem>
         </PanelSectionRow>
