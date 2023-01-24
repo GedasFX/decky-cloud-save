@@ -18,7 +18,6 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           console.log("callback", res);
 
           if (res.success && res.result === 0) {
-            Navigation.
             Router.Navigate("/dcs-configure-backend");
             break;
           }
