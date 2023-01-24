@@ -47,6 +47,7 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
             icon={<AiOutlineCloudUpload />}
             layout="below"
             onClick={() => {
+              Router.CloseSideMenus();
               Router.Navigate("/dcs-configure-backend");
             }}
           >

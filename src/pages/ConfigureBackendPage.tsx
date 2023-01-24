@@ -1,4 +1,4 @@
-import { Button, ButtonItem, ConfirmModal, PanelSection, PanelSectionRow, Router, showModal } from "decky-frontend-lib";
+import { ButtonItem, ConfirmModal, PanelSection, PanelSectionRow, Router, showModal } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { ImOnedrive, ImGoogleDrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
@@ -7,10 +7,11 @@ import { PageProps } from "../types";
 
 export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive" | "drive" | "dropbox") => {
+    await serverApi.callPluginMethod<{}, {}>("spawn_nukeall", {});
     const response = await serverApi.callPluginMethod<{ backend_type: "onedrive" | "drive" | "dropbox" }, string>("spawn", { backend_type: backend });
     if (response.success) {
       // Process hack to make sure successful subprocess exit.
-      serverApi.callPluginMethod("spawn_callback", {}).then(() => Router.Navigate("/dcs-configure"));
+      serverApi.callPluginMethod("spawn_callback", {}).then(() => Router.Navigate("/dcs-configure-backend"));
 
       Router.CloseSideMenus();
       Router.NavigateToExternalWeb(response.result);
@@ -22,7 +23,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const [provider, setProvider] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    console.log("here");
+    serverApi.callPluginMethod<{}, {}>("spawn_nukeall", {});
     serverApi.callPluginMethod<{}, string>("get_backend_type", {}).then((e) => {
       console.log(e);
       if (e.success) {

@@ -1,11 +1,7 @@
-import asyncio
 import logging
 import os
 import re
-import signal
 import subprocess
-import sys
-from glob import glob
 from pathlib import Path
 
 plugin_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -63,6 +59,11 @@ class Plugin:
             logger.debug(i)
         logger.info("Updated rclone.conf")
         self.current_spawn = None
+
+    async def spawn_nukeall(self):
+        if self.current_spawn is not None:
+            logger.warn("Killing previous Popen")
+            self.current_spawn.kill()
 
     async def get_backend_type(self):
         with open(rclone_cfg, "r") as f:

@@ -4,7 +4,6 @@ import { PageProps } from "../types";
 import AddNewPathButton from "../components/AddNewPathButton";
 import { toastError } from "../utils";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
-import { ButtonPlayground } from "../ButtonPlayground";
 import Container from "../components/Container";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
