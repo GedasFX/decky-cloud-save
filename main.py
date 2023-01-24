@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import re
@@ -17,6 +18,38 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
+async def _read_stream(stream, cb):
+    while True:
+        line = await stream.readline()
+        if line:
+            cb(line)
+        else:
+            break
+
+
+async def _stream_subprocess(cmd, stdout_cb, stderr_cb):
+    process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+
+    await asyncio.wait([
+        _read_stream(process.stdout, stdout_cb),
+        _read_stream(process.stderr, stderr_cb)
+    ])
+
+    return await process.wait()
+
+
+def execute(cmd, stdout_cb, stderr_cb):
+    loop = asyncio.get_event_loop()
+    rc = loop.run_until_complete(
+        _stream_subprocess(
+            cmd,
+            stdout_cb,
+            stderr_cb,
+        ))
+    loop.close()
+    return rc
+
+
 def is_port_in_use(port: int) -> bool:
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -27,10 +60,11 @@ class Plugin:
     current_spawn = None
 
     async def spawn(self, backend_type: str):
+        logger.debug(self.current_spawn)
         logger.info("Updating rclone.conf")
         if self.current_spawn is not None:
             logger.warn("Killing previous Popen")
-            self.current_spawn.kill()
+            self.current_spawn.terminate()
 
         if is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
@@ -44,6 +78,7 @@ class Plugin:
 
         self.current_spawn = subprocess.Popen(rclone_exe + ["config", "create", "backend", backend_type] + additional_args,
                                               stderr=subprocess.PIPE, universal_newlines=True, bufsize=1)
+        logger.debug(self.current_spawn)
 
         line = self.current_spawn.stderr.readline()
         logger.debug(line)
@@ -55,15 +90,19 @@ class Plugin:
         return re.search("(http:\/\/127\.0\.0\.1:53682\/auth\?state=.*)\\n$", line).groups()[0]
 
     async def spawn_callback(self):
-        for i in iter(self.current_spawn.stderr.readline, ""):
+        async for i in iter(self.current_spawn.stderr.readline, ""):
             logger.debug(i)
         logger.info("Updated rclone.conf")
         self.current_spawn = None
 
     async def spawn_nukeall(self):
+        logger.debug("nukje")
+        logger.debug(self.current_spawn)
         if self.current_spawn is not None:
             logger.warn("Killing previous Popen")
-            self.current_spawn.kill()
+            self.current_spawn.terminate()
+
+        asyncio.subprocess.create_subprocess_exec()
 
     async def get_backend_type(self):
         with open(rclone_cfg, "r") as f:
@@ -75,6 +114,7 @@ class Plugin:
     async def sync_now(self):
         subprocess.run(rclone_exe + ["copy", "--include-from",
                        cfg_syncpath_file, "/", "backend:decky-cloud-save", "--copy-links"])
+
 
 #
 
@@ -135,7 +175,7 @@ class Plugin:
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
         if self.current_spawn is not None:
-            self.current_spawn.kill()
+            self.current_spawn.terminate()
 
 
 # res = asyncio.run(Plugin().test_syncpath("/home/user/source/decky-cloud-save/**"))
