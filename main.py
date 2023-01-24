@@ -11,6 +11,7 @@ config_dir = (Path(plugin_dir) / "../../settings/decky-cloud-save").resolve()
 rclone_bin = plugin_dir / "bin/rclone"
 rclone_cfg = config_dir / "rclone.conf"
 rclone_exe = [rclone_bin, "--config", rclone_cfg]
+rclone_cfg_arg = ["--config", rclone_cfg]
 
 cfg_syncpath_file = config_dir / "sync_paths.txt"
 
@@ -18,91 +19,107 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-async def _read_stream(stream, cb):
+# async def _read_stream(stream: asyncio.StreamReader, cb):
+#     while True:
+#         line = await stream.readline()
+#         if line:
+#             cb(line)
+#         else:
+#             break
+
+async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
     while True:
-        line = await stream.readline()
-        if line:
-            cb(line)
-        else:
-            break
+        line = (await process.stderr.readline()).decode()
+        logger.debug("Subprocess output: %s", line)
+
+        url_re_match = re.search(
+            "(http:\/\/127\.0\.0\.1:53682\/auth\?state=.*)\\n$", line)
+        if url_re_match:
+            return url_re_match.group(1)
 
 
-async def _stream_subprocess(cmd, stdout_cb, stderr_cb):
-    process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+# async def _stream_subprocess(cmd, stdout_cb, stderr_cb):
+#     process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
 
-    await asyncio.wait([
-        _read_stream(process.stdout, stdout_cb),
-        _read_stream(process.stderr, stderr_cb)
-    ])
+#     await asyncio.wait([
+#         _read_stream(process.stdout, stdout_cb),
+#         _read_stream(process.stderr, stderr_cb)
+#     ])
 
-    return await process.wait()
+#     return await process.wait()
 
-
-def execute(cmd, stdout_cb, stderr_cb):
-    loop = asyncio.get_event_loop()
-    rc = loop.run_until_complete(
-        _stream_subprocess(
-            cmd,
-            stdout_cb,
-            stderr_cb,
-        ))
-    loop.close()
-    return rc
+# async def start_ui(cmd):
+#     process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+#     url = await stream_get_url(process.stderr)
+#     await process.wait()
 
 
-def is_port_in_use(port: int) -> bool:
+def _is_port_in_use(port: int) -> bool:
     import socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
+
+
+async def _kill_previous_spawn(process: asyncio.subprocess.Process):
+    if process and process.returncode is None:
+        logger.warn("Killing previous Process")
+        process.kill()
+        await asyncio.sleep(0.1) # Give time for OS to clear up the port
 
 
 class Plugin:
     current_spawn = None
 
     async def spawn(self, backend_type: str):
-        logger.debug(self.current_spawn)
         logger.info("Updating rclone.conf")
-        if self.current_spawn is not None:
-            logger.warn("Killing previous Popen")
-            self.current_spawn.terminate()
 
-        if is_port_in_use(53682):
+        await _kill_previous_spawn(self.current_spawn)
+        if _is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
-
-        subprocess.run(rclone_exe + ["config", "touch"])
 
         if backend_type == "drive":
             additional_args = ["scope=drive.file"]
         else:
             additional_args = []
 
-        self.current_spawn = subprocess.Popen(rclone_exe + ["config", "create", "backend", backend_type] + additional_args,
-                                              stderr=subprocess.PIPE, universal_newlines=True, bufsize=1)
-        logger.debug(self.current_spawn)
+        self.current_spawn = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *(rclone_cfg_arg + ["config", "create", "backend", backend_type] + additional_args), stderr=asyncio.subprocess.PIPE)
 
-        line = self.current_spawn.stderr.readline()
-        logger.debug(line)
+        url = await _get_url_from_rclone_process(self.current_spawn)
+        logger.info("Login URL: %s", url)
 
-        if line[:22] == "<5>NOTICE: Config file":
-            line = self.current_spawn.stderr.readline()
-            logger.debug(line)
-
-        return re.search("(http:\/\/127\.0\.0\.1:53682\/auth\?state=.*)\\n$", line).groups()[0]
+        return url
 
     async def spawn_callback(self):
-        async for i in iter(self.current_spawn.stderr.readline, ""):
-            logger.debug(i)
+        if not self.current_spawn:
+            return
+
+        logger.debug("Waiting for Spwan to exit")
+
+        # Awful hack as you cannot just use .Wait() as it blocks for some reason.
+        while self.current_spawn.returncode is None:
+            await asyncio.sleep(0.1)
+
+        if self.current_spawn.returncode > 0:
+            raise 'Cancelled'
+
         logger.info("Updated rclone.conf")
-        self.current_spawn = None
 
-    async def spawn_nukeall(self):
-        logger.debug("nukje")
-        logger.debug(self.current_spawn)
-        if self.current_spawn is not None:
-            logger.warn("Killing previous Popen")
-            self.current_spawn.terminate()
+    async def spawn_probe(self):
+        if not self.current_spawn:
+            return 0
 
-        asyncio.subprocess.create_subprocess_exec()
+        return self.current_spawn.returncode
+
+        logger.debug("Waiting for Spwan to exit")
+
+        # Awful hack as you cannot just use .Wait() as it blocks for some reason.
+        while self.current_spawn.returncode is None:
+            await asyncio.sleep(0.1)
+
+        if self.current_spawn.returncode > 0:
+            raise 'Cancelled'
+
+        logger.info("Updated rclone.conf")
 
     async def get_backend_type(self):
         with open(rclone_cfg, "r") as f:
@@ -117,6 +134,7 @@ class Plugin:
 
 
 #
+
 
     async def get_syncpaths(self):
         with open(cfg_syncpath_file, "r") as f:
@@ -162,6 +180,7 @@ class Plugin:
 
 # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
 
+
     async def _main(self):
         logger.debug(f"rclone exe path: {rclone_bin}")
         logger.debug(f"rclone cfg path: {rclone_cfg}")
@@ -180,3 +199,15 @@ class Plugin:
 
 # res = asyncio.run(Plugin().test_syncpath("/home/user/source/decky-cloud-save/**"))
 # print(res)
+
+async def r():
+    pl = Plugin()
+    url = await pl.spawn('onedrive')
+    print(url)
+    url = await pl.spawn('onedrive')
+    print(url)
+
+# res = asyncio.run(Plugin().spawn('onedrive'))
+# print(res)
+
+# asyncio.run(r())
