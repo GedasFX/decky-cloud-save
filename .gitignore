@@ -47,4 +47,4 @@ rclone.conf
 # Ignore output folder
 
 backend/out
-rclone
+/rclone
