@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "Manage cloud saves for games that do not support it in [current year].",
   "scripts": {
-    "prepare": "touch requirements.txt && pip3 install --upgrade -r requirements.txt -t py_modules",
     "build": "shx rm -rf dist && rollup -c",
     "watch": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1"
