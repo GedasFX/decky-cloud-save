@@ -71,7 +71,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
               showModal(
                 <ConfirmModal
                   strTitle="Adding other providers"
-                  strDescription="In addition to the 3 providers listed above, you can configure other providers (backends). Unfortunately, setup for those providers must be done via desktop mode. Instructions for such task can be found on the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/README_CUSTOM_BACKEND.txt)."
+                  strDescription="In addition to the 3 providers listed above, you can configure other providers. Unfortunately, setup for them must be done in desktop mode. Instructions on how to do so can be found on the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/) README.md"
                 />
               )
             }
