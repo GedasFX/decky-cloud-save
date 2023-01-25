@@ -1,4 +1,14 @@
-import { ButtonItem, definePlugin, LifetimeNotification, PanelSection, PanelSectionRow, Router, ServerAPI, staticClasses } from "decky-frontend-lib";
+import {
+  ButtonItem,
+  definePlugin,
+  LifetimeNotification,
+  PanelSection,
+  PanelSectionRow,
+  Router,
+  ServerAPI,
+  staticClasses,
+  ToggleField,
+} from "decky-frontend-lib";
 import { useEffect, useState, VFC } from "react";
 import { FaSave } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
@@ -8,30 +18,32 @@ import { getCloudBackend, syncNow } from "./apiClient";
 import Head from "./components/Head";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
 import DeckyStoreButton from "./components/DeckyStoreButton";
+import appState, { setAppState, useAppState } from "./state";
 
-const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
-  const [syncing, setSyncing] = useState(false);
+const Content: VFC<{}> = () => {
+  const appState = useAppState();
+  console.log("Rendering index", appState);
 
   const [hasProvider, setHasProvider] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
-    getCloudBackend(serverAPI).then((e) => setHasProvider(!!e));
+    getCloudBackend().then((e) => setHasProvider(!!e));
   }, []);
 
   return (
     <>
       <Head />
-      <PanelSection title="Sync Now">
+      <PanelSection title="Sync">
         <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            disabled={syncing || !hasProvider}
-            onClick={() => {
-              setSyncing(true);
-              syncNow(serverAPI).finally(() => setSyncing(false));
-            }}
-          >
-            <DeckyStoreButton icon={<FaSave className={syncing ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
+          <ToggleField
+            label="Sync after closing a game"
+            checked={appState.sync_on_game_exit === "true"}
+            onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow()}>
+            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
         </PanelSectionRow>
@@ -67,18 +79,20 @@ const Content: VFC<{ serverAPI: ServerAPI }> = ({ serverAPI }) => {
 };
 
 export default definePlugin((serverApi: ServerAPI) => {
+  appState.initialize(serverApi);
+
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
 
   const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    if (!e.bRunning) {
-      syncNow(serverApi);
+    if (!e.bRunning && appState.currentState.sync_on_game_exit === "true") {
+      syncNow();
     }
   });
 
   return {
     title: <div className={staticClasses.Title}>Decky Cloud Save</div>,
-    content: <Content serverAPI={serverApi} />,
+    content: <Content />,
     icon: <FaSave />,
     onDismount() {
       serverApi.routerHook.removeRoute("/dcs-configure-paths");

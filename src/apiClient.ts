@@ -1,15 +1,17 @@
-import { ServerAPI } from "decky-frontend-lib";
+import { getServerApi, setAppState } from "./state";
 
-export async function syncNow(serverApi: ServerAPI): Promise<void> {
+export async function syncNow(): Promise<void> {
   const start = new Date();
 
-  await serverApi.callPluginMethod("sync_now", {});
+  setAppState("syncing", "true");
+  await getServerApi().callPluginMethod("sync_now", {});
+  setAppState("syncing", "false");
 
-  serverApi.toaster.toast({ title: "Decky Cloud Save", body: `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.` });
+  getServerApi().toaster.toast({ title: "Decky Cloud Save", body: `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.` });
 }
 
-export async function getCloudBackend(serverApi: ServerAPI): Promise<string | undefined> {
-  const e = await serverApi.callPluginMethod<{}, string>("get_backend_type", {});
+export async function getCloudBackend(): Promise<string | undefined> {
+  const e = await getServerApi().callPluginMethod<{}, string>("get_backend_type", {});
   if (e.success) {
     switch (e.result) {
       case "type = onedrive\n":

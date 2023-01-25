@@ -36,7 +36,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const [provider, setProvider] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getCloudBackend(serverApi).then((e) => setProvider(e ?? "N/A"));
+    getCloudBackend().then((e) => setProvider(e ?? "N/A"));
   }, []);
 
   return (
