@@ -2,9 +2,9 @@ import {
   ButtonItem,
   definePlugin,
   LifetimeNotification,
+  Navigation,
   PanelSection,
   PanelSectionRow,
-  Router,
   ServerAPI,
   staticClasses,
   ToggleField,
@@ -54,8 +54,8 @@ const Content: VFC<{}> = () => {
           <ButtonItem
             layout="below"
             onClick={() => {
-              Router.CloseSideMenus();
-              Router.Navigate("/dcs-configure-paths");
+              Navigation.CloseSideMenus();
+              Navigation.Navigate("/dcs-configure-paths");
             }}
           >
             <DeckyStoreButton icon={<FiEdit3 />}>Sync Paths</DeckyStoreButton>
@@ -66,8 +66,8 @@ const Content: VFC<{}> = () => {
           <ButtonItem
             layout="below"
             onClick={() => {
-              Router.CloseSideMenus();
-              Router.Navigate("/dcs-configure-backend");
+              Navigation.CloseSideMenus();
+              Navigation.Navigate("/dcs-configure-backend");
             }}
           >
             <DeckyStoreButton icon={<AiOutlineCloudUpload />}>Cloud Provider</DeckyStoreButton>

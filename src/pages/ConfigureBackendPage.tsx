@@ -1,6 +1,6 @@
-import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
+import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, showModal, sleep } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { ImOnedrive, ImGoogleDrive, ImDropbox, ImHome } from "react-icons/im";
+import { ImOnedrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
 import Container from "../components/Container";
 import { PageProps } from "../types";
@@ -15,7 +15,6 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
         let count = 0; // For timeout in case user forgor 💀
         while (count < 10_000 /* approx 1h */) {
           const res = await serverApi.callPluginMethod<{}, number | undefined>("spawn_probe", {});
-          console.log("callback", res);
 
           if (res.success && res.result === 0) {
             Navigation.NavigateBack();
@@ -26,8 +25,8 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
         }
       })();
 
-      Router.CloseSideMenus();
-      Router.NavigateToExternalWeb(response.result);
+      Navigation.CloseSideMenus();
+      Navigation.NavigateToExternalWeb(response.result);
     } else {
       console.error(response);
     }
