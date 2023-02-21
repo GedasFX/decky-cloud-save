@@ -1,4 +1,4 @@
-import { ButtonItem, ConfirmModal, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
+import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, Router, showModal, sleep } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { ImOnedrive, ImGoogleDrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
@@ -18,7 +18,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           console.log("callback", res);
 
           if (res.success && res.result === 0) {
-            Router.Navigate("/dcs-configure-backend");
+            Navigation.NavigateBack();
             break;
           }
 
