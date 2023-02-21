@@ -51,7 +51,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
             <BsGearFill />
           </ButtonItem>
         </PanelSectionRow>
-        <PanelSectionRow>
+        {/* <PanelSectionRow>
           <ButtonItem
             onClick={() => openConfig("drive")}
             icon={<ImGoogleDrive />}
@@ -59,7 +59,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           >
             <BsGearFill />
           </ButtonItem>
-        </PanelSectionRow>
+        </PanelSectionRow> */}
         <PanelSectionRow>
           <ButtonItem onClick={() => openConfig("dropbox")} icon={<ImDropbox />} label="Dropbox">
             <BsGearFill />
