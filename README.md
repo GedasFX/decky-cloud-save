@@ -17,7 +17,7 @@ Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 
 ## Installation
 
-Find it on the [decky plugin store]() or download it from [releases page](/GedasFX/decky-cloud-save/releases) (extract the contents to `/home/deck/homebrew/plugins`).
+Find it on the [decky plugin store]() or download it from [releases page](https://github.com/GedasFX/decky-cloud-save/releases/) (extract the contents to `/home/deck/homebrew/plugins`).
 
 
 ## Usage
