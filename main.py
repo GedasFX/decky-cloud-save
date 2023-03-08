@@ -2,7 +2,6 @@ import asyncio
 import logging
 import os
 import re
-import subprocess
 from pathlib import Path
 
 plugin_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -44,6 +43,7 @@ async def _kill_previous_spawn(process: asyncio.subprocess.Process):
 
 class Plugin:
     current_spawn = None
+    current_sync = None
 
     async def spawn(self, backend_type: str):
         logger.debug("Executing: spawn(%s)", backend_type)
@@ -82,9 +82,14 @@ class Plugin:
 
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
-        subprocess.run([rclone_bin, "copy", "--include-from",
-                       cfg_syncpath_file, "/", "backend:decky-cloud-save", "--copy-links"])
+        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--include-from", cfg_syncpath_file, "/", "backend:decky-cloud-save", "--copy-links"])
 
+    async def sync_now_probe(self):
+        logger.debug("Executing: sync_now_probe()")
+        if not self.current_sync:
+            return 0
+
+        return self.current_sync.returncode
 
 #
 
@@ -164,7 +169,6 @@ class Plugin:
 
 # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
 
-
     async def _main(self):
         logger.debug("rclone exe path: %s", rclone_bin)
         logger.debug("rclone cfg path: %s", rclone_cfg)
@@ -179,4 +183,4 @@ class Plugin:
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
-        await _kill_previous_spawn(self.current_spawn) # Kills only if exists
+        await _kill_previous_spawn(self.current_spawn)  # Kills only if exists

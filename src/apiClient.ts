@@ -1,3 +1,4 @@
+import { sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
 
 export async function syncNow(): Promise<void> {
@@ -5,9 +6,32 @@ export async function syncNow(): Promise<void> {
 
   setAppState("syncing", "true");
   await getServerApi().callPluginMethod("sync_now", {});
-  setAppState("syncing", "false");
 
-  getServerApi().toaster.toast({ title: "Decky Cloud Save", body: `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.` });
+  let exitCode = 0;
+  while (true) {
+    const status = await getServerApi().callPluginMethod<{}, number | undefined>("sync_now_probe", {});
+
+    if (status.success && status.result != null) {
+      exitCode = status.result;
+      break;
+    }
+
+    await sleep(360);
+  }
+
+  let body;
+  switch (exitCode) {
+    case 0:
+    case 6:
+      body = `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.`;
+      break;
+    default:
+      body = `Sync failed. Check journalctl for errors.`;
+      break;
+  }
+
+  setAppState("syncing", "false");
+  getServerApi().toaster.toast({ title: "Decky Cloud Save", body });
 }
 
 export async function getCloudBackend(): Promise<string | undefined> {
