@@ -36,6 +36,12 @@ Navigate to `Configuration - Sync Paths` and click a button to `Add new Path to 
 
 **IMPORTANT!** Deck respects symlinks in the sync paths. If a shortcut gets created, the destination would get backed up as well.
 
+### Other providers
+
+For one or another reason, a provider may not be able to be configured from the Big Picture mode. For these cases, we have provided install scripts for other common providers in [/quickstart](/defaults/quickstart/) directory. Just navigate there with explorer and run one of the install scripts.
+
+When running an installer, a web browser will appear and allow you to finish the configuration. Once you see the **Success!** message, feel free to go back to the Big Picture mode - the configuration is over.
+
 ## Usage (Advanced)
 
 If you wish to use another provider other than OneDrive, Google Drive, or Dropbox, you will have to go to desktop mode and configure the provider manually.

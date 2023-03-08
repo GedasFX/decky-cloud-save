@@ -48,3 +48,4 @@ rclone.conf
 
 backend/out
 /rclone
+/quickstart
