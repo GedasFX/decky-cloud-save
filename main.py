@@ -16,7 +16,7 @@ cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
