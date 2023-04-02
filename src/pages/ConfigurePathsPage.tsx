@@ -5,6 +5,7 @@ import AddNewPathButton from "../components/AddNewPathButton";
 import { toastError } from "../utils";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 import Container from "../components/Container";
+import { HelpAssistant } from "../components/HelpAssistant";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   const [paths, setPaths] = useState<string[] | undefined>(undefined);
@@ -32,7 +33,20 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   useEffect(() => onPathsUpdated(), []);
 
   return (
-    <Container title="Sync Paths">
+    <Container
+      title="Sync Paths"
+      help={
+        <HelpAssistant
+          entries={[
+            {
+              label: "File Picker loads indefinitely",
+              description: "After a fresh install, the file picker sometimes fails to load. Restarting Steam fixes this.",
+              issueId: "7",
+            },
+          ]}
+        />
+      }
+    >
       <PanelSection>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />
