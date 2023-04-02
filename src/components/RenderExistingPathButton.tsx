@@ -1,10 +1,15 @@
 import { ButtonItem, ConfirmModal, showModal } from "decky-frontend-lib";
 import { useState } from "react";
 import { FaFile, FaFolder, FaTrash } from "react-icons/fa";
+import { getServerApi } from "../state";
 import { PageProps } from "../types";
 import { toastError } from "../utils";
 
-export function RenderExistingPathButton({ path, serverApi, onPathRemoved }: PageProps<{ path: string; onPathRemoved?: () => void }>) {
+export function RenderExistingPathButton({
+  path,
+  onPathRemoved,
+  file,
+}: PageProps<{ path: string; onPathRemoved?: () => void; file: "includes" | "excludes" }>) {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const onClickDelete = () => {
@@ -16,11 +21,11 @@ export function RenderExistingPathButton({ path, serverApi, onPathRemoved }: Pag
         onEscKeypress={() => setButtonDisabled(false)}
         onOK={() => {
           setButtonDisabled(true);
-          serverApi.callPluginMethod<{ path: string }, void>("remove_syncpath", { path }).then((res) => {
+          getServerApi().callPluginMethod<{ path: string; file: "includes" | "excludes" }, void>("remove_syncpath", { path, file }).then((res) => {
             if (res.success) {
               if (onPathRemoved) onPathRemoved();
             } else {
-              toastError(serverApi, res.result);
+              toastError(res.result);
               setButtonDisabled(false);
             }
           });
