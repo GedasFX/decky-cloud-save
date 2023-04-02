@@ -5,6 +5,7 @@ import AddNewPathButton from "../components/AddNewPathButton";
 import { toastError } from "../utils";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 import Container from "../components/Container";
+import { HelpAssistant } from "../components/HelpAssistant";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   const [paths, setPaths] = useState<string[] | undefined>(undefined);
@@ -32,7 +33,10 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   useEffect(() => onPathsUpdated(), []);
 
   return (
-    <Container title="Sync Paths">
+    <Container
+      title="Sync Paths"
+      help={<HelpAssistant strDescription={"Common issues:\n After a fresh installation, the file picker may fail to load. Restarting Steam fixes this."} />}
+    >
       <PanelSection>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} />

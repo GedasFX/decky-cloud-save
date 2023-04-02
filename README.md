@@ -4,6 +4,12 @@ A plugin based on [rclone](https://rclone.org/), which allows users to back-up g
 
 Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 
+## Known Issues
+
+* The file picker does not work after a fresh installation. [Issue tracker](https://github.com/GedasFX/decky-cloud-save/issues/7).
+
+> Workaround: restart Steam and or Steam Deck.
+
 ## Features
 
 * Ability to sync game saves or arbitrary files to the cloud.
