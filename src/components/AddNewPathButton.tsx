@@ -3,10 +3,10 @@ import { useState } from "react";
 import { PageProps } from "../types";
 import { toastError } from "../utils";
 
-export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{ onPathAdded?: () => void }>) {
+export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageProps<{ onPathAdded?: () => void; file: "includes" | "excludes" }>) {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
-  const onFileChosen = (res: FilePickerRes, mode: "file" | "directory") => {
+  const onFileChosen = (res: FilePickerRes, mode: "file" | "directory" | "directory-norecurse") => {
     if (res.realpath === "/") {
       showModal(<ConfirmModal strTitle="Are you mad??" strDescription="For your own safety, ability to sync the whole file system is disabled." />);
       return;
@@ -14,7 +14,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{
 
     setButtonDisabled(true);
 
-    const path = mode === "directory" ? `${res.realpath}/**` : res.realpath;
+    const path = mode === "directory" ? `${res.realpath}/**` : mode === "directory-norecurse" ? `${res.realpath}/*` : res.realpath;
     serverApi
       .callPluginMethod<{ path: string }, number>("test_syncpath", { path })
       .then((r) => {
@@ -32,7 +32,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{
             onEscKeypress={() => setButtonDisabled(false)}
             onOK={() => {
               serverApi
-                .callPluginMethod<{ path: string }, void>("add_syncpath", { path })
+                .callPluginMethod<{ path: string; file: "includes" | "excludes" }, void>("add_syncpath", { path, file })
                 .then(() => {
                   if (onPathAdded) onPathAdded();
                 })
@@ -73,7 +73,17 @@ export default function AddNewPathButton({ serverApi, onPathAdded }: PageProps<{
                   .catch()
               }
             >
-              Folder
+              Folder (include subfolders)
+            </MenuItem>
+            <MenuItem
+              onSelected={() =>
+                serverApi
+                  .openFilePicker("/home/deck", false)
+                  .then((e) => onFileChosen(e, "directory-norecurse"))
+                  .catch()
+              }
+            >
+              Folder (exclude subfolders)
             </MenuItem>
           </Menu>
         )

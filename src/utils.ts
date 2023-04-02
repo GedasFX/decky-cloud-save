@@ -1,6 +1,6 @@
-import { ServerAPI } from "decky-frontend-lib";
+import { getServerApi } from "./state";
 
-export function toastError(serverApi: ServerAPI, e: any) {
-  serverApi.toaster.toast({ title: "Decky Cloud Saves", body: e });
+export function toastError(e: any) {
+  getServerApi().toaster.toast({ title: "Decky Cloud Saves", body: e });
 }
 

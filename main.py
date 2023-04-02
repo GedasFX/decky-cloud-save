@@ -10,7 +10,8 @@ config_dir = (Path(plugin_dir) / "../../settings/decky-cloud-save").resolve()
 rclone_bin = plugin_dir / "rclone"
 rclone_cfg = config_dir / "rclone.conf"
 
-cfg_syncpath_file = config_dir / "sync_paths.txt"
+cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
+cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
 cfg_property_file = config_dir / "plugin.properties"
 
 logger = logging.getLogger()
@@ -53,12 +54,7 @@ class Plugin:
         if _is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
 
-        if backend_type == "drive":
-            additional_args = ["scope=drive.file"]
-        else:
-            additional_args = []
-
-        self.current_spawn = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *(["config", "create", "backend", backend_type] + additional_args), stderr=asyncio.subprocess.PIPE)
+        self.current_spawn = await asyncio.subprocess.create_subprocess_exec(plugin_dir / "quickstart" / f"{backend_type}.sh", stderr=asyncio.subprocess.PIPE)
 
         url = await _get_url_from_rclone_process(self.current_spawn)
         logger.info("Login URL: %s", url)
@@ -82,7 +78,7 @@ class Plugin:
 
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
-        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--include-from", cfg_syncpath_file, "/", "backend:decky-cloud-save", "--copy-links"])
+        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--include-from", cfg_syncpath_includes_file, "--exclude-from", cfg_syncpath_excludes_file, "/", "backend:decky-cloud-save", "--copy-links"])
 
     async def sync_now_probe(self):
         logger.debug("Executing: sync_now_probe()")
@@ -93,30 +89,44 @@ class Plugin:
 
 #
 
-    async def get_syncpaths(self):
+    async def get_syncpaths(self, file: str):
         logger.debug("Executing: get_syncpaths()")
-        with open(cfg_syncpath_file, "r") as f:
+
+        file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
+
+        with open(file, "r") as f:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
         logger.debug("Executing: test_syncpath(%s)", path)
-        if not path.endswith("/**"):
+
+        if path.endswith("/**"):
+            scan_single_dir = False
+            path = path[:-3]
+        elif path.endswith("/*"):
+            scan_single_dir = True
+            path = path[:-2]
+        else:
             return int(Path(path).is_file())
 
         count = 0
-        for root, os_dirs, os_files in os.walk(path[:-3], followlinks=True):
+        for root, os_dirs, os_files in os.walk(path, followlinks=True):
             logger.debug("%s %s %s", root, os_dirs, os_files)
             count += len(os_files)
             if count > 9000:
                 return "9000+"
+            if scan_single_dir:
+                break
 
         return count
 
-    async def add_syncpath(self, path: str):
-        logger.debug("Executing: add_syncpath(%s)", path)
-        logger.info("Adding Path to Sync: '%s'", path)
+    async def add_syncpath(self, path: str, file: str):
+        logger.debug("Executing: add_syncpath(%s, %s)", path, file)
+        logger.info("Adding Path to Sync: '%s', %s", path, file)
 
-        with open(cfg_syncpath_file, "r") as f:
+        file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
+
+        with open(file, "r") as f:
             lines = f.readlines()
         for line in lines:
             if line.strip("\n") == path:
@@ -124,17 +134,19 @@ class Plugin:
 
         lines += [f"{path}\n"]
 
-        with open(cfg_syncpath_file, "w") as f:
+        with open(file, "w") as f:
             for line in lines:
                 f.write(line)
 
-    async def remove_syncpath(self, path: str):
-        logger.debug("Executing: remove_syncpath(%s)", path)
-        logger.info("Removing Path from Sync: '%s'", path)
+    async def remove_syncpath(self, path: str, file: str):
+        logger.debug("Executing: remove_syncpath(%s, %s)", path, file)
+        logger.info("Removing Path from Sync: '%s', %s", path, file)
 
-        with open(cfg_syncpath_file, "r") as f:
+        file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
+
+        with open(file, "r") as f:
             lines = f.readlines()
-        with open(cfg_syncpath_file, "w") as f:
+        with open(file, "w") as f:
             for line in lines:
                 if line.strip("\n") != path:
                     f.write(line)
@@ -176,8 +188,10 @@ class Plugin:
         if not config_dir.is_dir():
             os.makedirs(config_dir, exist_ok=True)
 
-        if not cfg_syncpath_file.is_file():
-            cfg_syncpath_file.touch()
+        if not cfg_syncpath_includes_file.is_file():
+            cfg_syncpath_includes_file.touch()
+        if not cfg_syncpath_excludes_file.is_file():
+            cfg_syncpath_excludes_file.touch()
         if not cfg_property_file.is_file():
             cfg_property_file.touch()
 

@@ -1,5 +1,6 @@
 import { sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
+import { toastError } from "./utils";
 
 export async function syncNow(): Promise<void> {
   const start = new Date();
@@ -52,4 +53,26 @@ export async function getCloudBackend(): Promise<string | undefined> {
   } else {
     return undefined;
   }
+}
+
+export async function getSyncPaths(file: "includes" | "excludes") {
+  return getServerApi()
+    .callPluginMethod<{ file: "includes" | "excludes" }, string[]>("get_syncpaths", { file })
+    .then((r) => {
+      if (r.success) {
+        if (r.result.length === 0) {
+          return [];
+        }
+
+        r.result.sort();
+        while (r.result[0] === "\n") {
+          r.result = r.result.slice(1);
+        }
+
+        return r.result.map((r) => r.trimEnd());
+      } else {
+        toastError(r.result);
+        return [];
+      }
+    });
 }
