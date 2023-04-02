@@ -35,7 +35,17 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   return (
     <Container
       title="Sync Paths"
-      help={<HelpAssistant strDescription={"Common issues:\n After a fresh installation, the file picker may fail to load. Restarting Steam fixes this."} />}
+      help={
+        <HelpAssistant
+          entries={[
+            {
+              label: "File Picker loads indefinitely",
+              description: "After a fresh install, the file picker sometimes fails to load. Restarting Steam fixes this.",
+              issueId: "7",
+            },
+          ]}
+        />
+      }
     >
       <PanelSection>
         <PanelSectionRow>
