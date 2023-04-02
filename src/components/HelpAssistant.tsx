@@ -1,13 +1,13 @@
 import { ConfirmModal, Menu, MenuItem, Navigation, showContextMenu, showModal } from "decky-frontend-lib";
 
-export function HelpAssistant({ entries }: { entries: { label: string; description: string; issueId?: string }[] }) {
-  const openModal = (title: string, description: string, issueId?: string) => {
+export function HelpAssistant({ entries }: { entries: { label: string; description: React.ReactNode; issueId?: string }[] }) {
+  const openModal = (title: string, description: React.ReactNode, issueId?: string) => {
     showModal(
       <ConfirmModal
         strTitle={title}
         strDescription={<span style={{ whiteSpace: "pre-wrap" }}>{description}</span>}
         bOKDisabled={!issueId}
-        strOKButtonText="Go to Issue"
+        strOKButtonText="More details"
         strCancelButtonText="Close"
         onOK={() => Navigation.NavigateToExternalWeb(`https://github.com/GedasFX/decky-cloud-save/issues/${issueId}`)}
       />

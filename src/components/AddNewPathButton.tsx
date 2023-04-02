@@ -19,7 +19,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
       .callPluginMethod<{ path: string }, number>("test_syncpath", { path })
       .then((r) => {
         if (!r.success) {
-          toastError(serverApi, r.result);
+          toastError(r.result);
           setButtonDisabled(false);
           return;
         }
@@ -36,14 +36,14 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                 .then(() => {
                   if (onPathAdded) onPathAdded();
                 })
-                .catch((e) => toastError(serverApi, e))
+                .catch((e) => toastError(e))
                 .finally(() => setButtonDisabled(false));
             }}
           />
         );
       })
       .catch((e) => {
-        toastError(serverApi, e);
+        toastError(e);
         setButtonDisabled(false);
       });
   };
@@ -73,7 +73,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-              Folder (include subfolders)
+              Folder
             </MenuItem>
             <MenuItem
               onSelected={() =>

@@ -16,6 +16,7 @@ Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 * A high variety of supported cloud providers, courtesy of [rclone](https://rclone.org/).
 * Ability to back up files automatically after a game is closed.
 * File counter, which estimates the number of files a sync path would pick up. Prevents accidental backing up of the entire steam deck.
+* Advanced filtering, allowing users to set up custom filtering rules with includes and excludes.
 
 **IMPORTANT!** This plugin does not support bidirectional sync. In other words, this plugin is not intended for use cases to sync saves between devices, but rather just to keep your game progress safe in case of data loss.
 
@@ -72,3 +73,13 @@ Manual configuration would require the use of a console, but following the inter
 
 3. Verify the sync works by going to gaming mode and clicking `Sync now`. If files start appearing in the cloud, everything works as expected.
 
+### Filtering (Advanced)
+
+By default, the filters defined in the UI can be set to include some paths and to exclude others (excludes takes priority over includes). If a more complex solution is needed, you can edit the filter file (by default: `/home/deck/homebrew/settings/decky-cloud-save/sync_paths_filter.txt`) to meet your needs.
+
+Important note: UI edits overwrite this file, so make sure you do not use the built-in editor afterward and make constant backups of the configuration (heh). Additionally, we cannot check for the validity of the configuration after it was done manually. If needed, a dry-run can be performed to check which files would have been synced after the edit. I would highly recommend you do it before you sync your entire file system.
+
+Command (in `/home/deck/homebrew/plugins/decky-cloud-save/`):
+```bash
+./rclone copy --filter-from ../../settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --dry-run
+```

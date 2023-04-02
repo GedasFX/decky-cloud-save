@@ -70,7 +70,13 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
               showModal(
                 <ConfirmModal
                   strTitle="Adding other providers"
-                  strDescription="In addition to the 2 providers listed above, you can also configure others. Unfortunately, setup for them must be done in desktop mode. Some providers (such as Google Drive) will have install scripts ready for your convenience. For those, simply run the install script found in the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/quickstart/). For all other providers read instructions found in the README.md."
+                  strDescription={
+                    <span style={{ whiteSpace: "pre-wrap" }}>
+                      {
+                        "In addition to the 2 providers listed above, others can also be configured. Unfortunately, setup for them can only be done in desktop mode.\n\nSome providers (such as Google Drive) will have install scripts ready for your convenience. For those, simply run the install script found in the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/quickstart/).\n\nFor all other providers read instructions found in the README.md."
+                      }
+                    </span>
+                  }
                 />
               )
             }

@@ -12,10 +12,11 @@ rclone_cfg = config_dir / "rclone.conf"
 
 cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
 cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
+cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
@@ -42,6 +43,26 @@ async def _kill_previous_spawn(process: asyncio.subprocess.Process):
         await asyncio.sleep(0.1)  # Give time for OS to clear up the port
 
 
+def _regenerate_filter_file():
+    with open(cfg_syncpath_includes_file, 'r') as f:
+        includes = f.readlines()
+    with open(cfg_syncpath_excludes_file, 'r') as f:
+        excludes = f.readlines()
+
+    with open(cfg_syncpath_filter_file, 'w') as f:
+        f.write("# Last line of this file MUST be '- **' (exclude the rest) as otherwise you will start backing up the entire steam deck!\n")
+        f.write("# If you are editing this file manually, make sure to not use the UI file picker, as the saves done there will overwrite.\n")
+        f.write("# Examples: https://rclone.org/filtering/#examples\n")
+        f.write("\n")
+        
+        for exclude in excludes:
+            f.write(f"- {exclude}")
+        f.write("\n")
+        for include in includes:
+            f.write(f"+ {include}")
+        f.write("\n")
+        f.write("- **\n")
+
 class Plugin:
     current_spawn = None
     current_sync = None
@@ -54,7 +75,12 @@ class Plugin:
         if _is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
 
-        self.current_spawn = await asyncio.subprocess.create_subprocess_exec(plugin_dir / "quickstart" / f"{backend_type}.sh", stderr=asyncio.subprocess.PIPE)
+        if backend_type == "drive":
+            additional_args = ["scope=drive.file"]
+        else:
+            additional_args = []
+
+        self.current_spawn = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *(["config", "create", "backend", backend_type] + additional_args), stderr=asyncio.subprocess.PIPE)
 
         url = await _get_url_from_rclone_process(self.current_spawn)
         logger.info("Login URL: %s", url)
@@ -78,7 +104,7 @@ class Plugin:
 
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
-        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--include-from", cfg_syncpath_includes_file, "--exclude-from", cfg_syncpath_excludes_file, "/", "backend:decky-cloud-save", "--copy-links"])
+        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--filter-from", cfg_syncpath_filter_file, "/", "backend:decky-cloud-save", "--copy-links"])
 
     async def sync_now_probe(self):
         logger.debug("Executing: sync_now_probe()")
@@ -138,6 +164,8 @@ class Plugin:
             for line in lines:
                 f.write(line)
 
+        _regenerate_filter_file()
+
     async def remove_syncpath(self, path: str, file: str):
         logger.debug("Executing: remove_syncpath(%s, %s)", path, file)
         logger.info("Removing Path from Sync: '%s', %s", path, file)
@@ -150,6 +178,8 @@ class Plugin:
             for line in lines:
                 if line.strip("\n") != path:
                     f.write(line)
+
+        _regenerate_filter_file()
 
 #
 
@@ -192,6 +222,8 @@ class Plugin:
             cfg_syncpath_includes_file.touch()
         if not cfg_syncpath_excludes_file.is_file():
             cfg_syncpath_excludes_file.touch()
+        if not cfg_syncpath_filter_file.is_file():
+            _regenerate_filter_file()
         if not cfg_property_file.is_file():
             cfg_property_file.touch()
 
