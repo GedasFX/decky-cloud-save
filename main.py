@@ -104,6 +104,7 @@ class Plugin:
 
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
+        logger.debug("Running command: %s copy --filter-from %s / backend:decky-cloud-save --copy-links", rclone_bin, cfg_syncpath_filter_file)
         self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--filter-from", cfg_syncpath_filter_file, "/", "backend:decky-cloud-save", "--copy-links"])
 
     async def sync_now_probe(self):
