@@ -17,6 +17,7 @@ Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 * Ability to back up files automatically after a game is closed.
 * File counter, which estimates the number of files a sync path would pick up. Prevents accidental backing up of the entire steam deck.
 * Advanced filtering, allowing users to set up custom filtering rules with includes and excludes.
+* Ability to customize destination folder name (found in `plugin.properties` config).
 
 **IMPORTANT!** This plugin does not support bidirectional sync. In other words, this plugin is not intended for use cases to sync saves between devices, but rather just to keep your game progress safe in case of data loss.
 
