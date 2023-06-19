@@ -27,7 +27,7 @@ export async function syncNow(): Promise<void> {
       body = `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.`;
       break;
     default:
-      body = `Sync failed. Check journalctl for errors.`;
+      body = `Sync failed. Run journalctl -u plugin_loader.service to see the errors.`;
       break;
   }
 
