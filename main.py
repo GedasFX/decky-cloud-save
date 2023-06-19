@@ -54,7 +54,7 @@ def _regenerate_filter_file():
         f.write("# If you are editing this file manually, make sure to not use the UI file picker, as the saves done there will overwrite.\n")
         f.write("# Examples: https://rclone.org/filtering/#examples\n")
         f.write("\n")
-        
+
         for exclude in excludes:
             f.write(f"- {exclude}")
         f.write("\n")
@@ -62,6 +62,30 @@ def _regenerate_filter_file():
             f.write(f"+ {include}")
         f.write("\n")
         f.write("- **\n")
+
+
+def _get_config(): 
+    with open(cfg_property_file) as f:
+        lines = f.readlines()
+        lines = list(map(lambda x: x.strip().split('='), lines))
+        logger.debug("config %s", lines)
+        return lines
+
+def _set_config(key: str, value: str):
+    with open(cfg_property_file, "r") as f:
+        lines = f.readlines()
+
+    with open(cfg_property_file, "w") as f:
+        found = False
+        for line in lines:
+            if line.startswith(key + '='):
+                f.write(f"{key}={value}\n")
+                found = True
+            else:
+                f.write(line)
+
+        if not found:
+            f.write(f"{key}={value}\n")
 
 class Plugin:
     current_spawn = None
@@ -104,8 +128,11 @@ class Plugin:
 
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
-        logger.debug("Running command: %s copy --filter-from %s / backend:decky-cloud-save --copy-links", rclone_bin, cfg_syncpath_filter_file)
-        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--filter-from", cfg_syncpath_filter_file, "/", "backend:decky-cloud-save", "--copy-links"])
+
+        destination_path = next((x[1] for x in _get_config() if x[0] == "destination_directory"), "decky-cloud-save")
+        logger.debug("Running command: %s copy --filter-from %s / backend:%s --copy-links", rclone_bin, cfg_syncpath_filter_file, destination_path)
+
+        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *["copy", "--filter-from", cfg_syncpath_filter_file, "/", f"backend:{destination_path}", "--copy-links"])
 
     async def sync_now_probe(self):
         logger.debug("Executing: sync_now_probe()")
@@ -186,29 +213,11 @@ class Plugin:
 
     async def get_config(self):
         logger.debug("Executing: get_config()")
-        with open(cfg_property_file) as f:
-            lines = f.readlines()
-            lines = list(map(lambda x: x.strip().split('='), lines))
-            logger.debug("config %s", lines)
-            return lines
+        return _get_config()
 
     async def set_config(self, key: str, value: str):
         logger.debug("Executing: set_config(%s, %s)", key, value)
-        with open(cfg_property_file, "r") as f:
-            lines = f.readlines()
-
-        with open(cfg_property_file, "w") as f:
-            found = False
-            for line in lines:
-                if line.startswith(key + '='):
-                    f.write(f"{key}={value}\n")
-                    found = True
-                else:
-                    f.write(line)
-
-            if not found:
-                f.write(f"{key}={value}\n")
-
+        _set_config(key, value)
 
 # Asyncio-compatible long-running code, executed in a task when the plugin is loaded
 
@@ -227,6 +236,12 @@ class Plugin:
             _regenerate_filter_file()
         if not cfg_property_file.is_file():
             cfg_property_file.touch()
+
+        # Prepopulate config
+        config = _get_config()
+        logger.warn(config)
+        if not any(e[0] == "destination_directory" for e in config):
+            _set_config("destination_directory", "decky-cloud-save")
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
