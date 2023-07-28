@@ -84,3 +84,10 @@ Command (in `/home/deck/homebrew/plugins/decky-cloud-save/`):
 ```bash
 ./rclone copy --filter-from ../../settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --dry-run
 ```
+
+
+## Other (Advanced)
+
+### Change destination folder name
+
+If you wish to change the folder on how it appears on the remote, edit `~/homebrew/settings/decky-cloud-save/plugin.properties` file and replace `decky-cloud-save` with whichever name you wish. Be wary of path limitations unique to each provider.
