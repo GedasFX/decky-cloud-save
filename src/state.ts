@@ -5,6 +5,7 @@ type State = {
   sync_on_game_exit: string;
   syncing: string;
   bidirectionalSync: string;
+  bysinc_visible: string; 
 };
 
 class AppState {
@@ -13,7 +14,8 @@ class AppState {
   private _currentState: State = {
     syncing: "false",
     sync_on_game_exit: "true",
-    bidirectionalSync: "false"
+    bidirectionalSync: "false",
+    bysinc_visible: "false" 
   };
 
   private _serverApi: ServerAPI = null!;
@@ -65,6 +67,10 @@ class AppState {
   public get bidirectionalSync() {
     return this.currentState.bidirectionalSync;
   }
+  public get bysinc_visible() {
+    return this.currentState.bysinc_visible;
+  }
+
 
   public setBidirectionalSync = (value: string, persist = false) => {
     this.setState("bidirectionalSync", value, persist);
