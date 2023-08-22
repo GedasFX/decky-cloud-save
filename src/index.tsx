@@ -41,15 +41,7 @@ const Content: VFC<{}> = () => {
             onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
           />
         </PanelSectionRow>
-        {appState.bisync_visible === "true" && (
-        <PanelSectionRow>
-            <ToggleField
-              label="Bidirectional Sync USE AT OWN RISK"
-              checked={appState.bisync_enabled === "true"}
-              onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
-            />
-        </PanelSectionRow>
-        )}
+
         <PanelSectionRow>
           <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow()}>
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
@@ -83,6 +75,22 @@ const Content: VFC<{}> = () => {
           </ButtonItem>
         </PanelSectionRow>
       </PanelSection>
+      {appState.experimental_menu === "true" && (
+      <>
+      <PanelSection>
+        <strong>We hope you know what you're doing...</strong>
+      </PanelSection>
+      <PanelSection title="Experimental">
+        <PanelSectionRow>
+            <ToggleField
+              label="Bidirectional Sync USE AT OWN RISK"
+              checked={appState.bisync_enabled === "true"}
+              onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
+            />
+        </PanelSectionRow>
+      </PanelSection>
+      </>
+      )}
     </>
   );
 };

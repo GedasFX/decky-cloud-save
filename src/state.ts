@@ -5,7 +5,7 @@ type State = {
   sync_on_game_exit: string;
   syncing: string;
   bisync_enabled: string;
-  bisync_visible: string; 
+  experimental_menu: string; 
 };
 
 class AppState {
@@ -15,7 +15,7 @@ class AppState {
     syncing: "false",
     sync_on_game_exit: "true",
     bisync_enabled: "false",
-    bisync_visible: "false" 
+    experimental_menu: "false" 
   };
 
   private _serverApi: ServerAPI = null!;
@@ -67,8 +67,8 @@ class AppState {
   public get bidirectionalSync() {
     return this.currentState.bisync_enabled;
   }
-  public get bisync_visible() {
-    return this.currentState.bisync_visible;
+  public get experimental_menu() {
+    return this.currentState.experimental_menu;
   }
 
 
