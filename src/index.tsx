@@ -36,6 +36,13 @@ const Content: VFC<{}> = () => {
       <PanelSection title="Sync">
         <PanelSectionRow>
           <ToggleField
+            label="Bidirectional Sync USE AT OWN RISK"
+            checked={appState.bidirectionalSync === "true"}
+            onChange={(e) => setAppState("bidirectionalSync", e ? "true" : "false", true)}
+            />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ToggleField
             label="Sync after closing a game"
             checked={appState.sync_on_game_exit === "true"}
             onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
