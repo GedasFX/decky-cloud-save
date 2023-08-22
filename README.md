@@ -56,6 +56,9 @@ If you wish to use another provider other than OneDrive, Google Drive, or Dropbo
 
 Manual configuration would require the use of a console, but following the interactive steps should be enough to create any of the [many supported providers](https://rclone.org/docs/).
 
+<u>**SECURITY WARNING: some rclone-providers will save passwords unencrypted on the SteamDeck filesystem**</u>
+Note: This is Rclone related and the plugin cannot handle encrypted credentials
+
 ### Configuration Steps
 
 1. Navigate to the plugin installation directory (default - `/home/deck/homebrew/plugins/decky-cloud-save`).
