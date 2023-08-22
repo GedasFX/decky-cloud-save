@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 type State = {
   sync_on_game_exit: string;
   syncing: string;
-  bidirectionalSync: string;
-  bysinc_visible: string; 
+  bisync_enabled: string;
+  bisync_visible: string; 
 };
 
 class AppState {
@@ -14,8 +14,8 @@ class AppState {
   private _currentState: State = {
     syncing: "false",
     sync_on_game_exit: "true",
-    bidirectionalSync: "false",
-    bysinc_visible: "false" 
+    bisync_enabled: "false",
+    bisync_visible: "false" 
   };
 
   private _serverApi: ServerAPI = null!;
@@ -65,15 +65,15 @@ class AppState {
     }
   };
   public get bidirectionalSync() {
-    return this.currentState.bidirectionalSync;
+    return this.currentState.bisync_enabled;
   }
-  public get bysinc_visible() {
-    return this.currentState.bysinc_visible;
+  public get bisync_visible() {
+    return this.currentState.bisync_visible;
   }
 
 
-  public setBidirectionalSync = (value: string, persist = false) => {
-    this.setState("bidirectionalSync", value, persist);
+  public setbisync_enabled = (value: string, persist = false) => {
+    this.setState("bisync_enabled", value, persist);
   };
 }
 
@@ -97,5 +97,5 @@ export const useAppState = () => {
 };
 
 export const setAppState = appState.setState;
-export const setBidirectionalSync = appState.setBidirectionalSync;
+export const setbisync_enabled = appState.setbisync_enabled;
 export const getServerApi = () => appState.serverApi;

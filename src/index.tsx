@@ -41,12 +41,12 @@ const Content: VFC<{}> = () => {
             onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
           />
         </PanelSectionRow>
-        {appState.bysinc_visible === "true" && (
+        {appState.bisync_visible === "true" && (
         <PanelSectionRow>
             <ToggleField
               label="Bidirectional Sync USE AT OWN RISK"
-              checked={appState.bidirectionalSync === "true"}
-              onChange={(e) => setAppState("bidirectionalSync", e ? "true" : "false", true)}
+              checked={appState.bisync_enabled === "true"}
+              onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
             />
         </PanelSectionRow>
         )}
