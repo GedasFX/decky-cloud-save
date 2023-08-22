@@ -90,7 +90,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
       }
       disabled={buttonDisabled}
     >
-      Add New Path to Sync
+      {file === "includes" ? "Add Path to Sync" : "Exclude Path from Sync"}
     </ButtonItem>
   );
 }
