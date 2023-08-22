@@ -7,7 +7,7 @@ from pathlib import Path
 plugin_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 config_dir = (Path(plugin_dir) / "../../settings/decky-cloud-save").resolve()
 
-rclone_bin = plugin_dir / "defaults/rclone"
+rclone_bin = plugin_dir / "rclone"
 rclone_cfg = config_dir / "rclone.conf"
 
 cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
@@ -16,7 +16,7 @@ cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
@@ -127,22 +127,18 @@ class Plugin:
 #
 
     async def sync_now(self):
-        logger.warning("Executing: sync_now()")
+        logger.debug("Executing: sync_now()")
         destination_path = next((x[1] for x in _get_config() if x[0] == "destination_directory"), "decky-cloud-save")
-        logger.critical(_get_config())
-        logger.critical(_get_config()[1])
-        logger.critical(_get_config()[1][1])
-        
+                
         if _get_config()[1][1] == "true":
             sync_command = "bisync"
-            logger.warning("using bisync")
+            logger.debug("using bisync")
         else:
             sync_command = "copy"
-            logger.warning("using copy")
+            logger.debug("using copy")
 
             destination_path = next((x[1] for x in _get_config() if x[0] == "destination_directory"), "decky-cloud-save")
         
-        #sync_command += ["--filter-from", cfg_syncpath_filter_file, "/", f"backend:{destination_path}", "--copy-links"]
         logger.debug("Running command: %s %s --filter-from %s / backend:%s --copy-links", rclone_bin, sync_command, cfg_syncpath_filter_file, destination_path)
 
         self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *[sync_command, "--filter-from", cfg_syncpath_filter_file, "/", f"backend:{destination_path}", "--copy-links"])
