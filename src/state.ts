@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 type State = {
   sync_on_game_exit: string;
   syncing: string;
+  bidirectionalSync: string;
 };
 
 class AppState {
@@ -12,6 +13,7 @@ class AppState {
   private _currentState: State = {
     syncing: "false",
     sync_on_game_exit: "true",
+    bidirectionalSync: "false"
   };
 
   private _serverApi: ServerAPI = null!;
@@ -60,6 +62,13 @@ class AppState {
       this._subscribers.splice(index, 1);
     }
   };
+  public get bidirectionalSync() {
+    return this.currentState.bidirectionalSync;
+  }
+
+  public setBidirectionalSync = (value: string, persist = false) => {
+    this.setState("bidirectionalSync", value, persist);
+  };
 }
 
 const appState = new AppState();
@@ -82,4 +91,5 @@ export const useAppState = () => {
 };
 
 export const setAppState = appState.setState;
+export const setBidirectionalSync = appState.setBidirectionalSync;
 export const getServerApi = () => appState.serverApi;

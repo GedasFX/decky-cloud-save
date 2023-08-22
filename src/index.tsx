@@ -42,6 +42,13 @@ const Content: VFC<{}> = () => {
           />
         </PanelSectionRow>
         <PanelSectionRow>
+          <ToggleField
+            label="Bidirectional Sync USE AT OWN RISK"
+            checked={appState.bidirectionalSync === "true"}
+            onChange={(e) => setAppState("bidirectionalSync", e ? "true" : "false", true)}
+            />
+        </PanelSectionRow>
+        <PanelSectionRow>
           <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow()}>
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
           </ButtonItem>
