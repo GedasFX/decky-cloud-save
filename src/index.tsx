@@ -41,6 +41,7 @@ const Content: VFC<{}> = () => {
             onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
           />
           <ToggleField
+            disabled={appState.sync_on_game_exit != "true"}
             label="Toast after auto sync"
             checked={appState.toast_after_sync === "true"}
             onChange={(e) => setAppState("toast_after_sync", e ? "true" : "false", true)}
