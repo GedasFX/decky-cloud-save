@@ -40,10 +40,15 @@ const Content: VFC<{}> = () => {
             checked={appState.sync_on_game_exit === "true"}
             onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
           />
+          <ToggleField
+            label="Toast after auto sync"
+            checked={appState.toast_after_sync === "true"}
+            onChange={(e) => setAppState("toast_after_sync", e ? "true" : "false", true)}
+          />
         </PanelSectionRow>
 
         <PanelSectionRow>
-          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow()}>
+          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow(true)}>
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
@@ -103,7 +108,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (!e.bRunning && appState.currentState.sync_on_game_exit === "true") {
-      syncNow();
+      syncNow(appState.currentState.toast_after_sync === "true");
     }
   });
 

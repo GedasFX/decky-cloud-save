@@ -5,7 +5,8 @@ type State = {
   sync_on_game_exit: string;
   syncing: string;
   bisync_enabled: string;
-  experimental_menu: string; 
+  experimental_menu: string;
+  toast_after_sync: string;
 };
 
 class AppState {
@@ -15,7 +16,8 @@ class AppState {
     syncing: "false",
     sync_on_game_exit: "true",
     bisync_enabled: "false",
-    experimental_menu: "false" 
+    experimental_menu: "false",
+    toast_after_sync: "true"
   };
 
   private _serverApi: ServerAPI = null!;

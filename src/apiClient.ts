@@ -2,7 +2,7 @@ import { sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
 import { toastError } from "./utils";
 
-export async function syncNow(): Promise<void> {
+export async function syncNow(toast: boolean): Promise<void> {
   const start = new Date();
 
   setAppState("syncing", "true");
@@ -32,7 +32,9 @@ export async function syncNow(): Promise<void> {
   }
 
   setAppState("syncing", "false");
-  getServerApi().toaster.toast({ title: "Decky Cloud Save", body });
+  if (toast) {
+    getServerApi().toaster.toast({ title: "Decky Cloud Save", body });
+  }
 }
 
 export async function getCloudBackend(): Promise<string | undefined> {
