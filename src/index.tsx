@@ -43,8 +43,8 @@ const Content: VFC<{}> = () => {
           <ToggleField
             disabled={appState.sync_on_game_exit != "true"}
             label="Toast after auto sync"
-            checked={appState.toast_after_sync === "true"}
-            onChange={(e) => setAppState("toast_after_sync", e ? "true" : "false", true)}
+            checked={appState.toast_auto_sync === "true"}
+            onChange={(e) => setAppState("toast_auto_sync", e ? "true" : "false", true)}
           />
         </PanelSectionRow>
 
@@ -109,7 +109,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (!e.bRunning && appState.currentState.sync_on_game_exit === "true") {
-      syncNow(appState.currentState.toast_after_sync === "true");
+      syncNow(appState.currentState.toast_auto_sync === "true");
     }
   });
 

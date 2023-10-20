@@ -20,19 +20,27 @@ export async function syncNow(toast: boolean): Promise<void> {
     await sleep(360);
   }
 
-  let body;
+  let pass;
   switch (exitCode) {
     case 0:
     case 6:
-      body = `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.`;
+      pass = true;
       break;
     default:
-      body = `Sync failed. Run journalctl -u plugin_loader.service to see the errors.`;
+      pass = false;
       break;
   }
 
   setAppState("syncing", "false");
-  if (toast) {
+
+  let body;
+  if (pass) {
+    body = `Sync completed in ${(new Date().getTime() - start.getTime()) / 1000}s.`;
+  } else {
+    body = `Sync failed. Run journalctl -u plugin_loader.service to see the errors.`;
+  }
+
+  if (toast || (!pass)) {
     getServerApi().toaster.toast({ title: "Decky Cloud Save", body });
   }
 }
