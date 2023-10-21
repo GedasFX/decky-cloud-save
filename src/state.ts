@@ -7,6 +7,7 @@ type State = {
   bisync_enabled: string;
   experimental_menu: string;
   toast_auto_sync: string;
+  destination_directory: string;
 };
 
 class AppState {
@@ -17,7 +18,8 @@ class AppState {
     sync_on_game_exit: "true",
     bisync_enabled: "false",
     experimental_menu: "false",
-    toast_auto_sync: "true"
+    toast_auto_sync: "true",
+    destination_directory: "decky-cloud-save"
   };
 
   private _serverApi: ServerAPI = null!;
