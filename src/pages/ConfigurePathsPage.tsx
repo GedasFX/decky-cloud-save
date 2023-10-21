@@ -47,14 +47,14 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
         />
       }
     >
-        <PanelSection title="Cloud Save Path">
-          <TextField
-              disabled={false}
-              value={appState.destination_directory}
-              onChange={(e) => setAppState("destination_directory", e.target.value, false)}
-              onBlur={(e) => setAppState("destination_directory", e.target.value, true)} />
-        </PanelSection>
-        <PanelSection title="Includes">
+      <PanelSection title="Cloud Save Path">
+        <TextField
+          disabled={false}
+          value={appState.destination_directory}
+          onChange={(e) => setAppState("destination_directory", e.target.value, false)}
+          onBlur={(e) => setAppState("destination_directory", e.target.value, true)} />
+      </PanelSection>
+      <PanelSection title="Includes">
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="includes" />
         </PanelSectionRow>
