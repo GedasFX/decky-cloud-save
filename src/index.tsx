@@ -82,20 +82,15 @@ const Content: VFC<{}> = () => {
         </PanelSectionRow>
       </PanelSection>
       {appState.experimental_menu === "true" && (
-      <>
-      <PanelSection>
-        <strong>We hope you know what you're doing...</strong>
-      </PanelSection>
-      <PanelSection title="Experimental">
-        <PanelSectionRow>
+        <PanelSection title="Experimental USE AT OWN RISK">
+          <PanelSectionRow>
             <ToggleField
-              label="Bidirectional Sync USE AT OWN RISK"
+              label="Bidirectional Sync"
               checked={appState.bisync_enabled === "true"}
               onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
             />
-        </PanelSectionRow>
-      </PanelSection>
-      </>
+          </PanelSectionRow>
+        </PanelSection>
       )}
     </>
   );

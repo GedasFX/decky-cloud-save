@@ -246,9 +246,11 @@ class Plugin:
 
         # Prepopulate config
         config = _get_config()
-        logger.warn(config)
+
         if not any(e[0] == "destination_directory" for e in config):
             _set_config("destination_directory", "decky-cloud-save")
+        if not any(e[0] == "experimental_menu" for e in config):
+            _set_config("experimental_menu", "false")
 
     # Function called first during the unload process, utilize this to handle your plugin being removed
     async def _unload(self):
