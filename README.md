@@ -4,6 +4,10 @@ A plugin based on [rclone](https://rclone.org/), which allows users to back-up g
 
 Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 
+## Troubleshooting
+
+To find plugin logs, use `journalctl -f -n 100 -eu plugin_loader` (close with `q`) command in console. You may be asked to provide them in discord when asking for help.
+
 ## Features
 
 * Ability to sync game saves or arbitrary files to the cloud.
