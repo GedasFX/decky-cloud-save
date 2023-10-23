@@ -4,12 +4,6 @@ A plugin based on [rclone](https://rclone.org/), which allows users to back-up g
 
 Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 
-## Known Issues
-
-* The file picker does not work after a fresh installation. [Issue tracker](https://github.com/GedasFX/decky-cloud-save/issues/7).
-
-> Workaround: restart Steam and or Steam Deck.
-
 ## Features
 
 * Ability to sync game saves or arbitrary files to the cloud.
@@ -17,9 +11,8 @@ Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
 * Ability to back up files automatically after a game is closed.
 * File counter, which estimates the number of files a sync path would pick up. Prevents accidental backing up of the entire steam deck.
 * Advanced filtering, allowing users to set up custom filtering rules with includes and excludes.
-* Ability to customize destination folder name (found in `plugin.properties` config).
-
-**IMPORTANT!** This plugin does not support bidirectional sync. In other words, this plugin is not intended for use cases to sync saves between devices, but rather just to keep your game progress safe in case of data loss.
+* Ability to customize destination folder name.
+* Bidirectional sync (alpha, use at own risk!)
 
 **NOTE!** This plugin **does not** delete files from the remote, even if files get deleted locally. This is intentional to protect against accidents. This, however, may cause issues. If you have a concrete example, let me know by opening an [issue](https://github.com/GedasFX/decky-cloud-save/issues).
 
@@ -93,3 +86,13 @@ Command (in `/home/deck/homebrew/plugins/decky-cloud-save/`):
 ### Change destination folder name
 
 If you wish to change the folder on how it appears on the remote, edit `~/homebrew/settings/decky-cloud-save/plugin.properties` file and replace `decky-cloud-save` with whichever name you wish. Be wary of path limitations unique to each provider.
+
+### Experimental features
+
+Some features were asked to be added, but they are in the experimentatl state. To access this menu, go to `plugin.properties`, and set `experimental_menu=true`.
+
+### Experimental feature - bidirectional sync
+
+On the plugin sidebar there is a new option to change behavior of plugin to not only backup files, but to sync them with remote. This is an operation that is able to delete your files, so use it with extreme caution.
+
+**IMPORTANT!** This plugin does not provide support for if you use bidirectional sync. It is not the plugin's primary use case and is in the experimental state. USE AT YOUR OWN RISK!

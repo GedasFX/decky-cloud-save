@@ -1,6 +1,6 @@
 {
   "name": "decky-cloud-save",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Manage cloud saves for games that do not support it in [current year].",
   "scripts": {
     "build": "shx rm -rf dist && rollup -c",
@@ -42,7 +42,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "decky-frontend-lib": "^3.21.5",
+    "decky-frontend-lib": "^3.22.0",
     "react-icons": "^4.10.1"
   },
   "pnpm": {
