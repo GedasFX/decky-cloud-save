@@ -1,4 +1,4 @@
-import { PanelSectionRow, PanelSection } from "decky-frontend-lib";
+import { PanelSectionRow, PanelSection, TextField } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { PageProps } from "../types";
 import AddNewPathButton from "../components/AddNewPathButton";
@@ -6,8 +6,10 @@ import { RenderExistingPathButton } from "../components/RenderExistingPathButton
 import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
 import { getSyncPaths } from "../apiClient";
+import { setAppState, useAppState } from "../state";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
+  const appState = useAppState();
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
 
@@ -45,6 +47,13 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
         />
       }
     >
+      <PanelSection title="Cloud Save Path">
+        <TextField
+          disabled={false}
+          value={appState.destination_directory}
+          onChange={(e) => setAppState("destination_directory", e.target.value, false)}
+          onBlur={(e) => setAppState("destination_directory", e.target.value, true)} />
+      </PanelSection>
       <PanelSection title="Includes">
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="includes" />
