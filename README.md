@@ -2,7 +2,7 @@
 
 A plugin based on [rclone](https://rclone.org/), which allows users to back-up game saves to the cloud. Supports [OneDrive](https://onedrive.live.com/), [Google Drive](https://drive.google.com/), [Dropbox](https://www.dropbox.com/), and [many more](#backend-support)!
 
-Support: **[SteamDeckHomebrew Discord](https://discord.gg/ZU74G2NJzk)**.
+Support: **[SteamDeckHomebrew Discord](https://deckbrew.xyz/discord)**.
 
 ## Troubleshooting
 
