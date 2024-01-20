@@ -47,6 +47,8 @@ For one or another reason, a provider may not be able to be configured from the 
 
 When running an installer, a web browser will appear and allow you to finish the configuration. Once you see the **Success!** message, feel free to go back to the Big Picture mode - the configuration is over.
 
+**NOTE**: If when running installer a store page opens to download a browser, download it, and restart the device to try again. Sorry for the inconvenience.
+
 ## Usage (Advanced)
 
 If you wish to use another provider other than OneDrive, Google Drive, or Dropbox, you will have to go to desktop mode and configure the provider manually.
@@ -98,5 +100,14 @@ Some features were asked to be added, but they are in the experimentatl state. T
 ### Experimental feature - bidirectional sync
 
 On the plugin sidebar there is a new option to change behavior of plugin to not only backup files, but to sync them with remote. This is an operation that is able to delete your files, so use it with extreme caution.
+
+Before your first sync, first you will need to manually run the following command in console:
+
+```
+/home/deck/homebrew/plugins/decky-cloud-save/rclone bisync --filter-from /home/deck/homebrew/settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --resync
+
+# If you have changed the install decky install directory, change /home/deck/homebrew/ with the appropriate install location
+# If you changed default destination folder, change backend:decky-cloud-save to backend:[MY_DESTINATION_FOLDER]
+```
 
 **IMPORTANT!** This plugin does not provide support for if you use bidirectional sync. It is not the plugin's primary use case and is in the experimental state. USE AT YOUR OWN RISK!
