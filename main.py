@@ -3,6 +3,7 @@ import logging
 import os
 import re
 from pathlib import Path
+import subprocess
 
 plugin_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 config_dir = (Path(plugin_dir) / "../../settings/decky-cloud-save").resolve()
@@ -140,8 +141,10 @@ class Plugin:
 
         destination_path = next((x[1] for x in config if x[0] == "destination_directory"), "decky-cloud-save")
 
-        logger.debug("Running command: %s %s --filter-from %s / backend:%s --copy-links", rclone_bin, sync_command, cfg_syncpath_filter_file, destination_path)
-        self.current_sync = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *[sync_command, "--filter-from", cfg_syncpath_filter_file, "/", f"backend:{destination_path}", "--copy-links"])
+        cmd = [rclone_bin, *[sync_command, "--filter-from", cfg_syncpath_filter_file, "/", f"backend:{destination_path}", "--copy-links"]]
+        logger.debug("Running command: %s", subprocess.list2cmdline(cmd))
+
+        self.current_sync = await asyncio.subprocess.create_subprocess_exec(*cmd)
 
     async def sync_now_probe(self):
         logger.debug("Executing: sync_now_probe()")
