@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  decky-frontend-lib:
-    specifier: ^3.24.4
-    version: 3.24.4
   react-icons:
     specifier: ^4.12.0
     version: 4.12.0
@@ -34,6 +31,9 @@ devDependencies:
   '@types/webpack':
     specifier: ^5.28.5
     version: 5.28.5
+  decky-frontend-lib:
+    specifier: ^3.24.4
+    version: 3.24.4
   rollup:
     specifier: ^2.79.1
     version: 2.79.1
@@ -434,7 +434,7 @@ packages:
 
   /decky-frontend-lib@3.24.4:
     resolution: {integrity: sha512-aCrzVS74V68PQxi5qFS6rjQwWryVy+yYTQKZztXT/T5v1jlw3AKXpTi47pCQl+6TdAIru4hAAjOF8TSf4iONaw==}
-    dev: false
+    dev: true
 
   /deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
