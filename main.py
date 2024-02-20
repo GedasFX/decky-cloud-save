@@ -125,8 +125,6 @@ class Plugin:
             l = f.readlines()
             return l[1]
 
-#
-
     async def sync_now(self):
         logger.debug("Executing: sync_now()")
 
@@ -152,8 +150,6 @@ class Plugin:
             return 0
 
         return self.current_sync.returncode
-
-#
 
     async def get_syncpaths(self, file: str):
         logger.debug("Executing: get_syncpaths()")
@@ -220,8 +216,6 @@ class Plugin:
                     f.write(line)
 
         _regenerate_filter_file()
-
-#
 
     async def get_config(self):
         logger.debug("Executing: get_config()")
