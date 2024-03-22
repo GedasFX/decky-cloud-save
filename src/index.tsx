@@ -35,6 +35,15 @@ const Content: VFC<{}> = () => {
       <Head />
       <PanelSection title="Sync">
         <PanelSectionRow>
+          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow(true)}>
+            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
+          </ButtonItem>
+          {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
+        </PanelSectionRow>
+      </PanelSection>
+
+      <PanelSection title="Configuration">
+        <PanelSectionRow>
           <ToggleField
             label="Sync after closing a game"
             checked={appState.sync_on_game_exit === "true"}
@@ -48,15 +57,6 @@ const Content: VFC<{}> = () => {
           />
         </PanelSectionRow>
 
-        <PanelSectionRow>
-          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow(true)}>
-            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
-          </ButtonItem>
-          {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
-        </PanelSectionRow>
-      </PanelSection>
-
-      <PanelSection title="Configuration">
         <PanelSectionRow>
           <ButtonItem
             layout="below"
