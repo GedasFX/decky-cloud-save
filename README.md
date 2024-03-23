@@ -22,7 +22,7 @@ To find plugin logs, use `journalctl -f -n 100 -eu plugin_loader` (close with `q
 
 ## Installation
 
-Find it on the [decky plugin store]() or download it from [releases page](https://github.com/GedasFX/decky-cloud-save/releases/) (extract the contents to `/home/deck/homebrew/plugins`).
+Find it on the [decky plugin store]() or download it from [releases page](https://github.com/GedasFX/decky-cloud-save/releases/) (extract the contents to `~/homebrew/plugins`).
 
 
 ## Usage
@@ -59,7 +59,7 @@ Manual configuration would require the use of a console, but following the inter
 
 ### Configuration Steps
 
-1. Navigate to the plugin installation directory (default - `/home/deck/homebrew/plugins/decky-cloud-save`).
+1. Navigate to the plugin installation directory (default - `~/homebrew/plugins/decky-cloud-save`).
 2. Run `./rclone config` in a console:
    
    1. In the first menu select `New remote` (enter `n`).
@@ -77,11 +77,11 @@ Manual configuration would require the use of a console, but following the inter
 
 ### Filtering (Advanced)
 
-By default, the filters defined in the UI can be set to include some paths and to exclude others (excludes takes priority over includes). If a more complex solution is needed, you can edit the filter file (by default: `/home/deck/homebrew/settings/decky-cloud-save/sync_paths_filter.txt`) to meet your needs.
+By default, the filters defined in the UI can be set to include some paths and to exclude others (excludes takes priority over includes). If a more complex solution is needed, you can edit the filter file (by default: `~/homebrew/settings/decky-cloud-save/sync_paths_filter.txt`) to meet your needs.
 
 Important note: UI edits overwrite this file, so make sure you do not use the built-in editor afterward and make constant backups of the configuration (heh). Additionally, we cannot check for the validity of the configuration after it was done manually. If needed, a dry-run can be performed to check which files would have been synced after the edit. I would highly recommend you do it before you sync your entire file system.
 
-Command (in `/home/deck/homebrew/plugins/decky-cloud-save/`):
+Command (in `~/homebrew/plugins/decky-cloud-save/`):
 ```bash
 ./rclone copy --filter-from ../../settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --dry-run
 ```
@@ -104,9 +104,9 @@ On the plugin sidebar there is a new option to change behavior of plugin to not 
 Before your first sync, first you will need to manually run the following command in console:
 
 ```
-/home/deck/homebrew/plugins/decky-cloud-save/rclone bisync --filter-from /home/deck/homebrew/settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --resync
+~/homebrew/plugins/decky-cloud-save/rclone bisync --filter-from ~/homebrew/settings/decky-cloud-save/sync_paths_filter.txt / backend:decky-cloud-save --copy-links --resync
 
-# If you have changed the install decky install directory, change /home/deck/homebrew/ with the appropriate install location
+# If you have changed the install decky install directory, change ~/homebrew/ with the appropriate install location
 # If you changed default destination folder, change backend:decky-cloud-save to backend:[MY_DESTINATION_FOLDER]
 ```
 
