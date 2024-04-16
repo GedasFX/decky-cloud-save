@@ -14,7 +14,7 @@ jobs:
     - name: Build binary with Dockerfile
       run: |
         docker build -t epg91-rclone-extractor ./backend
-        docker run --rm -v $(pwd)/out:/app/out my-docker-image /bin/bash -c "cp backend/entrypoint.sh /backend && chmod +x /backend/entrypoint.sh && /backend/entrypoint.sh"
+        docker run --rm -v $(pwd)/out:out epg91-rclone-extractor /bin/bash -c "cp backend/entrypoint.sh /backend && chmod +x /backend/entrypoint.sh && /backend/entrypoint.sh"
 
     - name: Install Node.js
       uses: actions/setup-node@v2
