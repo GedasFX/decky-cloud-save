@@ -1,0 +1,53 @@
+name: Build and Publish Release
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build binary with Dockerfile
+      run: |
+        docker build -t epg91-rclone-extractor ./backend
+        docker run --rm -v $(pwd)/out:/app/out epg91-rclone-extractor
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies and run build
+      run: |
+        npm install
+        npm run build
+
+    - name: Package directories into zip
+      run: |
+        mkdir bin
+        cp out/rclone bin
+        zip -r output.zip bin dist defaults/quickstart LICENSE main.py package.json plugin.json rclone README.md defaults/rclone
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0.0  # Puedes especificar tu versión aquí
+        release_name: Release v1.0.0  # Nombre de la release
+        body: Release description goes here  # Descripción de la release
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./output.zip
+        asset_name: output.zip
+        asset_content_type: application/zip
