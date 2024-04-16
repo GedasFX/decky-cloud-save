@@ -13,9 +13,8 @@ jobs:
 
     - name: Build binary with Dockerfile
       run: |
-        mkdir out
         docker build -t epg91-rclone-extractor ./backend
-        docker run --rm -v $(pwd)/out:out epg91-rclone-extractor /bin/bash -c "cp backend/entrypoint.sh /backend && chmod +x /backend/entrypoint.sh && /backend/entrypoint.sh"
+        docker run --rm -v $(pwd)/backend:/backend epg91-rclone-extractor /bin/bash -c "cp backend/entrypoint.sh /backend && chmod +x /backend/entrypoint.sh && /backend/entrypoint.sh"
 
     - name: Install Node.js
       uses: actions/setup-node@v2
@@ -30,7 +29,7 @@ jobs:
     - name: Package directories into zip
       run: |
         mkdir bin
-        cp out/rclone bin
+        cp backend/out/rclone bin
         zip -r output.zip bin dist defaults/quickstart LICENSE main.py package.json plugin.json rclone README.md defaults/rclone
 
     - name: Create release
