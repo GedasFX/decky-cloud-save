@@ -1,0 +1,12 @@
+{
+  "name": "Decky Cloud Save",
+  "author": "GedasFX",
+  "flags": [
+    "debug"
+	],
+  "publish": {
+    "tags": ["backup", "cloud", "rclone"],
+    "description": "Manage cloud saves for games that do not support it in [current year].",
+    "image": "https://opengraph.githubassets.com/0/GedasFX/decky-cloud-save"
+  }
+}

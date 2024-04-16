@@ -1,0 +1,57 @@
+{
+  "name": "decky-cloud-save",
+  "version": "1.3.5",
+  "description": "Manage cloud saves for games that do not support it in [current year].",
+  "scripts": {
+    "build": "shx rm -rf dist && rollup -c",
+    "watch": "rollup -c -w",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GedasFX/decky-cloud-save.git"
+  },
+  "keywords": [
+    "decky",
+    "plugin",
+    "plugin-template",
+    "steam-deck",
+    "deck",
+    "cloud",
+    "save",
+    "backup"
+  ],
+  "author": "GedasFX",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/GedasFX/decky-cloud-save/issues"
+  },
+  "homepage": "https://github.com/GedasFX/decky-cloud-save#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.1.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/react": "16.14.0",
+    "@types/webpack": "^5.28.5",
+    "decky-frontend-lib": "^3.24.4",
+    "rollup": "^2.79.1",
+    "rollup-plugin-import-assets": "^1.1.1",
+    "shx": "^0.3.4",
+    "tslib": "^2.6.2",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "react-icons": "^4.12.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react",
+        "react-dom",
+        "decky-frontend-lib"
+      ]
+    }
+  }
+}
