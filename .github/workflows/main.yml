@@ -2,6 +2,10 @@ name: Build and Publish Release
 
 on:
   workflow_dispatch: 
+    inputs:
+      releaseVersion:
+        description: 'Release version'
+        required: true
 
 jobs:
   npmRunBuild:
