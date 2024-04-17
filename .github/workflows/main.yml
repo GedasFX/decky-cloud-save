@@ -84,7 +84,7 @@ jobs:
           cp plugin.json decky-cloud-save/plugin.json
           cp README.md decky-cloud-save/README.md
           cd decky-cloud-save
-          zip decky-cloud-save.zip .
+          zip decky-cloud-save.zip *
 
       - name: Archive zip file
         uses: actions/upload-artifact@v4
