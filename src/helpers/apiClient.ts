@@ -13,9 +13,9 @@ async function syncNowInternal(showToast: boolean, winner: string): Promise<void
     }
   }
 
-  if (showToast) {
+  /*if (showToast) {
     toast(translate("synchronizing.savedata"), 2000);
-  }
+  }*/
 
   sessionStorage.setItem("syncing", "true");
   setAppState("syncing", "true");

@@ -4,50 +4,82 @@ on:
   workflow_dispatch: 
 
 jobs:
-  build:
+  npmRunBuild:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Build binary with Dockerfile
-      run: |
-        docker build -t epg91-rclone-extractor ./backend
-        docker run --rm -v $(pwd)/backend:/backend epg91-rclone-extractor /bin/bash -c "cd /backend && chmod +x entrypoint.sh && /bin/bash entrypoint.sh"
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Install dependencies
+        run: |
+          npm install -g pnpm@8.5.1 shx@0.3.4
+          pnpm install
 
-    - name: Install dependencies and run build
-      run: |
-        npm install
-        npm run build
+      - name: Build
+        run: pnpm run build
 
-    - name: Package directories into zip
-      run: |
-        mkdir bin
-        cp backend/out/rclone bin
-        zip -r output.zip bin dist defaults/quickstart LICENSE main.py package.json plugin.json rclone README.md defaults/rclone
+      - name: Archive dist folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
 
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v1.0.0  # Puedes especificar tu versión aquí
-        release_name: Release v1.0.0  # Nombre de la release
-        body: Release description goes here  # Descripción de la release
+  downloadRclone:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./output.zip
-        asset_name: output.zip
-        asset_content_type: application/zip
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker image
+        run: |
+          docker build -t my_backend_image ./backend
+        working-directory: ${{ github.workspace }}
+
+      - name: Run Docker container
+        run: |
+          docker run -v ${{ github.workspace }}/backend:/backend my_backend_image
+        working-directory: ${{ github.workspace }}
+
+      - name: Archive rclone folder
+        uses: actions/upload-artifact@v2
+        with:
+          name: rclone
+          path: backend/out/rclone
+
+  prepareFolders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install zip
+        run: sudo apt-get install -y zip
+
+      - name: Prepare folders
+        run: |
+          mkdir decky-cloud-save decky-cloud-save/bin
+          cp -r backend/dist decky-cloud-save/dist
+          cp -r defaults/quickstart decky-cloud-save/quickstart 
+          cp defaults/rclone decky-cloud-save/rclone
+          cp backend/out/rclone decky-cloud-save/bin 
+          cp decky_plugin.pyi decky-cloud-save/decky_plugin.pyi
+          cp LICENSE decky-cloud-save/LICENSE
+          cp main.py decky-cloud-save/main.py
+          cp package.json decky-cloud-save/package.json
+          cp plugin.json decky-cloud-save/plugin.json
+          cp README.md decky-cloud-save/README.md
+          zip -r decky-cloud-save.zip decky-cloud-save
+
+      - name: Archive zip file
+        uses: actions/upload-artifact@v2
+        with:
+          name: decky-cloud-save
+          path: decky-cloud-save.zip

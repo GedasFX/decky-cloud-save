@@ -1,10 +1,10 @@
 import asyncio
-import logging
 import os
 import re
 import sys
 from pathlib import Path
 import subprocess
+import decky_plugin
 
 plugin_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 config_dir = (Path(plugin_dir) / "../../settings/decky-cloud-save").resolve()
@@ -16,9 +16,6 @@ cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
 cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
 cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
-
-logger = logging.getLogger("decky-cloud-save")
-logger.setLevel(logging.INFO)
 
 def get_all_children(pid: int) -> list[str]:
     pids = [str(pid)]
@@ -37,7 +34,7 @@ def get_all_children(pid: int) -> list[str]:
                 tmpPids.append(chldPid)     
         return pids
     except:
-        logger.error("Excepcion", exc_info=True)
+        decky_plugin.logger.error("Excepcion", exc_info=True)
         return pids
 
 async def _get_url_from_rclone_process(process: asyncio.subprocess.Process):
@@ -55,7 +52,7 @@ def _is_port_in_use(port: int) -> bool:
 
 async def _kill_previous_spawn(process: asyncio.subprocess.Process):
     if process and process.returncode is None:
-        logger.warn("Killing previous Process")
+        decky_plugin.logger.warn("Killing previous Process")
         process.kill()
         await asyncio.sleep(0.1)  # Give time for OS to clear up the port
 
@@ -81,7 +78,7 @@ def _get_config():
     with open(cfg_property_file) as f:
         lines = f.readlines()
         lines = list(map(lambda x: x.strip().split('='), lines))
-        logger.debug("config %s", lines)
+        decky_plugin.logger.debug("config %s", lines)
         return lines
 
 def _set_config(key: str, value: str):
@@ -101,19 +98,22 @@ def _set_config(key: str, value: str):
 def runKillCommand(signal: str, pids: list[str]) -> int:
     command = ["kill", "-"+signal ]
     command.extend(pids)
-    logger.info("Running command: %s", subprocess.list2cmdline(command))
+    decky_plugin.logger.info("Running command: %s", subprocess.list2cmdline(command))
     return subprocess.run(command, stderr=sys.stderr, stdout=sys.stdout).returncode
 
 class Plugin:
     current_spawn = None
     current_sync = None
 
+    async def log(self, msg: str) -> int:
+        decky_plugin.logger.info(msg)
+
     async def pauseParent(self, pid: int) -> int:
         try:
             runKillCommand("SIGSTOP", [str(pid)])
             return 1
         except:
-            logger.error("Excepcion", exc_info=True)
+            decky_plugin.logger.error("Excepcion", exc_info=True)
             return -1
 
     async def pause(self, pid: int) -> int:
@@ -123,7 +123,7 @@ class Plugin:
                 runKillCommand("SIGSTOP", pids)
                 return len(pids)
             except:
-                logger.error("Excepcion", exc_info=True)
+                decky_plugin.logger.error("Excepcion", exc_info=True)
                 return -1
         else:
             return -1
@@ -135,14 +135,14 @@ class Plugin:
                 runKillCommand("SIGCONT", pids)
                 return len(pids)
             except:
-                logger.error("Excepcion", exc_info=True)
+                decky_plugin.logger.error("Excepcion", exc_info=True)
                 return -1
         else:
             return -1
 
     async def spawn(self, backend_type: str):
-        logger.debug("Executing: spawn(%s)", backend_type)
-        logger.info("Updating rclone.conf")
+        decky_plugin.logger.debug("Executing: spawn(%s)", backend_type)
+        decky_plugin.logger.info("Updating rclone.conf")
         await _kill_previous_spawn(self.current_spawn)
         if _is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
@@ -152,49 +152,55 @@ class Plugin:
             additional_args = []
         self.current_spawn = await asyncio.subprocess.create_subprocess_exec(rclone_bin, *(["config", "create", "backend", backend_type] + additional_args), stderr=asyncio.subprocess.PIPE)
         url = await _get_url_from_rclone_process(self.current_spawn)
-        logger.info("Login URL: %s", url)
+        decky_plugin.logger.info("Login URL: %s", url)
         return url
 
     async def spawn_probe(self):
-        logger.debug("Executing: spawn_probe()")
+        decky_plugin.logger.debug("Executing: spawn_probe()")
         if not self.current_spawn:
             return 0
         return self.current_spawn.returncode
 
     async def get_backend_type(self):
-        logger.debug("Executing: get_backend_type()")
+        decky_plugin.logger.debug("Executing: get_backend_type()")
         with open(rclone_cfg, "r") as f:
             l = f.readlines()
             return l[1]
 
     async def sync_now_internal(self, winner: str):
-        logger.info("Executing: sync_now_download("+winner+")")
+        decky_plugin.logger.info("Executing: sync_now_download("+winner+")")
         config = _get_config()
-        if next((x[1] for x in config if x[0] == "bisync_enabled"), "false") == "true":
-            sync_command = "bisync"
-            logger.debug("using bisync")
-        else: 
-            sync_command = "copy"
-            logger.debug("using copy")
         destination_path = next((x[1] for x in config if x[0] == "destination_directory"), "decky-cloud-save")
-        cmd = [rclone_bin, *[sync_command, "/", f"backend:{destination_path}", "--filter-from", cfg_syncpath_filter_file, "--copy-links", "--conflict-resolve", winner, "--transfers", "8", "--checkers", "16"]]
-        logger.info("Running command: %s", subprocess.list2cmdline(cmd))
+        args=[]
+        if next((x[1] for x in config if x[0] == "bisync_enabled"), "false") == "true":
+            args.extend(["bisync"])
+            decky_plugin.logger.debug("Using bisync")
+        else: 
+            args.extend(["copy"])
+            decky_plugin.logger.debug("Using copy")    
+        args.extend(["/", f"backend:{destination_path}", "--filter-from", cfg_syncpath_filter_file, 
+                             "--copy-links"])
+        if next((x[1] for x in config if x[0] == "bisync_enabled"), "false") == "true":
+            args.extend(["--conflict-resolve", winner])
+        args.extend(["--transfers", "8", "--checkers", "16", "--log-file", decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])  
+        cmd = [rclone_bin, *args]
+        decky_plugin.logger.info("Running command: %s", subprocess.list2cmdline(cmd))
         self.current_sync = await asyncio.subprocess.create_subprocess_exec(*cmd)
 
     async def sync_now_probe(self):
-        logger.debug("Executing: sync_now_probe()")
+        decky_plugin.logger.debug("Executing: sync_now_probe()")
         if not self.current_sync:
             return 0
         return self.current_sync.returncode
 
     async def get_syncpaths(self, file: str):
-        logger.debug("Executing: get_syncpaths()")
+        decky_plugin.logger.debug("Executing: get_syncpaths()")
         file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
         with open(file, "r") as f:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
-        logger.debug("Executing: test_syncpath(%s)", path)
+        decky_plugin.logger.debug("Executing: test_syncpath(%s)", path)
         if path.endswith("/**"):
             scan_single_dir = False
             path = path[:-3]
@@ -205,7 +211,7 @@ class Plugin:
             return int(Path(path).is_file())
         count = 0
         for root, os_dirs, os_files in os.walk(path, followlinks=True):
-            logger.debug("%s %s %s", root, os_dirs, os_files)
+            decky_plugin.logger.debug("%s %s %s", root, os_dirs, os_files)
             count += len(os_files)
             if count > 9000:
                 return "9000+"
@@ -214,8 +220,8 @@ class Plugin:
         return count
 
     async def add_syncpath(self, path: str, file: str):
-        logger.debug("Executing: add_syncpath(%s, %s)", path, file)
-        logger.info("Adding Path to Sync: '%s', %s", path, file)
+        decky_plugin.logger.debug("Executing: add_syncpath(%s, %s)", path, file)
+        decky_plugin.logger.info("Adding Path to Sync: '%s', %s", path, file)
         file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
         with open(file, "r") as f:
             lines = f.readlines()
@@ -229,8 +235,8 @@ class Plugin:
         _regenerate_filter_file()
 
     async def remove_syncpath(self, path: str, file: str):
-        logger.debug("Executing: remove_syncpath(%s, %s)", path, file)
-        logger.info("Removing Path from Sync: '%s', %s", path, file)
+        decky_plugin.logger.debug("Executing: remove_syncpath(%s, %s)", path, file)
+        decky_plugin.logger.info("Removing Path from Sync: '%s', %s", path, file)
         file = cfg_syncpath_excludes_file if file == "excludes" else cfg_syncpath_includes_file
         with open(file, "r") as f:
             lines = f.readlines()
@@ -241,16 +247,16 @@ class Plugin:
         _regenerate_filter_file()
 
     async def get_config(self):
-        logger.debug("Executing: get_config()")
+        decky_plugin.logger.debug("Executing: get_config()")
         return _get_config()
 
     async def set_config(self, key: str, value: str):
-        logger.debug("Executing: set_config(%s, %s)", key, value)
+        decky_plugin.logger.debug("Executing: set_config(%s, %s)", key, value)
         _set_config(key, value)
 
     async def _main(self):
-        logger.debug("rclone exe path: %s", rclone_bin)
-        logger.debug("rclone cfg path: %s", rclone_cfg)
+        decky_plugin.logger.debug("rclone exe path: %s", rclone_bin)
+        decky_plugin.logger.debug("rclone cfg path: %s", rclone_cfg)
         if not config_dir.is_dir():
             os.makedirs(config_dir, exist_ok=True)
         if not cfg_syncpath_includes_file.is_file():

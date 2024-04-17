@@ -56,7 +56,7 @@ class AppState {
   public setState = (key: keyof State, value: string, persist = false) => {
     this._currentState = { ...this.currentState, [key]: value };
 
-    log(key, value, persist);
+    log("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
       this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => log(e));

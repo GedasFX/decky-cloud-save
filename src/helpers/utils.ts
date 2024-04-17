@@ -6,7 +6,7 @@ export const pluginIcon = FaSave
 const ico = window.SP_REACT.createElement("img", { width: "30", style: { marginTop: "5px", marginLeft: "10px" }, src: toastIcon });
 
 export function log(...args: any) {
-  console.log('\x1B[30;42;1m Decky Cloud Save \x1B[m '+ args);
+  backend_call<{ msg: string }, void>("log", { msg: "" + args });
 }
 
 export function toast(msg: any, ms: number = 2000) {
@@ -18,15 +18,12 @@ export async function backend_call<I, O>(name: string, params: I): Promise<O> {
     const res = await getServerApi().callPluginMethod<I, O>(name, params);
     if (res.success) {
       let result = res.result;
-      log(name + " success: " + result)
       return result;
     } else {
       let result = res.result;
-      log(name + " failure: " + result)
       throw result;
     }
   } catch (e) {
-    log(e);
     throw e;
   }
 }

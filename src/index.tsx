@@ -17,11 +17,9 @@ export default definePlugin((serverApi: ServerAPI) => {
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (appState.currentState.sync_on_game_exit === "true") {
       const game = appDetailsStore.GetAppDetails(e.unAppID);
-      log("Event for " + game.strDisplayName);
       if (game.bCloudAvailable && game.bCloudEnabledForApp && game.bCloudEnabledForAccount) {
         log("Skipping due to Cloud Save");
       } else {
-        log("Syncing");
         let toast = appState.currentState.toast_auto_sync === "true";
         if (e.bRunning) {
           syncOnLaunch(toast, e.nInstanceID);

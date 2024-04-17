@@ -14,12 +14,12 @@ import Head from "../components/Head";
 import DeckyStoreButton from "../components/DeckyStoreButton";
 import { setAppState, useAppState } from "../helpers/state";
 import { translate } from "../helpers/translator";
-import { log } from "../helpers/utils";
+//import { log } from "../helpers/utils";
 
 // TODO
 export const Content: VFC<{}> = () => {
   const appState = useAppState();
-  log("Rendering index", appState);
+  //log("Rendering index", appState);
 
   const [hasProvider, setHasProvider] = useState<boolean | undefined>(undefined);
 
