@@ -65,11 +65,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      - name: Download all workflow run artifacts
+      - name: Download dist artifact
         uses: actions/download-artifact@v4
         with: 
           name: dist
           path: dist
+        
+      - name: Download rclone artifact
         uses: actions/download-artifact@v4
         with: 
           name: rclone
