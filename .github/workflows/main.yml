@@ -80,10 +80,10 @@ jobs:
       - name: Prepare folders
         run: |
           mkdir decky-cloud-save decky-cloud-save/bin
-          cp -r backend/dist decky-cloud-save/dist
+          cp -r dist decky-cloud-save/dist
           cp -r defaults/quickstart decky-cloud-save/quickstart 
           cp defaults/rclone decky-cloud-save/rclone
-          cp backend/out/rclone decky-cloud-save/bin 
+          cp rclone/rclone decky-cloud-save/bin 
           cp decky_plugin.pyi decky-cloud-save/decky_plugin.pyi
           cp LICENSE decky-cloud-save/LICENSE
           cp main.py decky-cloud-save/main.py
