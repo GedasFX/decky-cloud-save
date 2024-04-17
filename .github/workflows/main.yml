@@ -24,10 +24,11 @@ jobs:
         run: pnpm run build
 
       - name: Archive dist folder
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
+          retention-days: 1
 
   downloadRclone:
     runs-on: ubuntu-latest
@@ -53,10 +54,11 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Archive rclone folder
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: rclone
           path: backend/out/rclone
+          retention-days: 1
 
   prepareFolders:
     runs-on: ubuntu-latest
@@ -65,21 +67,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         
-      - name: Download dist artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
-        with: 
-          name: dist
-          path: dist
-        
-      - name: Download rclone artifact
-        uses: actions/download-artifact@v4
-        with: 
-          name: rclone
-          path: rclone
         
       - name: List folder
         run: |
-          ls -lahR
+          ls -R
 
       - name: Install zip
         run: sudo apt-get install -y zip
@@ -100,7 +93,8 @@ jobs:
           zip -r decky-cloud-save.zip decky-cloud-save
 
       - name: Archive zip file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: decky-cloud-save
           path: decky-cloud-save.zip
+          retention-days: 1
