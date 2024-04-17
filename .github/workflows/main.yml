@@ -69,13 +69,6 @@ jobs:
         
       - name: Download artifacts
         uses: actions/download-artifact@v4
-        
-      - name: List folder
-        run: |
-          ls -R
-
-      - name: Install zip
-        run: sudo apt-get install -y zip
 
       - name: Prepare folders
         run: |
@@ -90,7 +83,8 @@ jobs:
           cp package.json decky-cloud-save/package.json
           cp plugin.json decky-cloud-save/plugin.json
           cp README.md decky-cloud-save/README.md
-          zip decky-cloud-save.zip decky-cloud-save
+          cd decky-cloud-save
+          zip decky-cloud-save.zip .
 
       - name: Archive zip file
         uses: actions/upload-artifact@v4
