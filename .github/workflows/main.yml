@@ -67,6 +67,13 @@ jobs:
         
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v4
+        with: 
+          name: dist
+          path: dist
+        uses: actions/download-artifact@v4
+        with: 
+          name: rclone
+          path: rclone
         
       - name: List folder
         run: |
