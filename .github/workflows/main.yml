@@ -32,6 +32,10 @@ jobs:
   downloadRclone:
     runs-on: ubuntu-latest
     steps:
+      - name: Fix permissions
+        run: |
+          chmod 777 -R .
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -56,6 +60,7 @@ jobs:
 
   prepareFolders:
     runs-on: ubuntu-latest
+    needs: [npmRunBuild, downloadRclone]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
