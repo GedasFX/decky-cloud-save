@@ -1,6 +1,7 @@
 export const dictionary = {
     "sync": "Sincronizar",
     "sync.now": "Sincronizar ahora",
+    "resync.now": "Resincronizar ahora",
     "provider.not.configured": "El proveedor de almacenamiento en la nube no está configurado. Por favor configúrelo en 'Proveedor Cloud'",
     "sync.start.stop": "Sincronizar al iniciar y parar",
     "toast.auto.sync": "Notificacion tras sincronizar",
@@ -41,6 +42,7 @@ export const dictionary = {
     "excludes": "Exclusiones",
     "waiting.previous": "Esperando sincronizacion anterior",
     "synchronizing.savedata": "Sincronizando partidas",
-    "sync.failed": "Error. Ejecute journalctl -u plugin_loader.service para ver los errores.",
+    "sync.failed": "Error. Pulse aqui para ver los errores.",
     "sync.completed": "Sincronizacion completada en",
+    "rclone.error.logs": "Logs de sincronizacion fallida"
 }

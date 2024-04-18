@@ -139,6 +139,19 @@ class Plugin:
                 return -1
         else:
             return -1
+        
+    async def getLastSyncLog(self) -> str:
+        record: bool = False
+        log: str = ""
+        for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
+            if(record==False):
+                if "Setting 'syncing' to 'false'" in line:
+                    record = True
+            else:
+                log = line + '\n' + log
+                if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/rclone" in line.strip():
+                    return log
+
 
     async def spawn(self, backend_type: str):
         decky_plugin.logger.debug("Executing: spawn(%s)", backend_type)
@@ -167,7 +180,7 @@ class Plugin:
             l = f.readlines()
             return l[1]
 
-    async def sync_now_internal(self, winner: str):
+    async def sync_now_internal(self, winner: str, resync: bool):
         decky_plugin.logger.info("Executing: sync_now_download("+winner+")")
         config = _get_config()
         destination_path = next((x[1] for x in config if x[0] == "destination_directory"), "decky-cloud-save")
@@ -182,6 +195,8 @@ class Plugin:
                              "--copy-links"])
         if next((x[1] for x in config if x[0] == "bisync_enabled"), "false") == "true":
             args.extend(["--conflict-resolve", winner])
+        if resync:
+            args.extend(["--resync"])
         args.extend(["--transfers", "8", "--checkers", "16", "--log-file", decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])  
         cmd = [rclone_bin, *args]
         decky_plugin.logger.info("Running command: %s", subprocess.list2cmdline(cmd))

@@ -6,8 +6,14 @@ const allDictionaries = { english, spanish }
 let currDictionary = { ...allDictionaries["english"] };
 
 export async function initialize() {
-    const currLang = await SteamClient.Settings.GetCurrentLanguage();
+    let currLang = await SteamClient.Settings.GetCurrentLanguage();
     log("Initializing translator for " + currLang);
+
+    const forceLang = sessionStorage.getItem("dcs-lang");
+    if (forceLang != null && forceLang != undefined) {
+        log("Forcing translator for " + currLang);
+        currLang = forceLang;
+    }
 
     if (currLang != "english") {
         if (currDictionary == null || currDictionary == undefined) {

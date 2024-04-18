@@ -9,8 +9,8 @@ export function log(...args: any) {
   backend_call<{ msg: string }, void>("log", { msg: "" + args });
 }
 
-export function toast(msg: any, ms: number = 2000) {
-  getServerApi().toaster.toast({ title: "Decky Cloud Save", body: msg, duration: ms, logo: ico });
+export function toast(msg: any, ms: number = 2000, clickAction = () => { }) {
+  getServerApi().toaster.toast({ title: "Decky Cloud Save", body: msg, duration: ms, logo: ico, onClick: clickAction });
 }
 
 export async function backend_call<I, O>(name: string, params: I): Promise<O> {

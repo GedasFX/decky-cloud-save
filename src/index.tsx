@@ -3,6 +3,7 @@ import * as utils from "./helpers/utils";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
 import { syncOnEnd, syncOnLaunch } from "./helpers/apiClient";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
+import RenderRcloneLogsPage from "./pages/RenderRcloneLogsPage";
 import appState from "./helpers/state";
 import { Content } from "./pages/RenderDCSMenu";
 import { initialize } from "./helpers/translator";
@@ -13,6 +14,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-configure-logs", () => <RenderRcloneLogsPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (appState.currentState.sync_on_game_exit === "true") {
@@ -41,6 +43,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     onDismount() {
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
+      serverApi.routerHook.removeRoute("/dcs-configure-logs");
       removeGameExecutionListener();
       sessionStorage.removeItem("syncing");
       sessionStorage.removeItem("dcs-loaded");

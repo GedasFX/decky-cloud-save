@@ -1,10 +1,10 @@
-import { sleep } from "decky-frontend-lib";
+import { Navigation, sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
-import { toast } from "./utils";
+import { toast, backend_call } from "./utils";
 import { suspendGame, resumeGame } from "./processes";
 import { translate } from "./translator";
 
-async function syncNowInternal(showToast: boolean, winner: string): Promise<void> {
+async function syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
   const start = new Date();
   if (sessionStorage.getItem("syncing") === "true") {
     toast(translate("waiting.previous"), 2000);
@@ -19,7 +19,7 @@ async function syncNowInternal(showToast: boolean, winner: string): Promise<void
 
   sessionStorage.setItem("syncing", "true");
   setAppState("syncing", "true");
-  await getServerApi().callPluginMethod("sync_now_internal", { winner });
+  await getServerApi().callPluginMethod("sync_now_internal", { winner, resync });
 
   let exitCode = 0;
   while (true) {
@@ -47,16 +47,27 @@ async function syncNowInternal(showToast: boolean, winner: string): Promise<void
   setAppState("syncing", "false");
   sessionStorage.setItem("syncing", "false");
 
+  const logs = await backend_call<{}, string>("getLastSyncLog", {})
+  sessionStorage.setItem("rcloneLogs", logs);
+
   let body;
+  let time = 2000;
+  let action = () => { };
   if (pass) {
-    body = translate("sync.completed")+" "+((new Date().getTime() - start.getTime()) / 1000)+"s.";
+    body = translate("sync.completed") + " " + ((new Date().getTime() - start.getTime()) / 1000) + "s.";
   } else {
     body = translate("sync.failed");
+    action = () => { Navigation.Navigate("/dcs-configure-logs") };
+    time = 5000;
   }
 
   if (showToast || (!pass)) {
-    toast(body);
+    toast(body, time, action);
   }
+}
+
+export async function resyncNow(winner: string): Promise<void> {
+  return syncNowInternal(true, winner, true)
 }
 
 export async function syncNow(showToast: boolean): Promise<void> {
