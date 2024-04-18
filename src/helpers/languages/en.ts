@@ -42,7 +42,7 @@ export const dictionary = {
     "excludes": "Excludes",
     "waiting.previous": "Waiting for previous sync",
     "synchronizing.savedata": "Synchronizing savedata",
-    "sync.failed": "Sync failed. Click here to see the errors.",
+    "sync.failed": "Error. Click here to see the errors.",
     "sync.completed": "Sync completed in",
     "rclone.error.logs": "Error sync logs"
 }
