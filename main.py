@@ -194,7 +194,10 @@ class Plugin:
         args.extend(["/", f"backend:{destination_path}", "--filter-from", cfg_syncpath_filter_file, 
                              "--copy-links"])
         if next((x[1] for x in config if x[0] == "bisync_enabled"), "false") == "true":
-            args.extend(["--conflict-resolve", winner])
+            if resync:
+                args.extend(["--resync-mode", winner])
+            else:
+                args.extend(["--conflict-resolve", winner])
         if resync:
             args.extend(["--resync"])
         args.extend(["--transfers", "8", "--checkers", "16", "--log-file", decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])  
