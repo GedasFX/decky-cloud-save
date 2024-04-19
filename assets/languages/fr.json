@@ -1,4 +1,4 @@
-export const dictionary = {
+{
     "sync": "Synchroniser",
     "sync.now": "Synchroniser maintenant",
     "resync.now": "Resynchroniser maintenant",
@@ -44,6 +44,5 @@ export const dictionary = {
     "synchronizing.savedata": "Synchronisation des sauvegardes",
     "sync.failed": "Erreur. Cliquez ici pour voir les erreurs.",
     "sync.completed": "Synchronisation terminée en",
-    "rclone.error.logs": "Logs d'erreur de synchronisation",
-    "resynchronizing.savedata": "Réorganisation des données sauvegardées, veuillez patienter"
+    "rclone.error.logs": "Logs d'erreur de synchronisation"
 }

@@ -1,8 +1,8 @@
-import { dictionary as english } from "./languages/en"
-import { dictionary as spanish } from "./languages/es";
-import { dictionary as french } from "./languages/fr";
-import { dictionary as portuguese } from "./languages/pt";
-import { dictionary as german } from "./languages/ge";
+import english from "../../assets/languages/en.json"
+import spanish from "../../assets/languages/es.json";
+import french from "../../assets/languages/fr.json";
+import portuguese from "../../assets/languages/pt.json";
+import german from "../../assets/languages/ge.json";
 import * as logger from "./logger";
 
 enum Language {
@@ -32,7 +32,7 @@ export async function initialize() {
     const lang = Language[langKey] || Language.english;
 
     if (currLang != "english" && lang == Language.english) {
-            logger.warn("No translator available, fallback to English");
+        logger.warn("No translator available, fallback to English");
     } else {
         currDictionary = { ...currDictionary, ...allDictionaries[lang] };
     }

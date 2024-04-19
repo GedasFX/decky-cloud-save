@@ -1,4 +1,4 @@
-export const dictionary = {
+{
     "sync": "Sync",
     "sync.now": "Sync Now",
     "resync.now": "Resync Now",
