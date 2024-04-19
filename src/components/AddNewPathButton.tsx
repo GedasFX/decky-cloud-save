@@ -28,7 +28,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
         showModal(
           <ConfirmModal
             strTitle={translate("confirm.add")}
-            strDescription={translate("path") + " " + path + translate("matches") + " " + r.result + " " + translate("files.proceed")}
+            strDescription={translate("confirm.add.path", { "path": path, "count": r.result })}
             onCancel={() => setButtonDisabled(false)}
             onEscKeypress={() => setButtonDisabled(false)}
             onOK={() => {
@@ -74,7 +74,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-            {translate("folder")}
+              {translate("folder")}
             </MenuItem>
             <MenuItem
               onSelected={() =>
@@ -84,7 +84,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-            {translate("folder.exclude")}
+              {translate("folder.exclude")}
             </MenuItem>
           </Menu>
         )

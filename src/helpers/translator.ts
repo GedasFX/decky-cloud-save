@@ -38,7 +38,13 @@ export async function initialize() {
     }
 }
 
-export function translate(text: string) {
-    const val = currDictionary[text];
-    return val || text;
+export function translate(text: string, replacements: Record<string, any> = {}) {
+    let result: string = currDictionary[text] || text
+
+    for (const key in replacements) {
+        const placeholder = `{{${key}}}`;
+        result = result.split(placeholder).join(replacements[key]);
+    }
+
+    return result;
 }

@@ -51,7 +51,7 @@ async function syncNowInternal(showToast: boolean, winner: string, resync: boole
   let time = 2000;
   let action = () => { };
   if (pass) {
-    body = translate("sync.completed") + " " + ((new Date().getTime() - start.getTime()) / 1000) + "s.";
+    body = translate("sync.completed", { "time": ((new Date().getTime() - start.getTime()) / 1000) });
   } else {
     body = translate("sync.failed");
     time = 5000;

@@ -17,7 +17,7 @@ export function RenderExistingPathButton({
     showModal(
       <ConfirmModal
         strTitle={translate("confirm.remove")}
-        strDescription={translate("removing.path") + " '" + path + "'. " + translate("proceed")}
+        strDescription={translate("removing.path", { "path": path })}
         onCancel={() => setButtonDisabled(false)}
         onEscKeypress={() => setButtonDisabled(false)}
         onOK={() => {
