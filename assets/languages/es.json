@@ -44,5 +44,6 @@
     "synchronizing.savedata": "Sincronizando partidas",
     "sync.failed": "Error. Pulse aqui para ver los errores.",
     "sync.completed": "Sincronizacion completada en",
-    "rclone.error.logs": "Logs de sincronizacion fallida"
+    "rclone.error.logs": "Logs de sincronizacion fallida",
+    "resynchronizing.savedata": "Resincronizando partidas, espere"
 }
