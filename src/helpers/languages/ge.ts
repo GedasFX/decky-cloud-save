@@ -44,5 +44,6 @@ export const dictionary = {
     "synchronizing.savedata": "Speicherdaten werden synchronisiert",
     "sync.failed": "Fehler. Klicken Sie hier, um die Fehler anzuzeigen.",
     "sync.completed": "Synchronisierung abgeschlossen in",
-    "rclone.error.logs": "Fehlerprotokolle der Synchronisierung"
+    "rclone.error.logs": "Fehlerprotokolle der Synchronisierung",
+    "resynchronizing.savedata": "Daten-Synchronisierung, bitte warten"
 }
