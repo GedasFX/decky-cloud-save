@@ -1,6 +1,6 @@
 import { ServerAPI } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { log } from "./utils";
+import * as logger from "./logger";
 
 type State = {
   sync_on_game_exit: string;
@@ -49,17 +49,17 @@ class AppState {
     if (data.success) {
       data.result.forEach((e) => this.setState(e[0] as keyof State, e[1]));
     } else {
-      log(data);
+      logger.error(data);
     }
   }
 
   public setState = (key: keyof State, value: string, persist = false) => {
     this._currentState = { ...this.currentState, [key]: value };
 
-    log("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
+    logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
-      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => log(e));
+      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => logger.debug(e));
     }
 
     this._subscribers.forEach((e) => e.callback(this.currentState));
@@ -99,7 +99,7 @@ export const useAppState = () => {
 
   useEffect(() => {
     const id = appState.subscribe((e) => {
-      log("Rendering: " + JSON.stringify(e));
+      logger.info("Rendering: " + JSON.stringify(e));
       setState(e);
     });
     return () => {

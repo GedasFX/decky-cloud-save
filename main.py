@@ -105,8 +105,16 @@ class Plugin:
     current_spawn = None
     current_sync = None
 
-    async def log(self, msg: str) -> int:
-        decky_plugin.logger.info(msg)
+    async def log(self, level: str, msg: str) -> int:
+        match level:
+            case "debug":
+                decky_plugin.logger.debug(msg)
+            case "info":
+                decky_plugin.logger.info(msg)
+            case "warn":
+                decky_plugin.logger.warn(msg)
+            case "error":
+                decky_plugin.logger.error(msg)
 
     async def pauseParent(self, pid: int) -> int:
         try:
@@ -145,12 +153,13 @@ class Plugin:
         log: str = ""
         for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
             if(record==False):
-                if "Setting 'syncing' to 'false'" in line:
+                if "Sync finished" in line:
                     record = True
             else:
-                log = line + '\n' + log
                 if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/rclone" in line.strip():
                     return log
+                else:
+                    log = line + '\n' + log
 
 
     async def spawn(self, backend_type: str):

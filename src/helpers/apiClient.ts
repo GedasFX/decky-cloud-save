@@ -1,23 +1,22 @@
 import { Navigation, sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
-import { toast, backend_call } from "./utils";
+import { toast } from "./toast";
+import { backend_call } from "./backend";
 import { suspendGame, resumeGame } from "./processes";
 import { translate } from "./translator";
+import * as logger from '../helpers/logger';
+import * as storage from '../helpers/storage';
 
 async function syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
   const start = new Date();
-  if (sessionStorage.getItem("syncing") === "true") {
+  if (storage.getSessionStorageItem("syncing") === "true") {
     toast(translate("waiting.previous"), 2000);
-    while (sessionStorage.getItem("syncing") === "true") {
+    while (storage.getSessionStorageItem("syncing") === "true") {
       await sleep(300);
     }
   }
 
-  /*if (showToast) {
-    toast(translate("synchronizing.savedata"), 2000);
-  }*/
-
-  sessionStorage.setItem("syncing", "true");
+  storage.setSessionStorageItem("syncing", "true");
   setAppState("syncing", "true");
   await getServerApi().callPluginMethod("sync_now_internal", { winner, resync });
 
@@ -33,6 +32,8 @@ async function syncNowInternal(showToast: boolean, winner: string, resync: boole
     await sleep(360);
   }
 
+  logger.info("Sync finished")
+
   let pass;
   switch (exitCode) {
     case 0:
@@ -43,12 +44,8 @@ async function syncNowInternal(showToast: boolean, winner: string, resync: boole
       pass = false;
       break;
   }
-
   setAppState("syncing", "false");
-  sessionStorage.setItem("syncing", "false");
-
-  const logs = await backend_call<{}, string>("getLastSyncLog", {})
-  sessionStorage.setItem("rcloneLogs", logs);
+  storage.setSessionStorageItem("syncing", "false");
 
   let body;
   let time = 2000;
@@ -57,8 +54,9 @@ async function syncNowInternal(showToast: boolean, winner: string, resync: boole
     body = translate("sync.completed") + " " + ((new Date().getTime() - start.getTime()) / 1000) + "s.";
   } else {
     body = translate("sync.failed");
-    action = () => { Navigation.Navigate("/dcs-configure-logs") };
     time = 5000;
+    action = () => { Navigation.Navigate("/dcs-configure-logs") };
+    storage.setSessionStorageItem("rcloneLogs", await backend_call<{}, string>("getLastSyncLog", {}));
   }
 
   if (showToast || (!pass)) {

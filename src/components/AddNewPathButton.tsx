@@ -1,7 +1,7 @@
 import { ButtonItem, showContextMenu, Menu, MenuItem, FilePickerRes, showModal, ConfirmModal } from "decky-frontend-lib";
 import { useState } from "react";
 import { PageProps } from "../helpers/types";
-import { toast } from "../helpers/utils";
+import { toast } from "../helpers/toast";
 import { translate } from "../helpers/translator"
 
 export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageProps<{ onPathAdded?: () => void; file: "includes" | "excludes" }>) {

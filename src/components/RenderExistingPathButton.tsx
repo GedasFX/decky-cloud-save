@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FaFile, FaFolder, FaTrash } from "react-icons/fa";
 import { getServerApi } from "../helpers/state";
 import { PageProps } from "../helpers/types";
-import { toast } from "../helpers/utils";
+import { toast } from "../helpers/toast";
 import { translate } from "../helpers/translator"
 
 export function RenderExistingPathButton({

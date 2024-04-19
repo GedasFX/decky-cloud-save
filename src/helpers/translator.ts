@@ -1,29 +1,44 @@
-import { dictionary as english } from "./languages/en";
+import { dictionary as english } from "./languages/en"
 import { dictionary as spanish } from "./languages/es";
-import { log } from "./utils";
+import { dictionary as french } from "./languages/fr";
+import { dictionary as portuguese } from "./languages/pt";
+import { dictionary as german } from "./languages/ge";
+import * as logger from "./logger";
 
-const allDictionaries = { english, spanish }
-let currDictionary = { ...allDictionaries["english"] };
+enum Language {
+    english,
+    spanish,
+    latam,
+    french,
+    portuguese,
+    german
+}
+
+const allDictionaries: { [key in Language]: Record<string, string> } = {
+    [Language.english]: english,
+    [Language.spanish]: spanish,
+    [Language.latam]: spanish,
+    [Language.french]: french,
+    [Language.portuguese]: portuguese,
+    [Language.german]: german
+};
+
+let currDictionary = { ...allDictionaries[Language.english] };
 
 export async function initialize() {
     let currLang = await SteamClient.Settings.GetCurrentLanguage();
-    log("Initializing translator for " + currLang);
+    logger.debug("Initializing translator for " + currLang);
+    const langKey = currLang.toLowerCase() as keyof typeof Language;
+    const lang = Language[langKey] || Language.english;
 
-    const forceLang = sessionStorage.getItem("dcs-lang");
-    if (forceLang != null && forceLang != undefined) {
-        log("Forcing translator for " + currLang);
-        currLang = forceLang;
-    }
-
-    if (currLang != "english") {
-        if (currDictionary == null || currDictionary == undefined) {
-            log("No translator available, fallback to English");
-        } else {
-            currDictionary = { ...currDictionary, ...allDictionaries[currLang] };
-        }
+    if (currLang != "english" && lang == Language.english) {
+            logger.warn("No translator available, fallback to English");
+    } else {
+        currDictionary = { ...currDictionary, ...allDictionaries[lang] };
     }
 }
 
 export function translate(text: string) {
-    return currDictionary[text];
+    const val = currDictionary[text];
+    return val || text;
 }

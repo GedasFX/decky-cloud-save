@@ -6,7 +6,7 @@ import Container from "../components/Container";
 import { PageProps } from "../helpers/types";
 import { getCloudBackend } from "../helpers/apiClient";
 import { translate } from "../helpers/translator"
-import { log } from "../helpers/utils";
+import * as logger from "../helpers/logger";
 
 export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive" | "drive" | "dropbox") => {
@@ -30,7 +30,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
       Navigation.CloseSideMenus();
       Navigation.NavigateToExternalWeb(response.result);
     } else {
-      log(response);
+      logger.error(response);
     }
   };
 
