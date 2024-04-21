@@ -4,8 +4,16 @@ import subprocess
 import decky_plugin
 
 def _get_process_tree(pid):
-    ps_output = subprocess.check_output(["ps", "--ppid", str(pid), "--no-headers", "-o", "pid"])
-    return [int(line.strip()) for line in ps_output.splitlines()]
+    children = []
+    with subprocess.Popen(["ps", "--ppid", str(pid), "-o", "pid="], stdout=subprocess.PIPE) as p:
+        lines = p.stdout.readlines()
+    for chldPid in lines:
+        chldPid = chldPid.strip()
+        if not chldPid:
+            continue
+        children.extend([int(chldPid.decode())])
+
+    return children;
 
 def send_signal(pid: int, signal: signal.Signals):
     try:
