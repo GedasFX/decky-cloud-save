@@ -2,10 +2,10 @@ import { Navigation, sleep } from "decky-frontend-lib";
 import { getServerApi, setAppState } from "./state";
 import { toast } from "./toast";
 import { backend_call } from "./backend";
-import { suspendGame, resumeGame } from "./processes";
 import { translate } from "./translator";
 import * as logger from '../helpers/logger';
 import * as storage from '../helpers/storage';
+import { signal } from "./processes";
 
 async function syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
   const start = new Date();
@@ -73,9 +73,9 @@ export async function syncNow(showToast: boolean): Promise<void> {
 }
 
 export async function syncOnLaunch(showToast: boolean, pid: number) {
-  await suspendGame(pid);
+  await signal(pid, 'SIGSTOP');
   await syncNowInternal(showToast, "path2")
-  await resumeGame(pid);
+  await signal(pid, 'SIGCONT');
 }
 
 export async function syncOnEnd(showToast: boolean) {

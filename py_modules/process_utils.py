@@ -1,24 +1,21 @@
 import os
 import signal
+import subprocess
 import decky_plugin
-import psutil
 
-def _send_signal_int(pid: int, signal: signal.Signals):
-    try:
-        os.kill(pid, signal)
-        decky_plugin.logger.info("Process with PID %d received signal %s.", pid, signal)
-    except Exception as e:
-        decky_plugin.logger.error("Error pausing process with PID %d: %s", pid, e)
+def _get_process_tree(pid):
+    ps_output = subprocess.check_output(["ps", "--ppid", str(pid), "--no-headers", "-o", "pid"])
+    return [int(line.strip()) for line in ps_output.splitlines()]
 
 def send_signal(pid: int, signal: signal.Signals):
     try:
-        parent_process = psutil.Process(pid)
-    except psutil.NoSuchProcess:
-        decky_plugin.logger.error("Process with PID %d not found.", pid)
-        return
+        os.kill(pid, signal)
+        decky_plugin.logger.info("Process with PID %d received signal %s.", pid, signal)
 
-    _send_signal_int(pid, signal)
+        child_pids = _get_process_tree(pid)
 
-    # Recursively send signal to child processes as pause on parent, does not pause chidren
-    for child in parent_process.children(recursive=True):
-        _send_signal_int(child.pid, signal)
+        for child_pid in child_pids:
+            send_signal(child_pid, signal)
+            
+    except Exception as e:
+         decky_plugin.logger.error("Error sending signal to process with PID %d: %s", pid, e)

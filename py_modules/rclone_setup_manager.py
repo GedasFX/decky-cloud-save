@@ -34,7 +34,6 @@ class RcloneSetupManager:
     # Backend Setup
 
     async def spawn(self, backend_type: str):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.spawn(%s)", backend_type)
         decky_plugin.logger.info("Updating rclone.conf")
 
         await _kill_previous_spawn(self.current_spawn)
@@ -49,15 +48,12 @@ class RcloneSetupManager:
         return url
     
     async def probe(self):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.probe()")
-
         if not self.current_spawn:
             return 0
 
         return self.current_spawn.returncode
 
     async def get_backend_type(self):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.get_backend_type()")
         with open(plugin_config.rclone_cfg, "r") as f:
             l = f.readlines()
             return l[1]
@@ -66,15 +62,11 @@ class RcloneSetupManager:
     # Sync Paths Setup
         
     async def get_syncpaths(self, file: str):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.get_syncpaths()")
-
         file = plugin_config.cfg_syncpath_excludes_file if file == "excludes" else plugin_config.cfg_syncpath_includes_file
         with open(file, "r") as f:
             return f.readlines()
 
     async def test_syncpath(self, path: str):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.test_syncpath(%s)", path)
-
         if path.endswith("/**"):
             scan_single_dir = False
             path = path[:-3]
@@ -96,7 +88,6 @@ class RcloneSetupManager:
         return count
 
     async def add_syncpath(self, path: str, file: str):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.add_syncpath(%s, %s)", path, file)
         decky_plugin.logger.info("Adding Path to Sync: '%s', %s", path, file)
 
         file = plugin_config.cfg_syncpath_excludes_file if file == "excludes" else plugin_config.cfg_syncpath_includes_file
@@ -114,7 +105,6 @@ class RcloneSetupManager:
         plugin_config.regenerate_filter_file()
 
     async def remove_syncpath(self, path: str, file: str):
-        decky_plugin.logger.debug("Executing: RcloneSetupManager.remove_syncpath(%s, %s)", path, file)
         decky_plugin.logger.info("Removing Path from Sync: '%s', %s", path, file)
 
         file = plugin_config.cfg_syncpath_excludes_file if file == "excludes" else plugin_config.cfg_syncpath_includes_file
@@ -130,5 +120,5 @@ class RcloneSetupManager:
 
     # Lifecycle
         
-    def __exit__(self, exc_type, exc_value, traceback):
+    def cleanup(self):
         _kill_previous_spawn(self.current_spawn)
