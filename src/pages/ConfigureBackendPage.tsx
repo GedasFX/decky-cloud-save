@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ImOnedrive, ImDropbox, ImHome } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
 import Container from "../components/Container";
-import { PageProps } from "../helpers/types";
+import { PageProps } from "../../types";
 import { getCloudBackend } from "../helpers/apiClient";
 import { translate } from "../helpers/translator"
 import * as logger from "../helpers/logger";
