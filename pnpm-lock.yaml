@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   react-icons:
     specifier: ^4.12.0
@@ -28,8 +32,8 @@ devDependencies:
     specifier: ^5.28.5
     version: 5.28.5
   decky-frontend-lib:
-    specifier: ^3.24.4
-    version: 3.24.4
+    specifier: ^3.25.0
+    version: 3.25.0
   rollup:
     specifier: ^2.79.1
     version: 2.79.1
@@ -428,8 +432,8 @@ packages:
     resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
     dev: true
 
-  /decky-frontend-lib@3.24.4:
-    resolution: {integrity: sha512-aCrzVS74V68PQxi5qFS6rjQwWryVy+yYTQKZztXT/T5v1jlw3AKXpTi47pCQl+6TdAIru4hAAjOF8TSf4iONaw==}
+  /decky-frontend-lib@3.25.0:
+    resolution: {integrity: sha512-2lBoHS2AIRmuluq/bGdHBz+uyToQE7k3K/vDq1MQbDZ4eC+8CGDuh2T8yZOj3D0yjGP2MdikNNAWPA9Z5l2qDg==}
     dev: true
 
   /deepmerge@4.3.1:
@@ -938,7 +942,3 @@ packages:
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

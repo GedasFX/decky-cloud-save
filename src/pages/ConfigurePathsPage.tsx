@@ -1,6 +1,6 @@
 import { PanelSectionRow, PanelSection, TextField } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { PageProps } from "../../types";
+import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 import Container from "../components/Container";

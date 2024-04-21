@@ -22,7 +22,7 @@ coverage
 # Dependency directory
 node_modules
 bower_components
-py_modules
+.pnpm-store
 
 # Editors
 .idea
@@ -34,7 +34,6 @@ Thumbs.db
 
 # Ignore built ts files
 dist/
-bin/
 
 __pycache__/
 
@@ -42,10 +41,19 @@ __pycache__/
 yalc.lock
 
 .vscode/settings.json
-rclone.conf
 
 # Ignore output folder
 
 backend/out
-/rclone
-/quickstart
+
+# Make sure to ignore any instance of the loader's decky_plugin.py
+decky_plugin.py
+
+# Ignore decky CLI for building plugins
+out
+out/*
+cli/
+cli/*
+cli/decky
+
+backend/rclone-*

@@ -1,10 +1,4 @@
-import {
-  ButtonItem,
-  Navigation,
-  PanelSection,
-  PanelSectionRow,
-  ToggleField,
-} from "decky-frontend-lib";
+import { ButtonItem, Navigation, PanelSection, PanelSectionRow, ToggleField } from "decky-frontend-lib";
 import { useEffect, useState, VFC } from "react";
 import { FaSave } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
@@ -76,17 +70,15 @@ export const Content: VFC<{}> = () => {
           </ButtonItem>
         </PanelSectionRow>
       </PanelSection>
-      {appState.experimental_menu === "true" && (
-        <PanelSection title={translate("experimental.use.risk")}>
-          <PanelSectionRow>
-            <ToggleField
-              label={translate("bidirectional.sync")}
-              checked={appState.bisync_enabled === "true"}
-              onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
-            />
-          </PanelSectionRow>
-        </PanelSection>
-      )}
+      <PanelSection title={translate("experimental.use.risk")}>
+        <PanelSectionRow>
+          <ToggleField
+            label={translate("bidirectional.sync")}
+            checked={appState.bisync_enabled === "true"}
+            onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
+          />
+        </PanelSectionRow>
+      </PanelSection>
     </>
   );
 };

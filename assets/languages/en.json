@@ -8,7 +8,7 @@
     "configuration": "Configuration",
     "sync.paths": "Sync Paths",
     "cloud.provider": "Cloud Provider",
-    "experimental.use.risk": "Experimental USE AT OWN RISK",
+    "experimental.use.risk": "Experimental Features",
     "bidirectional.sync": "Bidirectional Sync",
     "you.mad": "Are you mad??",
     "warning.root": "For your own safety, ability to sync the whole file system is disabled",

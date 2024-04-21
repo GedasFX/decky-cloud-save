@@ -1,4 +1,4 @@
-import { ServerAPI } from "decky-frontend-lib";
+import { AppDetails, ServerAPI } from "decky-frontend-lib";
 
 declare module "*.svg" {
   const content: string;
@@ -18,3 +18,8 @@ declare module "*.jpg" {
 export type PageProps<T> = {
   serverApi: ServerAPI;
 } & T;
+
+export type AppDetailsStore = {
+  GetAppDetails: (appId: number) => AppDetails | undefined;
+  RequestAppDetails(appId: number): Promise<void>;
+};

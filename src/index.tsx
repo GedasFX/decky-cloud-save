@@ -10,8 +10,9 @@ import { Content } from "./pages/RenderDCSMenu";
 import { initialize, translate } from "./helpers/translator";
 import * as storage from './helpers/storage';
 import * as backend from './helpers/backend';
+import { AppDetailsStore } from "./helpers/types";
 
-declare const appDetailsStore: any;
+declare const appDetailsStore: AppDetailsStore;
 
 export default definePlugin((serverApi: ServerAPI) => {
   appState.initialize(serverApi);
@@ -22,7 +23,8 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-configure-logs", () => <RenderRcloneLogsPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    const game = appDetailsStore.GetAppDetails(e.unAppID);
+    const game = appDetailsStore.GetAppDetails(e.unAppID)!;
+    
     logger.info("Received game status change for " + game.strDisplayName + "(" + e.unAppID + "). Running: " + e.bRunning);
     if (appState.currentState.sync_on_game_exit === "true") {
       if (game.bCloudAvailable && game.bCloudEnabledForApp && game.bCloudEnabledForAccount) {
@@ -34,7 +36,7 @@ export default definePlugin((serverApi: ServerAPI) => {
           if (toast) {
             utils.toast(translate("synchronizing.savedata"), 2000);
           }
-          syncOnLaunch(toast, e.nInstanceID);
+          syncOnLaunch(toast, e.nInstanceID); // nInstanceID is Linux Process PID
         } else {
           syncOnEnd(toast);
         }
