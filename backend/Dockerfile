@@ -7,8 +7,5 @@ FROM ghcr.io/steamdeckhomebrew/holo-base:latest
 
 RUN pacman -S wget unzip --noconfirm
 
-WORKDIR /backend
-VOLUME /backend
-
 # entrypoint.sh should always be located in the backend folder
 ENTRYPOINT [ "/backend/entrypoint.sh" ]

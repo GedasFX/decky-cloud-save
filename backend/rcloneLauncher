@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PLUGIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+CONFIG_DIR="$PLUGIN_DIR/../../../settings/decky-cloud-save"
+
+exec "$PLUGIN_DIR/rclone" "--config" "$CONFIG_DIR/rclone.conf" "$@"
+

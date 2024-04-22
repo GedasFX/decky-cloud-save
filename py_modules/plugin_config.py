@@ -6,7 +6,7 @@ import decky_plugin
 plugin_dir = Path(decky_plugin.DECKY_PLUGIN_DIR)
 config_dir = Path(decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
 
-rclone_bin = plugin_dir / "rclone"
+rclone_bin = plugin_dir / "bin/rcloneLauncher"
 rclone_cfg = config_dir / "rclone.conf"
 
 cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
