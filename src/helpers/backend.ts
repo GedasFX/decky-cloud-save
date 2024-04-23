@@ -2,6 +2,9 @@ import { ServerAPI } from "decky-frontend-lib";
 
 export class Backend {
 
+    private constructor(){
+    }
+
     public static instance: Backend;
 
     private _serverApi: ServerAPI = null!;

@@ -15,6 +15,10 @@ enum Language {
 }
 
 export class Translator {
+
+    private constructor(){
+    }
+    
     private static allDictionaries: { [key in Language]: Record<string, string> } = {
         [Language.english]: english,
         [Language.spanish]: spanish,

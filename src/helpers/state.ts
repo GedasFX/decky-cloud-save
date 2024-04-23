@@ -92,6 +92,10 @@ class AppState {
 }
 
 export class ApplicationState {
+
+  private constructor(){
+  }
+  
   private static appState = new AppState();
   
   public static initialize(serverApi: ServerAPI) {

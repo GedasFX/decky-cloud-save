@@ -8,6 +8,10 @@ import { Storage } from '../helpers/storage';
 import { Processes } from "./processes";
 
 export class ApiClient {
+
+  private constructor(){
+  }
+
   public static async syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
     Logger.info("Synchronizing")
     const start = new Date();

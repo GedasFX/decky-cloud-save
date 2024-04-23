@@ -1,4 +1,8 @@
 export class Storage {
+
+    private constructor(){
+    }
+    
     private static SESSION_STORAGE_PREFIX = 'dcs_';
 
     private static sessionStorageVariablesSet: Set<string> = new Set<string>();

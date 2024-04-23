@@ -9,6 +9,9 @@ enum LogLevel {
 
 export class Logger {
 
+    private constructor(){
+    }
+
     private static prefixStyle = "background-color: blue; color: white; font-weight: bold";
 
     private static levelStyles: { [key in LogLevel]: string } = {
