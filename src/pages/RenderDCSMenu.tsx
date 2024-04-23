@@ -76,7 +76,7 @@ export const Content: VFC<{}> = () => {
         <PanelSectionRow>
           <ButtonItem layout="below" onClick={() => {
             (async () => {
-              let logs = await Backend.backend_call<{}, string>("getPluginLog", {});
+              let logs = await Backend.backend_call<{}, string>("get_plugin_log", {});
               if (logs == "" || logs == null || logs == undefined) {
                 logs = Translator.translate("no.available.logs");
               }
@@ -89,7 +89,7 @@ export const Content: VFC<{}> = () => {
           </ButtonItem>
           <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => {
             (async () => {
-              let logs = await Backend.backend_call<{}, string>("getLastSyncLog", {});
+              let logs = await Backend.backend_call<{}, string>("get_last_sync_log", {});
               if (logs == "" || logs == null || logs == undefined) {
                 logs = Translator.translate("no.available.logs");
               }

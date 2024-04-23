@@ -81,13 +81,13 @@ class Plugin:
         decky_plugin.logger.debug("Executing: log()")
         return logger_utils.log(level, msg)
     
-    async def getLastSyncLog(self) -> str:
-        decky_plugin.logger.debug("Executing: getLastSyncLog()")
-        return logger_utils.getLastSyncLog()
+    async def get_last_sync_log(self) -> str:
+        decky_plugin.logger.debug("Executing: get_last_sync_log()")
+        return logger_utils.get_last_sync_log()
     
-    async def getPluginLog(self) -> str:
-        decky_plugin.logger.debug("Executing: getPluginLog()")
-        return logger_utils.getPluginLog()
+    async def get_plugin_log(self) -> str:
+        decky_plugin.logger.debug("Executing: get_plugin_log()")
+        return logger_utils.get_plugin_log()
 
 # Lifecycle
 

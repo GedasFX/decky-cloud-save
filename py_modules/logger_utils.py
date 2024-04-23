@@ -13,7 +13,7 @@ def log(level: str, msg: str) -> int:
             decky_plugin.logger.error(msg)
 
 
-def getLastSyncLog() -> str:
+def get_last_sync_log() -> str:
     record: bool = False
     log: str = ""
     for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
@@ -27,7 +27,7 @@ def getLastSyncLog() -> str:
                 log = line + '\n' + log  
     return log
 
-def getPluginLog() -> str:
+def get_plugin_log() -> str:
     log: str = ""
     for line in list(open(decky_plugin.DECKY_PLUGIN_LOG)):
         log = log + line + '\n' 
