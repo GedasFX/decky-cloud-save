@@ -14,4 +14,5 @@ mkdir -p out
 mv rclone-v1.66.0-linux-amd64/rclone out/
 
 cp rcloneLauncher out/
-chmod 755 out/rcloneLauncher
+cp openLastLog.sh out/
+chmod 755 out/rcloneLauncher out/openLastLog.sh

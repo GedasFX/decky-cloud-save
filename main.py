@@ -2,10 +2,9 @@ import signal
 import decky_plugin
 import plugin_config
 import process_utils
+import logger_utils
 from rclone_setup_manager import RcloneSetupManager
 from rclone_sync_manager import RcloneSyncManager
-
-decky_plugin.logger.setLevel("DEBUG")
 
 class Plugin:
     manager_setup = RcloneSetupManager()
@@ -52,6 +51,8 @@ class Plugin:
     async def sync_now_probe(self):
         decky_plugin.logger.debug("Executing: RcloneSyncManager.probe()")
         return await self.manager_sync.probe()
+
+# Processes
     
     async def signal(self, pid: int, s: str):
         decky_plugin.logger.debug("Executing: send_signal(%s)", pid, s)
@@ -62,6 +63,10 @@ class Plugin:
 
 # Configuration
 
+    async def get_log_level(self):
+        decky_plugin.logger.debug("Executing: get_log_level()")
+        return plugin_config.logger_level
+
     async def get_config(self):
         decky_plugin.logger.debug("Executing: get_config()")
         return plugin_config.get_config()
@@ -70,31 +75,19 @@ class Plugin:
         decky_plugin.logger.debug("Executing: set_config(%s, %s)", key, value)
         plugin_config.set_config(key, value)
 
-# Miscellanious
+# Logger
 
     async def log(self, level: str, msg: str) -> int:
-        match level:
-            case "debug":
-                decky_plugin.logger.debug(msg)
-            case "info":
-                decky_plugin.logger.info(msg)
-            case "warn":
-                decky_plugin.logger.warn(msg)
-            case "error":
-                decky_plugin.logger.error(msg)
-
+        decky_plugin.logger.debug("Executing: log()")
+        return logger_utils.log(level, msg)
+    
     async def getLastSyncLog(self) -> str:
-        record: bool = False
-        log: str = ""
-        for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
-            if(record==False):
-                if "Sync finished" in line:
-                    record = True
-            else:
-                if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/rclone" in line.strip():
-                    return log
-                else:
-                    log = line + '\n' + log  
+        decky_plugin.logger.debug("Executing: getLastSyncLog()")
+        return logger_utils.getLastSyncLog()
+    
+    async def getPluginLog(self) -> str:
+        decky_plugin.logger.debug("Executing: getPluginLog()")
+        return logger_utils.getPluginLog()
 
 # Lifecycle
 

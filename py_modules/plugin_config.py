@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 import decky_plugin
 
-
 plugin_dir = Path(decky_plugin.DECKY_PLUGIN_DIR)
 config_dir = Path(decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
 
@@ -73,3 +72,8 @@ def migrate():
         set_config("destination_directory", "decky-cloud-save")
     if not any(e[0] == "experimental_menu" for e in config):
         set_config("experimental_menu", "false")
+
+# Debug to log access to logger_level
+decky_plugin.logger.setLevel("DEBUG")
+logger_level = get_config_item("log_level", "INFO")
+decky_plugin.logger.setLevel(logger_level)

@@ -42,5 +42,9 @@
     "sync.failed": "Erreur. Cliquez ici pour voir les erreurs.",
     "sync.completed": "Synchronisation terminée en {{time}}s",
     "rclone.error.logs": "Journaux d'erreur de synchronisation",
-    "resynchronizing.savedata": "Resynchronisation des données sauvegardées, veuillez patienter"
+    "resynchronizing.savedata": "Resynchronisation des données sauvegardées, veuillez patienter",
+    "log.files": "Fichiers journaux",
+    "app.logs": "Logs du plugin",
+    "sync.logs": "Logs de synchronisation",
+    "no.available.logs": "Aucun journal disponible"
 }

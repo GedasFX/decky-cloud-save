@@ -5,19 +5,19 @@ import AddNewPathButton from "../components/AddNewPathButton";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
-import { getSyncPaths } from "../helpers/apiClient";
-import { setAppState, useAppState } from "../helpers/state";
-import { translate } from "../helpers/translator";
+import { ApiClient } from "../helpers/apiClient";
+import { ApplicationState } from "../helpers/state";
+import { Translator } from "../helpers/translator";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
-  const appState = useAppState();
+  const appState = ApplicationState.useAppState();
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
 
   const onPathsUpdated = () => {
     (async () => {
-      await getSyncPaths("includes").then((p) => setIncludePaths(p));
-      await getSyncPaths("excludes").then((p) => setExcludePaths(p));
+      await ApiClient.getSyncPaths("includes").then((p) => setIncludePaths(p));
+      await ApiClient.getSyncPaths("excludes").then((p) => setExcludePaths(p));
     })();
   };
 
@@ -25,37 +25,37 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
 
   return (
     <Container
-      title={translate("sync.paths")}
+      title={Translator.translate("sync.paths")}
       help={
         <HelpAssistant
           entries={[
             {
-              label: translate("includes.vs.exclude"),
-              description: translate("help.exclude"),
+              label: Translator.translate("includes.vs.exclude"),
+              description: Translator.translate("help.exclude"),
               issueId: "9",
             },
             {
-              label: translate("include.or.exclude.subf"),
-              description: translate("help.include.or.exclude.subf"),
+              label: Translator.translate("include.or.exclude.subf"),
+              description: Translator.translate("help.include.or.exclude.subf"),
               issueId: "9",
             },
             {
-              label: translate("bug.file.picker"),
-              description: translate("help.file.picker.fail"),
+              label: Translator.translate("bug.file.picker"),
+              description: Translator.translate("help.file.picker.fail"),
               issueId: "7",
             },
           ]}
         />
       }
     >
-      <PanelSection title={translate("cloud.save.path")}>
+      <PanelSection title={Translator.translate("cloud.save.path")}>
         <TextField
           disabled={false}
           value={appState.destination_directory}
-          onChange={(e) => setAppState("destination_directory", e.target.value, false)}
-          onBlur={(e) => setAppState("destination_directory", e.target.value, true)} />
+          onChange={(e) => ApplicationState.setAppState("destination_directory", e.target.value, false)}
+          onBlur={(e) => ApplicationState.setAppState("destination_directory", e.target.value, true)} />
       </PanelSection>
-      <PanelSection title={translate("includes")}>
+      <PanelSection title={Translator.translate("includes")}>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="includes" />
         </PanelSectionRow>
@@ -65,7 +65,7 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
           </PanelSectionRow>
         ))}
       </PanelSection>
-      <PanelSection title={translate("excludes")}>
+      <PanelSection title={Translator.translate("excludes")}>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="excludes" />
         </PanelSectionRow>

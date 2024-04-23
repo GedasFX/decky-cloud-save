@@ -4,9 +4,9 @@ import { ImOnedrive, ImDropbox, ImHome, ImGoogleDrive } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
 import Container from "../components/Container";
 import { PageProps } from "../helpers/types";
-import { getCloudBackend } from "../helpers/apiClient";
-import { translate } from "../helpers/translator"
-import * as logger from "../helpers/logger";
+import { ApiClient } from "../helpers/apiClient";
+import { Translator } from "../helpers/translator"
+import { Logger } from "../helpers/logger";
 
 export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive" | "drive" | "dropbox") => {
@@ -30,23 +30,23 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
       Navigation.CloseSideMenus();
       Navigation.NavigateToExternalWeb(response.result);
     } else {
-      logger.error(response);
+      Logger.error(response);
     }
   };
 
   const [provider, setProvider] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getCloudBackend().then((e) => setProvider(e ?? "N/A"));
+    ApiClient.getCloudBackend().then((e) => setProvider(e ?? "N/A"));
   }, []);
 
   return (
-    <Container title={translate("configure.provider")}>
+    <Container title={Translator.translate("configure.provider")}>
       <PanelSection>
-        <strong>{translate("currently.using")}: {provider}</strong>
+        <strong>{Translator.translate("currently.using")}: {provider}</strong>
       </PanelSection>
       <PanelSection>
-        <small>{translate("click.providers")}</small>
+        <small>{Translator.translate("click.providers")}</small>
         <PanelSectionRow>
           <ButtonItem onClick={() => openConfig("onedrive")} icon={<ImOnedrive />} label="OneDrive">
             <BsGearFill />
@@ -71,11 +71,11 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
             onClick={() =>
               showModal(
                 <ConfirmModal
-                  strTitle={translate("other.providers")}
+                  strTitle={Translator.translate("other.providers")}
                   strDescription={
                     <span style={{ whiteSpace: "pre-wrap" }}>
                       {
-                        translate("manually.desktop")
+                        Translator.translate("manually.desktop")
                       }
                     </span>
                   }
@@ -83,7 +83,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
               )
             }
             icon={<ImHome />}
-            label={translate("other.advanced")}
+            label={Translator.translate("other.advanced")}
           >
             <BsPatchQuestionFill />
           </ButtonItem>

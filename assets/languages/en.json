@@ -42,5 +42,9 @@
     "sync.failed": "Error. Click here to see the errors.",
     "sync.completed": "Sync completed in {{time}}s",
     "rclone.error.logs": "Error sync logs",
-    "resynchronizing.savedata": "Resynchronizing savedata, please wait"
+    "resynchronizing.savedata": "Resynchronizing savedata, please wait",
+    "log.files":"Log files",
+    "app.logs":"Plugin logs",
+    "sync.logs":"Sync logs",
+    "no.available.logs": "No available logs"
 }

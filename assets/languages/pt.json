@@ -42,5 +42,9 @@
     "sync.failed": "Erro. Clique aqui para ver os erros.",
     "sync.completed": "Sincronização concluída em {{time}}s",
     "rclone.error.logs": "Logs de erro de sincronização",
-    "resynchronizing.savedata": "Re-sincronizando dados salvos, por favor aguarde"
+    "resynchronizing.savedata": "Re-sincronizando dados salvos, por favor aguarde",
+    "log.files": "Arquivos de log",
+    "app.logs": "Logs do plugin",
+    "sync.logs": "Logs de sincronização",
+    "no.available.logs": "Nenhum registro disponível"
 }

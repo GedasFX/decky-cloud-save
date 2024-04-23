@@ -1,15 +1,15 @@
 import { ButtonItem, showContextMenu, Menu, MenuItem, FilePickerRes, showModal, ConfirmModal } from "decky-frontend-lib";
 import { useState } from "react";
 import { PageProps } from "../helpers/types";
-import { toast } from "../helpers/toast";
-import { translate } from "../helpers/translator"
+import { Toast } from "../helpers/toast";
+import { Translator } from "../helpers/translator"
 
 export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageProps<{ onPathAdded?: () => void; file: "includes" | "excludes" }>) {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const onFileChosen = (res: FilePickerRes, mode: "file" | "directory" | "directory-norecurse") => {
     if (res.realpath === "/") {
-      showModal(<ConfirmModal strTitle={translate("you.mad")} strDescription={translate("warning.root")} />);
+      showModal(<ConfirmModal strTitle={Translator.translate("you.mad")} strDescription={Translator.translate("warning.root")} />);
       return;
     }
 
@@ -20,15 +20,15 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
       .callPluginMethod<{ path: string }, number>("test_syncpath", { path })
       .then((r) => {
         if (!r.success) {
-          toast(r.result);
+          Toast.toast(r.result);
           setButtonDisabled(false);
           return;
         }
 
         showModal(
           <ConfirmModal
-            strTitle={translate("confirm.add")}
-            strDescription={translate("confirm.add.path", { "path": path, "count": r.result })}
+            strTitle={Translator.translate("confirm.add")}
+            strDescription={Translator.translate("confirm.add.path", { "path": path, "count": r.result })}
             onCancel={() => setButtonDisabled(false)}
             onEscKeypress={() => setButtonDisabled(false)}
             onOK={() => {
@@ -37,14 +37,14 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                 .then(() => {
                   if (onPathAdded) onPathAdded();
                 })
-                .catch((e) => toast(e))
+                .catch((e) => Toast.toast(e))
                 .finally(() => setButtonDisabled(false));
             }}
           />
         );
       })
       .catch((e) => {
-        toast(e);
+        Toast.toast(e);
         setButtonDisabled(false);
       });
   };
@@ -55,7 +55,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
       layout="below"
       onClick={() =>
         showContextMenu(
-          <Menu label={translate("select.path")}>
+          <Menu label={Translator.translate("select.path")}>
             <MenuItem
               onSelected={() =>
                 serverApi
@@ -64,7 +64,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-              {translate("file")}
+              {Translator.translate("file")}
             </MenuItem>
             <MenuItem
               onSelected={() =>
@@ -74,7 +74,7 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-              {translate("folder")}
+              {Translator.translate("folder")}
             </MenuItem>
             <MenuItem
               onSelected={() =>
@@ -84,14 +84,14 @@ export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageP
                   .catch()
               }
             >
-              {translate("folder.exclude")}
+              {Translator.translate("folder.exclude")}
             </MenuItem>
           </Menu>
         )
       }
       disabled={buttonDisabled}
     >
-      {file === "includes" ? translate("add.to.sync") : translate("exclude.from.sync")}
+      {file === "includes" ? Translator.translate("add.to.sync") : Translator.translate("exclude.from.sync")}
     </ButtonItem>
   );
 }

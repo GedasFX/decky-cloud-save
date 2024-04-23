@@ -42,5 +42,9 @@
     "sync.failed": "Fehler. Klicken Sie hier, um die Fehler anzuzeigen.",
     "sync.completed": "Synchronisierung abgeschlossen in {{time}}s",
     "rclone.error.logs": "Fehler-Synchronisierungsprotokolle",
-    "resynchronizing.savedata": "Speicherd"
+    "resynchronizing.savedata": "Speicherd",
+    "log.files": "Protokolldateien",
+    "app.logs": "Plugin-Protokolle",
+    "sync.logs": "Sync-Protokolle",
+    "no.available.logs": "Keine verfügbaren Protokolle"
 }

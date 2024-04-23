@@ -1,6 +1,6 @@
 import { ServerAPI } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import * as logger from "./logger";
+import { Logger } from "./logger";
 
 type State = {
   sync_on_game_exit: string;
@@ -49,17 +49,17 @@ class AppState {
     if (data.success) {
       data.result.forEach((e) => this.setState(e[0] as keyof State, e[1]));
     } else {
-      logger.error(data);
+      Logger.error(data);
     }
   }
 
   public setState = (key: keyof State, value: string, persist = false) => {
     this._currentState = { ...this.currentState, [key]: value };
 
-    logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
+    Logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
-      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => logger.debug(e));
+      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => Logger.debug(e));
     }
 
     this._subscribers.forEach((e) => e.callback(this.currentState));
@@ -91,25 +91,34 @@ class AppState {
   };
 }
 
-const appState = new AppState();
-export default appState;
+export class ApplicationState {
+  private static appState = new AppState();
+  
+  public static initialize(serverApi: ServerAPI) {
+    this.appState.initialize(serverApi);
+  }
 
-export const useAppState = () => {
-  const [state, setState] = useState<State>(appState.currentState);
+  public static useAppState = () => {
+    const [state, setState] = useState<State>(ApplicationState.appState.currentState);
 
-  useEffect(() => {
-    const id = appState.subscribe((e) => {
-      logger.info("Rendering: " + JSON.stringify(e));
-      setState(e);
-    });
-    return () => {
-      appState.unsubscribe(id);
-    };
-  }, []);
+    useEffect(() => {
+      const id = ApplicationState.appState.subscribe((e) => {
+        Logger.debug("Rendering: " + JSON.stringify(e));
+        setState(e);
+      });
+      return () => {
+        ApplicationState.appState.unsubscribe(id);
+      };
+    }, []);
 
-  return state;
-};
+    return state;
+  };
 
-export const setAppState = appState.setState;
-export const setbisync_enabled = appState.setbisync_enabled;
-export const getServerApi = () => appState.serverApi;
+
+  public static getAppState(): AppState {
+    return ApplicationState.appState;
+  }
+  public static setAppState = ApplicationState.appState.setState;
+  public static setbisync_enabled = ApplicationState.appState.setbisync_enabled;
+  public static getServerApi = () => ApplicationState.appState.serverApi;
+}

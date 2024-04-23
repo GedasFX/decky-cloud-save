@@ -1,28 +1,30 @@
-const SESSION_STORAGE_PREFIX = 'dcs_';
+export class Storage {
+    private static SESSION_STORAGE_PREFIX = 'dcs_';
 
-let sessionStorageVariablesSet: Set<string> = new Set<string>();
+    private static sessionStorageVariablesSet: Set<string> = new Set<string>();
 
-export function setSessionStorageItem(key: string, value: string): void {
-    const prefixedKey = SESSION_STORAGE_PREFIX + key;
-    sessionStorage.setItem(prefixedKey, value);
-    sessionStorageVariablesSet.add(prefixedKey);
-}
-
-export function getSessionStorageItem(key: string): string | null {
-    const prefixedKey = SESSION_STORAGE_PREFIX + key;
-    const item = sessionStorage.getItem(prefixedKey);
-    return item ? item : null;
-}
-
-export function removeSessionStorageItem(key: string): void {
-    const prefixedKey = SESSION_STORAGE_PREFIX + key;
-    sessionStorage.removeItem(prefixedKey);
-    sessionStorageVariablesSet.delete(prefixedKey);
-}
-
-export function clearAllSessionStorage(): void {
-    for (const key of sessionStorageVariablesSet) {
-        sessionStorage.removeItem(key);
+    public static setSessionStorageItem(key: string, value: string): void {
+        const prefixedKey = Storage.SESSION_STORAGE_PREFIX + key;
+        sessionStorage.setItem(prefixedKey, value);
+        Storage.sessionStorageVariablesSet.add(prefixedKey);
     }
-    sessionStorageVariablesSet.clear();
+
+    public static getSessionStorageItem(key: string): string | null {
+        const prefixedKey = Storage.SESSION_STORAGE_PREFIX + key;
+        const item = sessionStorage.getItem(prefixedKey);
+        return item ? item : null;
+    }
+
+    public static removeSessionStorageItem(key: string): void {
+        const prefixedKey = Storage.SESSION_STORAGE_PREFIX + key;
+        sessionStorage.removeItem(prefixedKey);
+        Storage.sessionStorageVariablesSet.delete(prefixedKey);
+    }
+
+    public static clearAllSessionStorage(): void {
+        for (const key of Storage.sessionStorageVariablesSet) {
+            sessionStorage.removeItem(key);
+        }
+        Storage.sessionStorageVariablesSet.clear();
+    }
 }
