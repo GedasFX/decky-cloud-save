@@ -1,8 +1,8 @@
 export class Storage {
 
-    private constructor(){
+    private constructor() {
     }
-    
+
     /**
      * Prefix for session storage keys.
      */
@@ -33,6 +33,17 @@ export class Storage {
         const prefixedKey = Storage.SESSION_STORAGE_PREFIX + key;
         const item = sessionStorage.getItem(prefixedKey);
         return item ? item : null;
+    }
+
+    /**
+     * Gets a session storage item.
+     * @param key - The key for the item.
+     * @param defValue - Default value
+     * @returns The value of the item, or null if not found.
+     */
+    public static getSessionStorageItemOrDefault(key: string, defValue: string): string | null {
+        const item = Storage.getSessionStorageItem(key);
+        return item ? item : defValue;
     }
 
     /**

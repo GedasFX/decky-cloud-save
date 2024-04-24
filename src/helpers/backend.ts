@@ -96,4 +96,8 @@ export class Backend {
     public static async log(lvl: string, ...args: any): Promise<void> {
         return Backend.backend_call<{ level: string, msg: string }, void>("log", { level: lvl, msg: "" + args });
     }
+
+    public static async needsResync(): Promise<boolean> {
+        return Backend.backend_call<{}, boolean>("needs_resync", {});
+    }
 }

@@ -10,6 +10,7 @@ import { ApplicationState } from "../helpers/state";
 import { Translator } from "../helpers/translator";
 import { Storage } from "../helpers/storage";
 import { Backend } from "../helpers/backend";
+import { Toast } from "../helpers/toast";
 
 // TODO
 export const Content: VFC<{}> = () => {
@@ -26,8 +27,19 @@ export const Content: VFC<{}> = () => {
       <Head />
       <PanelSection title={Translator.translate("sync")}>
         <PanelSectionRow>
-          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => ApiClient.syncNow(true)}>
-            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>{Translator.translate("sync.now")}</DeckyStoreButton>
+          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => {
+            if (Storage.getSessionStorageItemOrDefault("needsResync", "false") === "true") {
+              Toast.toast(Translator.translate("resynchronizing.savedata"))
+              ApiClient.resyncNow("path1").then(() => {
+                Navigation.CloseSideMenus();
+              });
+            } else {
+              ApiClient.syncNow(true);
+            }
+          }}>
+            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>
+              <span id="syncNowTxt">{Translator.translate(Storage.getSessionStorageItemOrDefault("needsResync", "false") === "true" ? "resync.now" : "sync.now")}</span>
+            </DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>{Translator.translate("provider.not.configured")}.</small>}
         </PanelSectionRow>
