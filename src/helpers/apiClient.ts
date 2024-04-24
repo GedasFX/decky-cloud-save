@@ -5,7 +5,6 @@ import { Backend } from "./backend";
 import { Translator } from "./translator";
 import { Logger } from '../helpers/logger';
 import { Storage } from '../helpers/storage';
-import { Processes } from "./processes";
 
 export class ApiClient {
 
@@ -57,7 +56,7 @@ export class ApiClient {
     let body;
     let time = 2000;
     let action = () => { };
-    Storage.setSessionStorageItem("syncLogs", await Backend.backend_call<{}, string>("get_last_sync_log", {}));
+    Storage.setSessionStorageItem("syncLogs", await Backend.getLastSyncLog());
     if (pass) {
       body = Translator.translate("sync.completed", { "time": timeDiff });
       action = () => { Navigation.Navigate("/dcs-sync-logs") };
@@ -81,9 +80,9 @@ export class ApiClient {
   }
 
   public static async syncOnLaunch(showToast: boolean, pid: number) {
-    await Processes.signal(pid, 'SIGSTOP');
+    await Backend.signal(pid, 'SIGSTOP');
     await ApiClient.syncNowInternal(showToast, "path2")
-    await Processes.signal(pid, 'SIGCONT');
+    await Backend.signal(pid, 'SIGCONT');
   }
 
   public static async syncOnEnd(showToast: boolean) {

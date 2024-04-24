@@ -9,7 +9,7 @@ enum LogLevel {
 
 export class Logger {
 
-    private constructor(){
+    private constructor() {
     }
 
     private static prefixStyle = "background-color: blue; color: white; font-weight: bold";
@@ -25,14 +25,14 @@ export class Logger {
     private static currentLevel = LogLevel.INFO;
 
     public static async initialize() {
-        const level: string = await Backend.backend_call<{}, string>("get_log_level", {});
+        const level: string = await Backend.getLogLevel();
         Logger.currentLevel = LogLevel[level as keyof typeof LogLevel];
         Logger.log(LogLevel.INFO, "Logger initialized at level '" + LogLevel[Logger.currentLevel] + "'");
     }
 
     private static log(lvl: LogLevel, ...args: any) {
         if (Logger.isLevelEnabled(lvl)) {
-            Backend.backend_call<{ level: string, msg: string }, void>("log", { level: LogLevel[lvl], msg: "" + args });
+            Backend.log(LogLevel[lvl], "" + args);
             console.log("%c %s %c %s ", Logger.prefixStyle, Logger.prefix, Logger.levelStyles[lvl], LogLevel[lvl], ...args);
         }
     }
