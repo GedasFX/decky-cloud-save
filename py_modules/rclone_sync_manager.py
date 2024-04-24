@@ -8,6 +8,14 @@ class RcloneSyncManager:
     current_sync: Process | None = None
 
     async def sync_now(self, winner: str, resync: bool):
+        """
+        Initiates a synchronization process using rclone.
+
+        Parameters:
+        winner (str): The winner of any conflicts during synchronization.
+        resync (bool): Whether to perform a resynchronization.
+
+        """
         bisync_enabled = plugin_config.get_config_item("bisync_enabled", "false") == "true"
         destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
         args = []
@@ -34,6 +42,12 @@ class RcloneSyncManager:
         self.current_sync = await create_subprocess_exec(*cmd)
 
     async def probe(self):
+        """
+        Checks if the current synchronization process is running.
+
+        Returns:
+        int: The return code of the synchronization process.
+        """
         if not self.current_sync:
             return 0
         
