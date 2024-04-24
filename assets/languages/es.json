@@ -46,5 +46,7 @@
     "log.files": "Archivos de registro",
     "app.logs": "Registros del plugin",
     "sync.logs": "Registros de sincronización",
-    "no.available.logs": "No hay registros disponibles"
+    "no.available.logs": "No hay registros disponibles",
+    "deleting.locks.sync": "Eliminando bloqueos y sincronizando",
+    "delete.locks": "Eliminar bloqueos"
 }

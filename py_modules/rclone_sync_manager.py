@@ -7,6 +7,15 @@ import plugin_config
 class RcloneSyncManager:
     current_sync: Process | None = None
 
+    async def delete_lock_files(self):
+        """
+        Deletes rclone lock files
+        """
+        args = [decky_plugin.HOME + "/.cache/rclone/bisync/*.lck"]
+        cmd = ["rm", *args]
+        decky_plugin.logger.info("Running command: %s", subprocess.list2cmdline(cmd))
+        await create_subprocess_exec(*cmd)
+
     async def sync_now(self, winner: str, resync: bool):
         """
         Initiates a synchronization process using rclone.

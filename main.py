@@ -52,6 +52,10 @@ class Plugin:
         decky_plugin.logger.debug("Executing: RcloneSyncManager.probe()")
         return await self.manager_sync.probe()
 
+    async def delete_lock_files(self):
+        decky_plugin.logger.debug("Executing: RcloneSyncManager.probe()")
+        return await self.manager_sync.delete_lock_files()
+
 # Processes
     
     async def signal(self, pid: int, s: str):

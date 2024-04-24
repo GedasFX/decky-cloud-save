@@ -51,6 +51,8 @@ def get_plugin_log() -> str:
     str: The plugin log.
     """
     log: str = ""
-    for line in list(open(decky_plugin.DECKY_PLUGIN_LOG)):
-        log = log + line + '\n' 
+    for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
+        log = line + '\n' + log  
+        if "Logger initialized at level" in line.strip():
+            break
     return log

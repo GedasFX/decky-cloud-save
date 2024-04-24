@@ -4,7 +4,18 @@ import french from "../../assets/languages/fr.json";
 import portuguese from "../../assets/languages/pt.json";
 import german from "../../assets/languages/ge.json";
 import { Logger } from "./logger";
-import { Language } from "./types";
+
+/**
+ * Represents supported languages.
+ */
+enum Language {
+    english,
+    spanish,
+    latam,
+    french,
+    portuguese,
+    german
+}
 
 /**
  * The Translator class is used to translate text into different languages.
@@ -65,7 +76,8 @@ export class Translator {
             Logger.warn("Missing translation for " + text);
         } else {
             for (const key in replacements) {
-                result = result.replace(new RegExp(`{${key}}`, "g"), replacements[key]);
+                const placeholder = `{{${key}}}`;
+                result = result.split(placeholder).join(replacements[key])
             }
         }
 

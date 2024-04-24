@@ -48,25 +48,3 @@ export type AppDetailsStore = {
    */
   RequestAppDetails(appId: number): Promise<void>;
 };
-
-/**
- * Represents log levels.
- */
-export enum LogLevel {
-    DEBUG = 0,
-    INFO = 1,
-    WARN = 2,
-    ERROR = 3
-}
-
-/**
- * Represents supported languages.
- */
-export enum Language {
-    english,
-    spanish,
-    latam,
-    french,
-    portuguese,
-    german
-}

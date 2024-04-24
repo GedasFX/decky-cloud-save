@@ -12,6 +12,15 @@ import { Storage } from '../helpers/storage';
 export class ApiClient {
 
   /**
+   * Delete lock files and forces resync
+   * @param winner - The winner of the synchronization.
+   */
+  public static async deleteLocksAndResync(winner: string) {
+    await Backend.deleteLockFiles();
+    await this.resyncNow(winner);
+  }
+
+  /**
    * Constructs a new instance of the ApiClient class.
    * @private
    */

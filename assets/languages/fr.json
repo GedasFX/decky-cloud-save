@@ -46,5 +46,7 @@
     "log.files": "Fichiers journaux",
     "app.logs": "Logs du plugin",
     "sync.logs": "Logs de synchronisation",
-    "no.available.logs": "Aucun journal disponible"
+    "no.available.logs": "Aucun journal disponible",
+    "deleting.locks.sync": "Suppression des verrous et synchronisation",
+    "delete.locks": "Supprimer les verrous"
 }

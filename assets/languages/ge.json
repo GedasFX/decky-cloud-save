@@ -46,5 +46,7 @@
     "log.files": "Protokolldateien",
     "app.logs": "Plugin-Protokolle",
     "sync.logs": "Sync-Protokolle",
-    "no.available.logs": "Keine verfügbaren Protokolle"
+    "no.available.logs": "Keine verfügbaren Protokolle",
+    "deleting.locks.sync": "Löschen von Sperren und Synchronisieren",
+    "delete.locks": "Sperren löschen"
 }

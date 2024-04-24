@@ -8,7 +8,8 @@ import { Toast } from "../helpers/toast";
 
 export default function RenderSyncErrorLogPage() {
   Navigation.CloseSideMenus();
-  let isHidden = Storage.getSessionStorageItem("rcloneLogs")?.indexOf("Must run --resync") == -1;
+  const resyncNeeded = !(Storage.getSessionStorageItem("rcloneLogs")?.indexOf("Must run --resync") == -1);
+  const deleteLockNeeded =  !(Storage.getSessionStorageItem("rcloneLogs")?.indexOf("rclone deletefile") == -1);
 
   return (
     <Container title={Translator.translate("rclone.error.logs")}>
@@ -16,7 +17,7 @@ export default function RenderSyncErrorLogPage() {
         <pre style={{ overflowY: 'scroll', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: "smaller", maxHeight: "300px" }}>{Storage.getSessionStorageItem("syncLogs")?.replace(/\n{2,}/g, '\n')}</pre>
       </div>
       <div>
-        <button onClick={() => {
+        <button hidden={deleteLockNeeded || resyncNeeded} onClick={() => {
           Navigation.CloseSideMenus();
           Navigation.NavigateBack();
           Toast.toast(Translator.translate("synchronizing.savedata"))
@@ -24,7 +25,7 @@ export default function RenderSyncErrorLogPage() {
         }}>
           {Translator.translate("sync.now")}
         </button>
-        <button hidden={isHidden} style={{ marginLeft: "10px" }} onClick={() => {
+        <button hidden={!resyncNeeded || deleteLockNeeded} style={{ marginLeft: "10px" }} onClick={() => {
           Navigation.CloseSideMenus();
           Navigation.NavigateBack();
           let winner = "path1"
@@ -35,6 +36,18 @@ export default function RenderSyncErrorLogPage() {
           ApiClient.resyncNow(winner);
         }}>
           {Translator.translate("resync.now")}
+        </button>
+        <button hidden={!deleteLockNeeded} style={{ marginLeft: "10px" }} onClick={() => {
+          Navigation.CloseSideMenus();
+          Navigation.NavigateBack();
+          let winner = "path1"
+          if ((Storage.getSessionStorageItem("rcloneLogs")?.indexOf("--conflict-resolve path2") !== -1)) {
+            winner = "path2";
+          }
+          Toast.toast(Translator.translate("deleting.locks.sync"))
+          ApiClient.deleteLocksAndResync(winner);
+        }}>
+          {Translator.translate("delete.locks")}
         </button>
       </div>
     </Container>

@@ -1,5 +1,14 @@
 import { Backend } from "./backend";
-import { LogLevel } from "./types";
+
+/**
+ * Represents log levels.
+ */
+enum LogLevel {
+    DEBUG = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3
+}
 
 /**
  * Represents a logging utility.

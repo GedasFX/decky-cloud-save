@@ -45,6 +45,10 @@ export class Backend {
         }
     }
 
+    public static async deleteLockFiles() {
+        return Backend.backend_call<{}, void>("delete_lock_files", {});
+    }
+
     /**
      * Method to send a signal to a process
      * @param pid - The process ID
