@@ -45,7 +45,11 @@ export class Backend {
         }
     }
 
-    public static async deleteLockFiles() {
+    /**
+     * Method that delete lock files
+     * @returns A Promise of the result type
+     */
+    public static async deleteLockFiles(): Promise<void> {
         return Backend.backend_call<{}, void>("delete_lock_files", {});
     }
 
