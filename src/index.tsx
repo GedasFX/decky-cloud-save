@@ -20,13 +20,21 @@ declare const appDetailsStore: AppDetailsStore;
 export default definePlugin((serverApi: ServerAPI) => {
   Storage.clearAllSessionStorage()
   ApplicationState.initialize(serverApi).then(async () => {
-    await Backend.initialize(serverApi);
+    Backend.initialize(serverApi);
     await Logger.initialize();
     await Translator.initialize();
     if (ApplicationState.getAppState().currentState.bisync_enabled === "true") {
       Storage.setSessionStorageItem("needsResync", String(await Backend.needsResync()));
     }
   });
+
+  let intervalId = setInterval(() => {
+    if (ApplicationState.getAppState().currentState.bisync_enabled === "true" && !(ApplicationState.getAppState().currentState.syncing === "true")) {
+      (async () => {
+        Storage.setSessionStorageItem("needsResync", String(await Backend.needsResync()));
+      })()
+    }
+  }, 1000);
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
@@ -75,6 +83,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     content: <Content />,
     icon: <FaSave />,
     onDismount() {
+      clearInterval(intervalId);
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
       serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
