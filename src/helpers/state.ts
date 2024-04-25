@@ -98,8 +98,8 @@ export class ApplicationState {
   
   private static appState = new AppState();
   
-  public static initialize(serverApi: ServerAPI) {
-    this.appState.initialize(serverApi);
+  public static async initialize(serverApi: ServerAPI) {
+    await this.appState.initialize(serverApi);
   }
 
   public static useAppState = () => {

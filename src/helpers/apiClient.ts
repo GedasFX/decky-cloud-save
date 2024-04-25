@@ -24,7 +24,7 @@ export class ApiClient {
    * Constructs a new instance of the ApiClient class.
    * @private
    */
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Synchronizes data immediately.
@@ -170,6 +170,9 @@ export class ApiClient {
     let action = () => { };
     Storage.setSessionStorageItem("syncLogs", await Backend.getLastSyncLog());
     if (pass) {
+      if (resync) {
+        Storage.setSessionStorageItem("needsResync", "false");
+      }
       body = Translator.translate("sync.completed", { "time": timeDiff });
       action = () => { Navigation.Navigate("/dcs-sync-logs"); };
     } else {

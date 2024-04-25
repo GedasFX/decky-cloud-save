@@ -18,10 +18,23 @@ import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 declare const appDetailsStore: AppDetailsStore;
 
 export default definePlugin((serverApi: ServerAPI) => {
-  ApplicationState.initialize(serverApi);
-  Backend.initialize(serverApi);
-  Logger.initialize();
-  Translator.initialize();
+  Storage.clearAllSessionStorage()
+  ApplicationState.initialize(serverApi).then(async () => {
+    Backend.initialize(serverApi);
+    await Logger.initialize();
+    await Translator.initialize();
+    if (ApplicationState.getAppState().currentState.bisync_enabled === "true") {
+      Storage.setSessionStorageItem("needsResync", String(await Backend.needsResync()));
+    }
+  });
+
+  let intervalId = setInterval(() => {
+    if (ApplicationState.getAppState().currentState.bisync_enabled === "true" && !(ApplicationState.getAppState().currentState.syncing === "true")) {
+      (async () => {
+        Storage.setSessionStorageItem("needsResync", String(await Backend.needsResync()));
+      })()
+    }
+  }, 1000);
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
@@ -30,14 +43,14 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    const game = appDetailsStore.GetAppDetails(e.unAppID)!;
-
-    if (e.bRunning) {
-      Logger.info("Started game '" + game.strDisplayName + "' (" + e.unAppID + ")");
-    } else {
-      Logger.info("Stopped game '" + game.strDisplayName + "' (" + e.unAppID + ")");
-    }
     if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
+      const game = appDetailsStore.GetAppDetails(e.unAppID)!;
+      if (e.bRunning) {
+        Logger.info("Started game '" + game.strDisplayName + "' (" + e.unAppID + ")");
+      } else {
+        Logger.info("Stopped game '" + game.strDisplayName + "' (" + e.unAppID + ")");
+      }
+
       let sync: boolean = false;
       if (game.iInstallFolder == -1) {
         sync = true;
@@ -65,20 +78,19 @@ export default definePlugin((serverApi: ServerAPI) => {
     }
   });
 
-Storage.clearAllSessionStorage()
-
-return {
-  title: <div className={staticClasses.Title}>Decky Cloud Save</div>,
-  content: <Content />,
-  icon: <FaSave />,
-  onDismount() {
-    serverApi.routerHook.removeRoute("/dcs-configure-paths");
-    serverApi.routerHook.removeRoute("/dcs-configure-backend");
-    serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
-    serverApi.routerHook.removeRoute("/dcs-sync-logs");
-    serverApi.routerHook.removeRoute("/dcs-plugin-logs");
-    removeGameExecutionListener();
-    Storage.clearAllSessionStorage()
-  },
-};
+  return {
+    title: <div className={staticClasses.Title}>Decky Cloud Save</div>,
+    content: <Content />,
+    icon: <FaSave />,
+    onDismount() {
+      clearInterval(intervalId);
+      serverApi.routerHook.removeRoute("/dcs-configure-paths");
+      serverApi.routerHook.removeRoute("/dcs-configure-backend");
+      serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
+      serverApi.routerHook.removeRoute("/dcs-sync-logs");
+      serverApi.routerHook.removeRoute("/dcs-plugin-logs");
+      removeGameExecutionListener();
+      Storage.clearAllSessionStorage()
+    },
+  };
 });
