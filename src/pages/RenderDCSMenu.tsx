@@ -1,5 +1,5 @@
 import { ButtonItem, Navigation, PanelSection, PanelSectionRow, ToggleField } from "decky-frontend-lib";
-import { useEffect, useRef, useState, VFC } from "react";
+import { useEffect, useState, VFC } from "react";
 import { FaCloudUploadAlt, FaPlug, FaSave } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
 import { AiOutlineCloudUpload } from "react-icons/ai";
@@ -8,7 +8,7 @@ import Head from "../components/Head";
 import DeckyStoreButton from "../components/DeckyStoreButton";
 import { ApplicationState } from "../helpers/state";
 import { Translator } from "../helpers/translator";
-import { Action as StorageAction, Storage } from "../helpers/storage";
+import { Storage } from "../helpers/storage";
 import { Backend } from "../helpers/backend";
 
 // TODO
