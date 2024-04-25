@@ -51,8 +51,10 @@ export class ApiClient {
    * @returns A Promise that resolves when synchronization is complete.
    */
   public static async syncOnLaunch(showToast: boolean, pid: number): Promise<void> {
+    Logger.info("Pausing game")
     await Backend.signal(pid, 'SIGSTOP');
     await ApiClient.syncNowInternal(showToast, "path2");
+    Logger.info("Resuming game")
     await Backend.signal(pid, 'SIGCONT');
   }
 

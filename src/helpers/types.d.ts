@@ -31,20 +31,3 @@ declare module "*.jpg" {
 export type PageProps<T> = {
   serverApi: ServerAPI;
 } & T;
-
-/**
- * Represents the store for application details.
- */
-export type AppDetailsStore = {
-  /**
-   * Retrieves application details by ID.
-   * @param appId - The ID of the application.
-   * @returns The application details, or undefined if not found.
-   */
-  GetAppDetails: (appId: number) => AppDetails | undefined;
-  /**
-   * Requests application details asynchronously.
-   * @param appId - The ID of the application.
-   */
-  RequestAppDetails(appId: number): Promise<void>;
-};

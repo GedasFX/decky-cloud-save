@@ -7,7 +7,6 @@ import { Content } from "./pages/RenderDCSMenu";
 import { Translator } from "./helpers/translator";
 import { Storage } from './helpers/storage';
 import { Backend } from './helpers/backend';
-import { AppDetailsStore } from "./helpers/types";
 import { FaSave } from "react-icons/fa";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
@@ -15,7 +14,7 @@ import RenderSyncErrorLogPage from "./pages/RenderSyncErrorLogPage";
 import RenderSyncLogPage from "./pages/RenderSyncLogPage";
 import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 
-declare const appDetailsStore: AppDetailsStore;
+declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
   Storage.clearAllSessionStorage()
@@ -33,22 +32,25 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
-      const game = appDetailsStore.GetAppDetails(e.unAppID)!;
+      const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
       if (e.bRunning) {
-        Logger.info("Started game '" + game.strDisplayName + "' (" + e.unAppID + ")");
+        Logger.info("Started game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
       } else {
-        Logger.info("Stopped game '" + game.strDisplayName + "' (" + e.unAppID + ")");
+        Logger.info("Stopped game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
       }
 
-      let sync: boolean = false;
-      if (game.iInstallFolder == -1) {
+      let sync: boolean;
+      if (gameInfo?.app_type === 1) {
+        if (gameInfo?.local_per_client_data?.cloud_status === 1) {
+          sync = true;
+          Logger.info("Steam game without Steam Cloud, proceed")
+        } else {
+          sync = false;
+          Logger.info("Steam game with Steam Cloud, skipping");
+        }
+      } else {
         sync = true;
         Logger.info("Non Steam game, proceed");
-      } else if (game.bCloudAvailable && game.bCloudEnabledForApp && game.bCloudEnabledForAccount) {
-        Logger.info("Game with enabled Steam Cloud, skipping");
-      } else {
-        Logger.info("Steam game with Steam Cloud disabled, proceed")
-        sync = true
       }
 
       if (sync) {
