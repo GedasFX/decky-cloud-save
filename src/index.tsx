@@ -33,11 +33,9 @@ export default definePlugin((serverApi: ServerAPI) => {
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
-      if (e.bRunning) {
-        Logger.info("Started game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
-      } else {
-        Logger.info("Stopped game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
-      }
+      Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
+      
+      ApplicationState.setAppState("playing", String(e.bRunning));
 
       let sync: boolean;
       if (gameInfo?.app_type === 1) {
@@ -74,13 +72,13 @@ export default definePlugin((serverApi: ServerAPI) => {
     content: <Content />,
     icon: <FaSave />,
     onDismount() {
+      removeGameExecutionListener();
+      Storage.clearAllSessionStorage()
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
       serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
       serverApi.routerHook.removeRoute("/dcs-sync-logs");
       serverApi.routerHook.removeRoute("/dcs-plugin-logs");
-      removeGameExecutionListener();
-      Storage.clearAllSessionStorage()
     },
   };
 });

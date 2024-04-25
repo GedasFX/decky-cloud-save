@@ -9,6 +9,7 @@ type State = {
   experimental_menu: string;
   toast_auto_sync: string;
   destination_directory: string;
+  playing: string
 };
 
 class AppState {
@@ -20,7 +21,8 @@ class AppState {
     bisync_enabled: "false",
     experimental_menu: "false",
     toast_auto_sync: "true",
-    destination_directory: "decky-cloud-save"
+    destination_directory: "decky-cloud-save",
+    playing: "false"
   };
 
   private _serverApi: ServerAPI = null!;

@@ -128,9 +128,9 @@ export class ApiClient {
   private static async syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
     Logger.info("Synchronizing");
     const start = new Date();
-    if (Storage.getSessionStorageItem("syncing") === "true") {
+    if (ApplicationState.getAppState().currentState.syncing === "true") {
       Toast.toast(Translator.translate("waiting.previous"), 2000);
-      while (Storage.getSessionStorageItem("syncing") === "true") {
+      while (ApplicationState.getAppState().currentState.syncing === "true") {
         await sleep(300);
       }
     }
