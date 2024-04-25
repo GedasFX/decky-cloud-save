@@ -1,5 +1,5 @@
 import { ButtonItem, Navigation, PanelSection, PanelSectionRow, ToggleField } from "decky-frontend-lib";
-import { useEffect, useRef, useState, VFC } from "react";
+import { useEffect, useState, VFC } from "react";
 import { FaCloudUploadAlt, FaPlug, FaSave } from "react-icons/fa";
 import { FiEdit3 } from "react-icons/fi";
 import { AiOutlineCloudUpload } from "react-icons/ai";
@@ -8,7 +8,7 @@ import Head from "../components/Head";
 import DeckyStoreButton from "../components/DeckyStoreButton";
 import { ApplicationState } from "../helpers/state";
 import { Translator } from "../helpers/translator";
-import { Action as StorageAction, Storage } from "../helpers/storage";
+import { Storage } from "../helpers/storage";
 import { Backend } from "../helpers/backend";
 
 // TODO
@@ -16,19 +16,16 @@ export const Content: VFC<{}> = () => {
   const appState = ApplicationState.useAppState();
 
   const [hasProvider, setHasProvider] = useState<boolean | undefined>(undefined);
-
-  const syncRef = useRef(Translator.translate(Storage.getSessionStorageItemOrDefault("needsResync", "false") === "true" ? "resync.now" : "sync.now"));
-  const [literal, setLiteral] = useState(syncRef.current);
-
-  Storage.subscribe("needsResync", (action, newValue) => {
-    if (action == StorageAction.MODIFIED || action == StorageAction.CREATED) {
-      setLiteral(Translator.translate(newValue == "true" ? "resync.now" : "sync.now"));
-    }
-  });
-
   useEffect(() => {
     ApiClient.getCloudBackend().then((e) => setHasProvider(!!e));
   }, []);
+
+  setInterval(async () => {
+    if (appState.bisync_enabled === "true" && !(appState.syncing === "true")) {
+      const needed = await Backend.needsResync();
+      appState.needs_resync = String(needed)
+    }
+  }, 1000);
 
   return (
     <>
@@ -36,14 +33,15 @@ export const Content: VFC<{}> = () => {
       <PanelSection title={Translator.translate("sync")}>
         <PanelSectionRow>
           <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => {
-            if (Storage.getSessionStorageItemOrDefault("needsResync", "false") === "true") {
+            if (appState.needs_resync === "true") {
               ApiClient.resyncNow("path1");
             } else {
               ApiClient.syncNow(true);
             }
           }}>
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>
-              <span id="syncNowTxt">{literal}</span>
+              <span hidden={appState.needs_resync === "true"}>{Translator.translate("sync.now")}</span>
+              <span hidden={appState.needs_resync != "true"}>{Translator.translate("resync.now")}</span>
             </DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>{Translator.translate("provider.not.configured")}.</small>}

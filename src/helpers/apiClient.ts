@@ -171,7 +171,7 @@ export class ApiClient {
     Storage.setSessionStorageItem("syncLogs", await Backend.getLastSyncLog());
     if (pass) {
       if (resync) {
-        Storage.setSessionStorageItem("needsResync", "false");
+        ApplicationState.setAppState("needs_resync", "false");
       }
       body = Translator.translate("sync.completed", { "time": timeDiff });
       action = () => { Navigation.Navigate("/dcs-sync-logs"); };
