@@ -20,10 +20,10 @@ export const Content: VFC<{}> = () => {
     ApiClient.getCloudBackend().then((e) => setHasProvider(!!e));
   }, []);
 
+  const [needsResync, setNeedsSync] = useState(false);
   setInterval(async () => {
-    if (appState.bisync_enabled === "true" && !(appState.syncing === "true")) {
-      const needed = await Backend.needsResync();
-      appState.needs_resync = String(needed)
+    if (ApplicationState.getAppState().currentState.bisync_enabled === "true" && !(ApplicationState.getAppState().currentState.syncing === "true")) {
+      setNeedsSync(await Backend.needsResync());
     }
   }, 1000);
 
@@ -33,15 +33,19 @@ export const Content: VFC<{}> = () => {
       <PanelSection title={Translator.translate("sync")}>
         <PanelSectionRow>
           <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => {
-            if (appState.needs_resync === "true") {
+            if (needsResync) {
               ApiClient.resyncNow("path1");
             } else {
               ApiClient.syncNow(true);
             }
           }}>
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>
-              <span hidden={appState.needs_resync === "true"}>{Translator.translate("sync.now")}</span>
-              <span hidden={appState.needs_resync != "true"}>{Translator.translate("resync.now")}</span>
+              {needsResync &&
+                Translator.translate("resync.now")
+              }
+              {!needsResync &&
+                Translator.translate("sync.now")
+              }
             </DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>{Translator.translate("provider.not.configured")}.</small>}

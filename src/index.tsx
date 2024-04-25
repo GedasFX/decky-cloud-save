@@ -23,7 +23,6 @@ export default definePlugin((serverApi: ServerAPI) => {
     Backend.initialize(serverApi);
     await Logger.initialize();
     await Translator.initialize();
-    ApplicationState.getAppState().setNeedsResync(String(await Backend.needsResync()));
   });
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });

@@ -9,7 +9,6 @@ type State = {
   experimental_menu: string;
   toast_auto_sync: string;
   destination_directory: string;
-  needs_resync: string;
 };
 
 class AppState {
@@ -21,8 +20,7 @@ class AppState {
     bisync_enabled: "false",
     experimental_menu: "false",
     toast_auto_sync: "true",
-    destination_directory: "decky-cloud-save",
-    needs_resync: "false",
+    destination_directory: "decky-cloud-save"
   };
 
   private _serverApi: ServerAPI = null!;
@@ -90,9 +88,6 @@ class AppState {
 
   public setbisync_enabled = (value: string, persist = false) => {
     this.setState("bisync_enabled", value, persist);
-  };
-  public setNeedsResync = (value: string) => {
-    this.setState("needs_resync", value, false);
   };
 }
 
