@@ -32,15 +32,16 @@ def get_last_sync_log() -> str:
     """
     record: bool = False
     log: str = ""
-    for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
-        if(record==False):
-            if "Sync finished" in line:
-                record = True
-        else:
-            if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/bin/rcloneLauncher" in line.strip():
-                break
+    with open(decky_plugin.DECKY_PLUGIN_LOG) as f:
+        for line in reversed(list(f)):
+            if(record==False):
+                if "Sync finished" in line:
+                    record = True
             else:
-                log = line + '\n' + log  
+                if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/bin/rcloneLauncher" in line.strip():
+                    break
+                else:
+                    log = line + '\n' + log  
     return log
 
 def get_plugin_log() -> str:
@@ -51,8 +52,9 @@ def get_plugin_log() -> str:
     str: The plugin log.
     """
     log: str = ""
-    for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
-        log = line + '\n' + log  
-        if "Logger initialized at level" in line.strip():
-            break
+    with open(decky_plugin.DECKY_PLUGIN_LOG) as f:
+        for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
+            log = line + '\n' + log  
+            if "Logger initialized at level" in line.strip():
+                break
     return log
