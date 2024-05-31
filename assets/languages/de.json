@@ -41,6 +41,7 @@
     "synchronizing.savedata": "Speicherd",
     "sync.failed": "Fehler. Klicken Sie hier, um die Fehler anzuzeigen.",
     "sync.completed": "Synchronisierung abgeschlossen in {{time}}s",
+    "sync.conflict": "Während der Synchronisierung traten Konflikte auf.",
     "rclone.error.logs": "Fehler-Synchronisierungsprotokolle",
     "resynchronizing.savedata": "Speicherd",
     "log.files": "Protokolldateien",

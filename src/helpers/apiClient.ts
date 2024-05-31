@@ -170,7 +170,10 @@ export class ApiClient {
     let body;
     let time = 2000;
     let action = () => { };
-    Storage.setSessionStorageItem("syncLogs", await Backend.getLastSyncLog());
+
+    const syncLogs = await Backend.getLastSyncLog();
+    Storage.setSessionStorageItem("syncLogs", syncLogs);
+
     if (pass) {
       body = Translator.translate("sync.completed", { "time": timeDiff });
       action = () => { Navigation.Navigate("/dcs-sync-logs"); };
@@ -182,6 +185,11 @@ export class ApiClient {
 
     if (showToast || (!pass)) {
       Toast.toast(body, time, action);
+    }
+
+    // Additional check for if there were any conflicts.
+    if (syncLogs.match(/Moved \(server-side\) to: .*\.conflict\d*/)) {
+      Toast.toast(Translator.translate("sync.conflict"), 5000, () => { Navigation.Navigate("/dcs-sync-logs"); })
     }
   }
 }

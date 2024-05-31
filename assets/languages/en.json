@@ -41,6 +41,7 @@
     "synchronizing.savedata": "Synchronizing savedata",
     "sync.failed": "Error. Click here to see the errors.",
     "sync.completed": "Sync completed in {{time}}s",
+    "sync.conflict": "Conflicts occured while performing sync.",
     "rclone.error.logs": "Error sync logs",
     "resynchronizing.savedata": "Resynchronizing savedata, please wait",
     "log.files": "Log files",
