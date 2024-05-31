@@ -38,17 +38,17 @@ export default definePlugin((serverApi: ServerAPI) => {
       ApplicationState.setAppState("playing", String(e.bRunning));
 
       let sync: boolean;
-      if (gameInfo?.app_type === 1) {
-        if (gameInfo?.local_per_client_data?.cloud_status === 1) {
+      if (gameInfo?.app_type === 1) { // Steam Games == 1
+        if (gameInfo?.local_per_client_data?.cloud_status === 1) { // Steam Cloud Enabled
           sync = true;
-          Logger.info("Steam game without Steam Cloud, proceed")
+          Logger.info("Steam game without Steam Cloud, proceeding")
         } else {
           sync = false;
           Logger.info("Steam game with Steam Cloud, skipping");
         }
       } else {
         sync = true;
-        Logger.info("Non Steam game, proceed");
+        Logger.info("Non Steam game, proceeding");
       }
 
       if (sync) {
