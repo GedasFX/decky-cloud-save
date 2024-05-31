@@ -2,7 +2,7 @@ import english from "../../assets/languages/en.json";
 import spanish from "../../assets/languages/es.json";
 import french from "../../assets/languages/fr.json";
 import portuguese from "../../assets/languages/pt.json";
-import german from "../../assets/languages/ge.json";
+import german from "../../assets/languages/de.json";
 import { Logger } from "./logger";
 
 /**
