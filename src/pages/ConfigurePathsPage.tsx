@@ -1,22 +1,23 @@
 import { PanelSectionRow, PanelSection, TextField } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { PageProps } from "../types";
+import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
 import { RenderExistingPathButton } from "../components/RenderExistingPathButton";
 import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
-import { getSyncPaths } from "../apiClient";
-import { setAppState, useAppState } from "../state";
+import { ApiClient } from "../helpers/apiClient";
+import { ApplicationState } from "../helpers/state";
+import { Translator } from "../helpers/translator";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
-  const appState = useAppState();
+  const appState = ApplicationState.useAppState();
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
 
   const onPathsUpdated = () => {
     (async () => {
-      await getSyncPaths("includes").then((p) => setIncludePaths(p));
-      await getSyncPaths("excludes").then((p) => setExcludePaths(p));
+      await ApiClient.getSyncPaths("includes").then((p) => setIncludePaths(p));
+      await ApiClient.getSyncPaths("excludes").then((p) => setExcludePaths(p));
     })();
   };
 
@@ -24,37 +25,37 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
 
   return (
     <Container
-      title="Sync Paths"
+      title={Translator.translate("sync.paths")}
       help={
         <HelpAssistant
           entries={[
             {
-              label: "Includes vs Excludes",
-              description: "As of v1.2.0, it is possible to exclude certain folders from sync.\n\nDuring sync, the plugin first looks at the excludes list to see if a file (or folder) is not excluded, and only then it checks for files in the included list.\n\nFor example, if folder /a/** is included, but file /a/b is excluded, all files except for b would be backed up.",
+              label: Translator.translate("includes.vs.exclude"),
+              description: Translator.translate("help.exclude"),
               issueId: "9",
             },
             {
-              label: "Include or exclude subfolders",
-              description: "There may be cases where it is necessary to only back up a folder without recursively digging deeper into subfolders. For those cases you can use option 'Folder (exclude subfolders)'.\n\nSuch cases are quite niche; in general the 'Folder' option should be used instead.",
+              label: Translator.translate("include.or.exclude.subf"),
+              description: Translator.translate("help.include.or.exclude.subf"),
               issueId: "9",
             },
             {
-              label: "Bug: File Picker loads indefinitely",
-              description: "After a fresh install, the file picker sometimes fails to load. Restarting Steam fixes this.\nSee more details for the discussion.",
+              label: Translator.translate("bug.file.picker"),
+              description: Translator.translate("help.file.picker.fail"),
               issueId: "7",
             },
           ]}
         />
       }
     >
-      <PanelSection title="Cloud Save Path">
+      <PanelSection title={Translator.translate("cloud.save.path")}>
         <TextField
           disabled={false}
           value={appState.destination_directory}
-          onChange={(e) => setAppState("destination_directory", e.target.value, false)}
-          onBlur={(e) => setAppState("destination_directory", e.target.value, true)} />
+          onChange={(e) => ApplicationState.setAppState("destination_directory", e.target.value, false)}
+          onBlur={(e) => ApplicationState.setAppState("destination_directory", e.target.value, true)} />
       </PanelSection>
-      <PanelSection title="Includes">
+      <PanelSection title={Translator.translate("includes")}>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="includes" />
         </PanelSectionRow>
@@ -64,7 +65,7 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
           </PanelSectionRow>
         ))}
       </PanelSection>
-      <PanelSection title="Excludes">
+      <PanelSection title={Translator.translate("excludes")}>
         <PanelSectionRow>
           <AddNewPathButton serverApi={serverApi} onPathAdded={onPathsUpdated} file="excludes" />
         </PanelSectionRow>

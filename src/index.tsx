@@ -1,110 +1,69 @@
-import {
-  ButtonItem,
-  definePlugin,
-  LifetimeNotification,
-  Navigation,
-  PanelSection,
-  PanelSectionRow,
-  ServerAPI,
-  staticClasses,
-  ToggleField,
-} from "decky-frontend-lib";
-import { useEffect, useState, VFC } from "react";
+import { definePlugin, ServerAPI, staticClasses, LifetimeNotification } from "decky-frontend-lib";
+import { Toast } from "./helpers/toast";
+import { Logger } from "./helpers/logger";
+import { ApiClient } from "./helpers/apiClient";
+import { ApplicationState } from "./helpers/state";
+import { Content } from "./pages/RenderDCSMenu";
+import { Translator } from "./helpers/translator";
+import { Storage } from './helpers/storage';
+import { Backend } from './helpers/backend';
 import { FaSave } from "react-icons/fa";
-import { FiEdit3 } from "react-icons/fi";
-import { AiOutlineCloudUpload } from "react-icons/ai";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
-import { getCloudBackend, syncNow } from "./apiClient";
-import Head from "./components/Head";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
-import DeckyStoreButton from "./components/DeckyStoreButton";
-import appState, { setAppState, useAppState } from "./state";
+import RenderSyncErrorLogPage from "./pages/RenderSyncErrorLogPage";
+import RenderSyncLogPage from "./pages/RenderSyncLogPage";
+import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 
-const Content: VFC<{}> = () => {
-  const appState = useAppState();
-  console.log("Rendering index", appState);
-
-  const [hasProvider, setHasProvider] = useState<boolean | undefined>(undefined);
-
-  useEffect(() => {
-    getCloudBackend().then((e) => setHasProvider(!!e));
-  }, []);
-
-  return (
-    <>
-      <Head />
-      <PanelSection title="Sync">
-        <PanelSectionRow>
-          <ButtonItem layout="below" disabled={appState.syncing === "true" || !hasProvider} onClick={() => syncNow(true)}>
-            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>Sync Now</DeckyStoreButton>
-          </ButtonItem>
-          {hasProvider === false && <small>Cloud Storage Provider is not configured. Please configure it in 'Cloud Provider'.</small>}
-        </PanelSectionRow>
-      </PanelSection>
-
-      <PanelSection title="Configuration">
-        <PanelSectionRow>
-          <ToggleField
-            label="Sync after closing a game"
-            checked={appState.sync_on_game_exit === "true"}
-            onChange={(e) => setAppState("sync_on_game_exit", e ? "true" : "false", true)}
-          />
-          <ToggleField
-            disabled={appState.sync_on_game_exit != "true"}
-            label="Toast after auto sync"
-            checked={appState.toast_auto_sync === "true"}
-            onChange={(e) => setAppState("toast_auto_sync", e ? "true" : "false", true)}
-          />
-        </PanelSectionRow>
-
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => {
-              Navigation.CloseSideMenus();
-              Navigation.Navigate("/dcs-configure-paths");
-            }}
-          >
-            <DeckyStoreButton icon={<FiEdit3 />}>Sync Paths</DeckyStoreButton>
-          </ButtonItem>
-        </PanelSectionRow>
-
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => {
-              Navigation.CloseSideMenus();
-              Navigation.Navigate("/dcs-configure-backend");
-            }}
-          >
-            <DeckyStoreButton icon={<AiOutlineCloudUpload />}>Cloud Provider</DeckyStoreButton>
-          </ButtonItem>
-        </PanelSectionRow>
-      </PanelSection>
-      {appState.experimental_menu === "true" && (
-        <PanelSection title="Experimental USE AT OWN RISK">
-          <PanelSectionRow>
-            <ToggleField
-              label="Bidirectional Sync"
-              checked={appState.bisync_enabled === "true"}
-              onChange={(e) => setAppState("bisync_enabled", e ? "true" : "false", true)}
-            />
-          </PanelSectionRow>
-        </PanelSection>
-      )}
-    </>
-  );
-};
+declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
-  appState.initialize(serverApi);
+  Storage.clearAllSessionStorage()
+  ApplicationState.initialize(serverApi).then(async () => {
+    Backend.initialize(serverApi);
+    await Logger.initialize();
+    await Translator.initialize();
+  });
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-error-sync-logs", () => <RenderSyncErrorLogPage />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-sync-logs", () => <RenderSyncLogPage />, { exact: true });
+  serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
-  const { unregister: removeGameExitListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    if (!e.bRunning && appState.currentState.sync_on_game_exit === "true") {
-      syncNow(appState.currentState.toast_auto_sync === "true");
+  const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
+    if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
+      const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
+      Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
+      
+      ApplicationState.setAppState("playing", String(e.bRunning));
+
+      let sync: boolean;
+      if (gameInfo?.app_type === 1) { // Steam Games == 1
+        if (gameInfo?.local_per_client_data?.cloud_status === 1) { // Steam Cloud Enabled
+          sync = true;
+          Logger.info("Steam game without Steam Cloud, proceeding")
+        } else {
+          sync = false;
+          Logger.info("Steam game with Steam Cloud, skipping");
+        }
+      } else {
+        sync = true;
+        Logger.info("Non Steam game, proceeding");
+      }
+
+      if (sync) {
+        let toast = ApplicationState.getAppState().currentState.toast_auto_sync === "true";
+        if (e.bRunning) {
+          if (toast) {
+            Toast.toast(Translator.translate("synchronizing.savedata"), 2000);
+          }
+          ApiClient.syncOnLaunch(toast, e.nInstanceID); // nInstanceID is Linux Process PID
+        } else {
+          ApiClient.syncOnEnd(toast);
+        }
+      }
+    } else {
+      Logger.info("No futher actions")
     }
   });
 
@@ -113,9 +72,13 @@ export default definePlugin((serverApi: ServerAPI) => {
     content: <Content />,
     icon: <FaSave />,
     onDismount() {
+      removeGameExecutionListener();
+      Storage.clearAllSessionStorage()
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
-      removeGameExitListener();
+      serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
+      serverApi.routerHook.removeRoute("/dcs-sync-logs");
+      serverApi.routerHook.removeRoute("/dcs-plugin-logs");
     },
   };
 });

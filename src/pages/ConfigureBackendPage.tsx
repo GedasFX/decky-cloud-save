@@ -1,10 +1,12 @@
 import { ButtonItem, ConfirmModal, Navigation, PanelSection, PanelSectionRow, showModal, sleep } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
-import { ImOnedrive, ImDropbox, ImHome } from "react-icons/im";
+import { ImOnedrive, ImDropbox, ImHome, ImGoogleDrive } from "react-icons/im";
 import { BsGearFill, BsPatchQuestionFill } from "react-icons/bs";
 import Container from "../components/Container";
-import { PageProps } from "../types";
-import { getCloudBackend } from "../apiClient";
+import { PageProps } from "../helpers/types";
+import { ApiClient } from "../helpers/apiClient";
+import { Translator } from "../helpers/translator"
+import { Logger } from "../helpers/logger";
 
 export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
   const openConfig = async (backend: "onedrive" | "drive" | "dropbox") => {
@@ -28,29 +30,29 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
       Navigation.CloseSideMenus();
       Navigation.NavigateToExternalWeb(response.result);
     } else {
-      console.error(response);
+      Logger.error(response);
     }
   };
 
   const [provider, setProvider] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    getCloudBackend().then((e) => setProvider(e ?? "N/A"));
+    ApiClient.getCloudBackend().then((e) => setProvider(e ?? "N/A"));
   }, []);
 
   return (
-    <Container title="Configure Cloud Storage Provider">
+    <Container title={Translator.translate("configure.provider")}>
       <PanelSection>
-        <strong>Currently using: {provider}</strong>
+        <strong>{Translator.translate("currently.using")}: {provider}</strong>
       </PanelSection>
       <PanelSection>
-        <small>Click one of the providers below to configure the backup destination.</small>
+        <small>{Translator.translate("click.providers")}</small>
         <PanelSectionRow>
           <ButtonItem onClick={() => openConfig("onedrive")} icon={<ImOnedrive />} label="OneDrive">
             <BsGearFill />
           </ButtonItem>
         </PanelSectionRow>
-        {/* <PanelSectionRow>
+        <PanelSectionRow>
           <ButtonItem
             onClick={() => openConfig("drive")}
             icon={<ImGoogleDrive />}
@@ -58,7 +60,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
           >
             <BsGearFill />
           </ButtonItem>
-        </PanelSectionRow> */}
+        </PanelSectionRow>
         <PanelSectionRow>
           <ButtonItem onClick={() => openConfig("dropbox")} icon={<ImDropbox />} label="Dropbox">
             <BsGearFill />
@@ -69,11 +71,11 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
             onClick={() =>
               showModal(
                 <ConfirmModal
-                  strTitle="Adding other providers"
+                  strTitle={Translator.translate("other.providers")}
                   strDescription={
                     <span style={{ whiteSpace: "pre-wrap" }}>
                       {
-                        "In addition to the 2 providers listed above, others can also be configured. Unfortunately, setup for them can only be done in desktop mode.\n\nSome providers (such as Google Drive) will have install scripts ready for your convenience. For those, simply run the install script found in the plugin install directory (default: /home/deck/homebrew/plugins/decky-cloud-save/quickstart/).\n\nFor all other providers read instructions found in the README.md."
+                        Translator.translate("manually.desktop")
                       }
                     </span>
                   }
@@ -81,7 +83,7 @@ export default function ConfigureBackendPage({ serverApi }: PageProps<{}>) {
               )
             }
             icon={<ImHome />}
-            label="Other (Advanced)"
+            label={Translator.translate("other.advanced")}
           >
             <BsPatchQuestionFill />
           </ButtonItem>
