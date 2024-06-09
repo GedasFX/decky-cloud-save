@@ -100,10 +100,11 @@ def migrate():
     config = get_config()
     if not any(e[0] == "destination_directory" for e in config):
         set_config("destination_directory", "decky-cloud-save")
-    if not any(e[0] == "experimental_menu" for e in config):
-        set_config("experimental_menu", "false")
-
-# Debug to log access to logger_level
-decky_plugin.logger.setLevel("DEBUG")
-logger_level = get_config_item("log_level", "INFO")
-decky_plugin.logger.setLevel(logger_level)
+    if not any(e[0] == "bisync_enabled" for e in config):
+        set_config("bisync_enabled", "false")
+    if not any(e[0] == "log_level" for e in config):
+        set_config("log_level", "INFO")
+    if not any(e[0] == "sync_on_game_exit" for e in config):
+        set_config("sync_on_game_exit", "true")
+    if not any(e[0] == "toast_auto_sync" for e in config):
+        set_config("toast_auto_sync", "true")
