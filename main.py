@@ -83,7 +83,7 @@ class Plugin:
 
     async def get_log_level(self):
         decky_plugin.logger.debug("Executing: get_log_level()")
-        return plugin_config.logger_level
+        return decky_plugin.logger.level
 
     async def get_config(self):
         decky_plugin.logger.debug("Executing: get_config()")
@@ -110,6 +110,9 @@ class Plugin:
 # Lifecycle
 
     async def _main(self):
+        logger_level = plugin_config.get_config_item("log_level", "INFO")
+        decky_plugin.logger.setLevel(logger_level)
+
         decky_plugin.logger.debug(
             "rclone exe path: %s", plugin_config.rclone_bin)
         decky_plugin.logger.debug(

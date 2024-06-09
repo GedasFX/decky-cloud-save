@@ -70,7 +70,7 @@ class RcloneSetupManager:
         if _is_port_in_use(53682):
             raise Exception('RCLONE_PORT_IN_USE')
 
-        self.current_spawn = await create_subprocess_exec(decky_plugin, *(["config", "create", "backend", backend_type]), stderr=asyncio.subprocess.PIPE)
+        self.current_spawn = await create_subprocess_exec(plugin_config.rclone_bin, *(["config", "create", "backend", backend_type]), stderr=asyncio.subprocess.PIPE)
 
         url = await _get_url_from_rclone_process(self.current_spawn)
         decky_plugin.logger.info("Login URL: %s", url)

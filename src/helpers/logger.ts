@@ -59,7 +59,7 @@ export class Logger {
      */
     private static log(lvl: LogLevel, ...args: any) {
         if (Logger.isLevelEnabled(lvl)) {
-            Backend.log(LogLevel[lvl], "" + args);
+            Backend.log(LogLevel[lvl], ...args);
             console.log("%c %s %c %s ", Logger.prefixStyle, Logger.prefix, Logger.levelStyles[lvl], LogLevel[lvl], ...args);
         }
     }

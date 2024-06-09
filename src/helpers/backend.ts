@@ -94,7 +94,7 @@ export class Backend {
      * @returns A Promise that resolves when the log is complete
      */
     public static async log(lvl: string, ...args: any): Promise<void> {
-        return Backend.backend_call<{ level: string, msg: string }, void>("log", { level: lvl, msg: "" + args });
+        return Backend.backend_call<{ level: string, msg: string }, void>("log", { level: lvl, msg: `[UI]: ${JSON.stringify(args)}` });
     }
 
     public static async needsResync(): Promise<boolean> {
