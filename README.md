@@ -8,6 +8,8 @@ Support: **[SteamDeckHomebrew Discord](https://deckbrew.xyz/discord)**, or open 
 
 If you are having issues with sync, more often than not, logs will tell you all you need to know to resolve the issue. You can find them in the plugin panel, or `~/homebrew/logs/decky-cloud-save/`. You may be asked to provide them when asking for help.
 
+To see more detailed logs, you will have to modify the `log_level` in `~/homebrew/settings/decky-cloud-save/plugin.properties` to use `DEBUG`. Make sure to change it back to `INFO` or higher, when done.
+
 ## Features
 
 * Ability to sync game saves or arbitrary files to the cloud.
