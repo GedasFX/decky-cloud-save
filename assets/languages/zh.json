@@ -49,5 +49,5 @@
     "sync.logs": "同步日誌",
     "no.available.logs": "無可用日誌",
     "deleting.locks.sync": "刪除鎖定並同步",
-    "delete.locks": "刪除鎖定"
+    "delete.locks": "刪除鎖定檔案（locks）"
 }
