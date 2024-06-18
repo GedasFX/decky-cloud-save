@@ -5,6 +5,7 @@ import decky_plugin
 import plugin_config
 import os
 import os.path
+from pathlib import Path
 
 
 class RcloneSyncManager:
@@ -21,6 +22,16 @@ class RcloneSyncManager:
         await create_subprocess_exec(*cmd)
 
     async def sync_now(self, winner: str, resync: bool):
+        destination_path = plugin_config.get_config_item(
+            "destination_directory", "decky-cloud-save")
+        self.sync_now_internal(["/", f"backend:{destination_path}", "--filter-from",
+            plugin_config.cfg_syncpath_filter_file], winner, resync)
+
+        for k, v in plugin_config.get_config_item("library_sync", {}).items():
+            if v.get("enabled", False):
+                self.sync_now_internal([str(Path.home() / k), f"backend:{v.get('destination', f'decky-cloud-save/{k}')}"], winner, resync)
+
+    async def sync_now_internal(self, path_args: list, winner: str, resync: bool):
         """
         Initiates a synchronization process using rclone.
 
@@ -31,8 +42,6 @@ class RcloneSyncManager:
         """
         bisync_enabled = plugin_config.get_config_item(
             "bisync_enabled", "false") == "true"
-        destination_path = plugin_config.get_config_item(
-            "destination_directory", "decky-cloud-save")
         args = []
 
         if bisync_enabled:
@@ -42,8 +51,8 @@ class RcloneSyncManager:
             args.extend(["copy"])
             decky_plugin.logger.debug("Using copy")
 
-        args.extend(["/", f"backend:{destination_path}", "--filter-from",
-                    plugin_config.cfg_syncpath_filter_file, "--copy-links"])
+        args.extend(path_args)
+        args.extend(["--copy-links"])
         if bisync_enabled:
             if resync:
                 args.extend(["--resync-mode", winner, "--resync"])

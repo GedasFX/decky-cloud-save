@@ -14,7 +14,7 @@ cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
 cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
 
-def get_config(): 
+def get_config():
     """
     Reads and parses the plugin configuration file.
 
@@ -108,3 +108,10 @@ def migrate():
         set_config("sync_on_game_exit", "true")
     if not any(e[0] == "toast_auto_sync" for e in config):
         set_config("toast_auto_sync", "true")
+    if not any(e[0] == "library_sync" for e in config):
+        set_config("library_sync", {
+            "Documents": {"enabled": False, "destination": "Documents"},
+            "Music":     {"enabled": False, "destination": "Music"},
+            "Pictures":  {"enabled": False, "destination": "Pictures"},
+            "Videos":    {"enabled": False, "destination": "Videos"},
+        })
