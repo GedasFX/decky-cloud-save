@@ -3,7 +3,6 @@ import spanish from "../../assets/languages/es.json";
 import french from "../../assets/languages/fr.json";
 import portuguese from "../../assets/languages/pt.json";
 import german from "../../assets/languages/de.json";
-import chinese from "../../assets/languages/zh.json";
 import { Logger } from "./logger";
 
 /**
@@ -15,8 +14,7 @@ enum Language {
     latam,
     french,
     portuguese,
-    german,
-    chinese
+    german
 }
 
 /**
@@ -29,7 +27,7 @@ export class Translator {
      */
     private constructor(){
     }
-
+    
     /**
      * An object that maps languages to their respective dictionaries.
      */
@@ -39,8 +37,7 @@ export class Translator {
         [Language.latam]: spanish,
         [Language.french]: french,
         [Language.portuguese]: portuguese,
-        [Language.german]: german,
-        [Language.chinese]: chinese
+        [Language.german]: german
     };
 
     /**
