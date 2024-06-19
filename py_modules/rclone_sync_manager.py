@@ -26,7 +26,7 @@ class RcloneSyncManager:
         await self.sync_now_internal(["/", f"backend:{destination_path}", "--filter-from",
             plugin_config.cfg_syncpath_filter_file], winner, resync)
 
-        for k, v in plugin_config.get_library_sync_config().settings.items():
+        for k, v in plugin_config.get_library_sync_config().items():
             if v.get("enabled", False):
                 await self.sync_now_internal([str(Path.home() / k), f"backend:{v.get('destination', f'deck-libraries/{k}')}"], winner, resync)
 
