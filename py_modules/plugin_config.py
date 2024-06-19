@@ -89,6 +89,9 @@ def get_library_sync_config(key: str = None):
     """
     Retrieves the library sync configuration.
 
+    Parameters:
+    key (str, optional): The key of the value to retrieve. If not provided, the entire configuration will be returned.
+
     Returns:
     dict: The library sync configuration.
     """
@@ -96,7 +99,24 @@ def get_library_sync_config(key: str = None):
     if key:
         return library_sync_config.get(key, {"enabled": False, "destination": "key"})
     else:
-        return library_sync_config
+        return library_sync_config.settings
+
+def set_library_sync_config(key: str, enabled: bool = None, destination: str = None):
+    """
+    Sets the library sync configuration.
+
+    Parameters:
+    key (str): The key to set.
+    enabled (bool): Whether the key is enabled.
+    destination (str): The destination of the key.
+    """
+    library_sync_config.read()
+    if enabled == None:
+        enabled = library_sync_config.get(key, {}).get("enabled", False)
+    if destination == None:
+        destination = library_sync_config.get(key, {}).get("destination", f"deck-libraries/{key}")
+
+    library_sync_config.setSetting(key, {"enabled": enabled, "destination": destination})
 
 def migrate():
     """
@@ -125,8 +145,8 @@ def migrate():
     if not any(e[0] == "toast_auto_sync" for e in config):
         set_config("toast_auto_sync", "true")
 
-    if not get_library_sync_config().settings:
-        get_library_sync_config().setSetting("Documents", {"enabled": False, "destination": "Documents"})
-        get_library_sync_config().setSetting("Music",     {"enabled": False, "destination": "Music"})
-        get_library_sync_config().setSetting("Pictures",  {"enabled": False, "destination": "Pictures"})
-        get_library_sync_config().setSetting("Videos",    {"enabled": False, "destination": "Videos"})
+    if not get_library_sync_config():
+        set_library_sync_config("Documents")
+        set_library_sync_config("Music")
+        set_library_sync_config("Pictures")
+        set_library_sync_config("Videos")

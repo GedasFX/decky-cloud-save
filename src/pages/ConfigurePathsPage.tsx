@@ -1,4 +1,4 @@
-import { PanelSectionRow, PanelSection, TextField } from "decky-frontend-lib";
+import { PanelSectionRow, PanelSection, TextField, ToggleField } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
@@ -24,6 +24,9 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   useEffect(() => onPathsUpdated(), []);
 
   return (
+    <PanelSection>
+    <div style= {{ overflow: "auto", maxHeight: "calc(100vh - 80px)" }}>
+    <PanelSectionRow>
     <Container
       title={Translator.translate("sync.paths")}
       help={
@@ -76,5 +79,68 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
         ))}
       </PanelSection>
     </Container>
+    </PanelSectionRow>
+    <PanelSectionRow>
+    <Container title={Translator.translate("library.sync")}>
+    <PanelSection title={Translator.translate("documents")}>
+      <div style={{ display: "flex" }}>
+        <div style={{ flexShrink: 0, width: "fit-content"}}>
+        <ToggleField
+              label={Translator.translate("enabled")}
+              checked={true}/>
+        </div>
+        <div style={{ flexGrow: 1 }}>
+        <TextField
+          disabled={false}
+          value={"Documents"}/>
+        </div>
+      </div>
+    </PanelSection>
+    <PanelSection title={Translator.translate("pictures")}>
+      <div style={{ display: "flex" }}>
+        <div style={{ flexShrink: 0, width: "fit-content"}}>
+        <ToggleField
+              label={Translator.translate("enabled")}
+              checked={true}/>
+        </div>
+        <div style={{ flexGrow: 1 }}>
+        <TextField
+          disabled={false}
+          value={"Pictures"}/>
+        </div>
+      </div>
+    </PanelSection>
+    <PanelSection title={Translator.translate("music")}>
+      <div style={{ display: "flex" }}>
+        <div style={{ flexShrink: 0, width: "fit-content"}}>
+        <ToggleField
+              label={Translator.translate("enabled")}
+              checked={true}/>
+        </div>
+        <div style={{ flexGrow: 1 }}>
+        <TextField
+          disabled={false}
+          value={"Music"}/>
+        </div>
+      </div>
+    </PanelSection>
+    <PanelSection title={Translator.translate("videos")}>
+      <div style={{ display: "flex" }}>
+        <div style={{ flexShrink: 0, width: "fit-content"}}>
+        <ToggleField
+              label={Translator.translate("enabled")}
+              checked={true}/>
+        </div>
+        <div style={{ flexGrow: 1 }}>
+        <TextField
+          disabled={false}
+          value={"Videos"}/>
+        </div>
+      </div>
+    </PanelSection>
+    </Container>
+    </PanelSectionRow>
+    </div>
+    </PanelSection>
   );
 }
