@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import decky_plugin
+from settings import SettingsManager as settings_manager
 
 # Plugin directories and files
 plugin_dir = Path(decky_plugin.DECKY_PLUGIN_DIR)
@@ -13,6 +14,8 @@ cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
 cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
 cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
 cfg_property_file = config_dir / "plugin.properties"
+
+library_sync_config = settings_manager(name="library_sync", settings_directory=decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
 
 def get_config():
     """
@@ -82,6 +85,19 @@ def regenerate_filter_file():
         f.write("\n")
         f.write("- **\n")
 
+def get_library_sync_config(key: str = None):
+    """
+    Retrieves the library sync configuration.
+
+    Returns:
+    dict: The library sync configuration.
+    """
+    library_sync_config.read()
+    if key:
+        return library_sync_config.get(key, {"enabled": False, "destination": "key"})
+    else:
+        return library_sync_config
+
 def migrate():
     """
     Performs migration tasks if necessary, like creating directories and files, and setting default configurations.
@@ -108,10 +124,9 @@ def migrate():
         set_config("sync_on_game_exit", "true")
     if not any(e[0] == "toast_auto_sync" for e in config):
         set_config("toast_auto_sync", "true")
-    if not any(e[0] == "library_sync" for e in config):
-        set_config("library_sync", {
-            "Documents": {"enabled": False, "destination": "Documents"},
-            "Music":     {"enabled": False, "destination": "Music"},
-            "Pictures":  {"enabled": False, "destination": "Pictures"},
-            "Videos":    {"enabled": False, "destination": "Videos"},
-        })
+
+    if not get_library_sync_config().settings:
+        get_library_sync_config().setSetting("Documents", {"enabled": False, "destination": "Documents"})
+        get_library_sync_config().setSetting("Music",     {"enabled": False, "destination": "Music"})
+        get_library_sync_config().setSetting("Pictures",  {"enabled": False, "destination": "Pictures"})
+        get_library_sync_config().setSetting("Videos",    {"enabled": False, "destination": "Videos"})
