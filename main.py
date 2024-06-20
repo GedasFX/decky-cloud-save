@@ -98,10 +98,10 @@ class Plugin:
             f"Executing: get_library_sync_config({key})")
         return plugin_config.get_library_sync_config(key)
 
-    async def set_library_sync_config(self, key: str, enabled: bool = None, destination: str = None):
+    async def set_library_sync_config(self, key: str, enabled, bisync, destination):
         decky_plugin.logger.debug(
-            f"Executing: set_library_sync_config({key}:{{enabled:{enabled},destination:{destination}}})")
-        plugin_config.set_library_sync_config(key, enabled, destination)
+            f"Executing: set_library_sync_config({key}:{{enabled:{enabled},bisync:{bisync},destination:{destination}}})")
+        plugin_config.set_library_sync_config(key=key, enabled=enabled, bisync=bisync, destination=destination)
 
 # Logger
 

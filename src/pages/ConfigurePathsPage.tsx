@@ -7,10 +7,13 @@ import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
 import { ApiClient } from "../helpers/apiClient";
 import { ApplicationState } from "../helpers/state";
+import { ApplicationLibrarySyncState, LibrarySyncState } from "../helpers/libSyncState";
 import { Translator } from "../helpers/translator";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   const appState = ApplicationState.useAppState();
+  const librarySyncState = ApplicationLibrarySyncState.useAppState();
+
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
 
@@ -82,65 +85,44 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
     </PanelSectionRow>
     <PanelSectionRow>
     <Container title={Translator.translate("library.sync")}>
-    <PanelSection title={Translator.translate("documents")}>
-      <div style={{ display: "flex" }}>
-        <div style={{ flexShrink: 0, width: "fit-content"}}>
-        <ToggleField
-              label={Translator.translate("enabled")}
-              checked={true}/>
-        </div>
-        <div style={{ flexGrow: 1 }}>
-        <TextField
-          disabled={false}
-          value={"Documents"}/>
-        </div>
-      </div>
-    </PanelSection>
-    <PanelSection title={Translator.translate("pictures")}>
-      <div style={{ display: "flex" }}>
-        <div style={{ flexShrink: 0, width: "fit-content"}}>
-        <ToggleField
-              label={Translator.translate("enabled")}
-              checked={true}/>
-        </div>
-        <div style={{ flexGrow: 1 }}>
-        <TextField
-          disabled={false}
-          value={"Pictures"}/>
-        </div>
-      </div>
-    </PanelSection>
-    <PanelSection title={Translator.translate("music")}>
-      <div style={{ display: "flex" }}>
-        <div style={{ flexShrink: 0, width: "fit-content"}}>
-        <ToggleField
-              label={Translator.translate("enabled")}
-              checked={true}/>
-        </div>
-        <div style={{ flexGrow: 1 }}>
-        <TextField
-          disabled={false}
-          value={"Music"}/>
-        </div>
-      </div>
-    </PanelSection>
-    <PanelSection title={Translator.translate("videos")}>
-      <div style={{ display: "flex" }}>
-        <div style={{ flexShrink: 0, width: "fit-content"}}>
-        <ToggleField
-              label={Translator.translate("enabled")}
-              checked={true}/>
-        </div>
-        <div style={{ flexGrow: 1 }}>
-        <TextField
-          disabled={false}
-          value={"Videos"}/>
-        </div>
-      </div>
-    </PanelSection>
+      <LibrarySyncEntry title={"documents"} stateKey="Documents"/>
+      <LibrarySyncEntry title={"pictures"} stateKey="Pictures"/>
+      <LibrarySyncEntry title={"music"} stateKey="Music"/>
+      <LibrarySyncEntry title={"video"} stateKey="Videos"/>
     </Container>
     </PanelSectionRow>
     </div>
     </PanelSection>
   );
+
+  interface LibrarySyncEntryProps {
+    title: string;
+    stateKey: keyof LibrarySyncState;
+  }
+
+  function LibrarySyncEntry({ title, stateKey }: LibrarySyncEntryProps) {
+    return (
+      <PanelSection title={Translator.translate(title)}>
+        <div style={{ display: "flex" }}>
+          <div style={{ display: "flex", flexShrink: 0, width: "fit-content"}}>
+            <ToggleField
+              label={Translator.translate("enabled")}
+              checked={librarySyncState[stateKey].enabled}
+              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {enabled: e}, true)}/>
+            <ToggleField
+              label={Translator.translate("bidirectional.sync")}
+              checked={librarySyncState[stateKey].bisync}
+              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {bisync: e}, true)}/>
+          </div>
+          <div style={{ flexGrow: 1 }}>
+            <TextField
+              disabled={false}
+              defaultValue={librarySyncState[stateKey].destination}
+              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {destination: e.target.value}, false)}
+              onBlur={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {destination: e.target.value}, true)}/>
+          </div>
+        </div>
+      </PanelSection>
+    );
+  }
 }

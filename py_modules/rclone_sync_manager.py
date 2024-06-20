@@ -23,14 +23,23 @@ class RcloneSyncManager:
 
     async def sync_now(self, winner: str, resync: bool):
         destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
-        await self.sync_now_internal(["/", f"backend:{destination_path}", "--filter-from",
-            plugin_config.cfg_syncpath_filter_file], winner, resync)
+        await self.sync_now_internal(
+            ["/", f"backend:{destination_path}", "--filter-from", plugin_config.cfg_syncpath_filter_file],
+            plugin_config.get_config_item("bisync_enabled", "false") == "true",
+            winner,
+            resync
+        )
 
         for k, v in plugin_config.get_library_sync_config().items():
             if v.get("enabled", False):
-                await self.sync_now_internal([str(Path.home() / k), f"backend:{v.get('destination', f'deck-libraries/{k}')}"], winner, resync)
+                await self.sync_now_internal(
+                    [str(Path.home() / k), f"backend:{v.get('destination', f'deck-libraries/{k}')}"],
+                    v.get("bisync", False),
+                    winner,
+                    resync
+                )
 
-    async def sync_now_internal(self, path_args: list, winner: str, resync: bool):
+    async def sync_now_internal(self, path_args: list, bisync: bool, winner: str, resync: bool):
         """
         Initiates a synchronization process using rclone.
 
@@ -39,11 +48,9 @@ class RcloneSyncManager:
         resync (bool): Whether to perform a resynchronization.
 
         """
-        bisync_enabled = plugin_config.get_config_item(
-            "bisync_enabled", "false") == "true"
         args = []
 
-        if bisync_enabled:
+        if bisync:
             args.extend(["bisync"])
             decky_plugin.logger.debug("Using bisync")
         else:

@@ -97,11 +97,11 @@ def get_library_sync_config(key: str = None):
     """
     library_sync_config.read()
     if key:
-        return library_sync_config.get(key, {"enabled": False, "destination": "key"})
+        return library_sync_config.getSetting(key, {"enabled": False, "bisync": False, "destination": f"deck-libraries/{key}"})
     else:
         return library_sync_config.settings
 
-def set_library_sync_config(key: str, enabled: bool = None, destination: str = None):
+def set_library_sync_config(key: str, enabled: bool = None, bisync: bool = None, destination: str = None):
     """
     Sets the library sync configuration.
 
@@ -112,11 +112,13 @@ def set_library_sync_config(key: str, enabled: bool = None, destination: str = N
     """
     library_sync_config.read()
     if enabled == None:
-        enabled = library_sync_config.get(key, {}).get("enabled", False)
+        enabled = library_sync_config.getSetting(key, {}).get("enabled", False)
+    if bisync == None:
+        bisync = library_sync_config.getSetting(key, {}).get("bisync", False)
     if destination == None:
-        destination = library_sync_config.get(key, {}).get("destination", f"deck-libraries/{key}")
+        destination = library_sync_config.getSetting(key, {}).get("destination", f"deck-libraries/{key}")
 
-    library_sync_config.setSetting(key, {"enabled": enabled, "destination": destination})
+    library_sync_config.setSetting(key, {"enabled": enabled, "bisync": bisync, "destination": destination})
 
 def migrate():
     """

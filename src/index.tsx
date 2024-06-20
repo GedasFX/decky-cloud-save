@@ -3,6 +3,7 @@ import { Toast } from "./helpers/toast";
 import { Logger } from "./helpers/logger";
 import { ApiClient } from "./helpers/apiClient";
 import { ApplicationState } from "./helpers/state";
+import { ApplicationLibrarySyncState } from "./helpers/libSyncState";
 import { Content } from "./pages/RenderDCSMenu";
 import { Translator } from "./helpers/translator";
 import { Storage } from './helpers/storage';
@@ -18,10 +19,13 @@ declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
   Storage.clearAllSessionStorage()
-  ApplicationState.initialize(serverApi).then(async () => {
-    Backend.initialize(serverApi);
-    await Logger.initialize();
-    await Translator.initialize();
+  Promise.all([
+    ApplicationState.initialize(serverApi),
+    ApplicationLibrarySyncState.initialize(serverApi)]).then(
+      async () => {
+        Backend.initialize(serverApi);
+        await Logger.initialize();
+        await Translator.initialize();
   });
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
@@ -34,7 +38,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
       Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
-      
+
       ApplicationState.setAppState("playing", String(e.bRunning));
 
       let sync: boolean;

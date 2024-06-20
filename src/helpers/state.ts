@@ -9,20 +9,7 @@ type State = {
   experimental_menu: string;
   toast_auto_sync: string;
   destination_directory: string;
-  playing: string;
-  documents_sync: LibrarySyncState;
-  pictures_sync: LibrarySyncState;
-  videos_sync: LibrarySyncState;
-  music_sync: LibrarySyncState;
-};
-
-interface LibrarySyncState {
-  enabled: boolean;
-  destination: string;
-};
-
-type LibrarySyncDict = {
-  [key: string]: LibrarySyncState;
+  playing: string
 };
 
 class AppState {
@@ -35,11 +22,7 @@ class AppState {
     experimental_menu: "false",
     toast_auto_sync: "true",
     destination_directory: "decky-cloud-save",
-    playing: "false",
-    documents_sync: { enabled: false, destination: "deck-libraries/Documents" },
-    pictures_sync: { enabled: false, destination: "deck-libraries/Pictures" },
-    videos_sync: { enabled: false, destination: "deck-libraries/Videos" },
-    music_sync: { enabled: false, destination: "deck-libraries/Music" },
+    playing: "false"
   };
 
   private _serverApi: ServerAPI = null!;
@@ -70,18 +53,15 @@ class AppState {
     } else {
       Logger.error(data);
     }
-
-    const libSyncData = await serverApi.callPluginMethod<{}, LibrarySyncDict>("get_library_sync_config", {});
-    console.log(libSyncData);
   }
 
-  public setState = (key: keyof State, value: string | LibrarySyncState, persist = false) => {
+  public setState = (key: keyof State, value: string, persist = false) => {
     this._currentState = { ...this.currentState, [key]: value };
 
     Logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
-      this.serverApi.callPluginMethod<{ key: string; value: string | LibrarySyncState }, null>("set_config", { key, value }).then(e => Logger.debug(e));
+      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => Logger.debug(e));
     }
 
     this._subscribers.forEach((e) => e.callback(this.currentState));
@@ -117,9 +97,9 @@ export class ApplicationState {
 
   private constructor(){
   }
-
+  
   private static appState = new AppState();
-
+  
   public static async initialize(serverApi: ServerAPI) {
     await this.appState.initialize(serverApi);
   }
