@@ -49,10 +49,10 @@ class AppState {
 
     const data = await serverApi.callPluginMethod<{}, LibrarySyncState>("get_library_sync_config", {});
     if (data.success) {
-      this.setState("Documents", { enabled: data.result.Documents.enabled, bisync: data.result.Documents.bisync, destination: data.result.Documents.destination });
-      this.setState("Music", { enabled: data.result.Music.enabled, bisync: data.result.Music.bisync, destination: data.result.Music.destination });
-      this.setState("Pictures", { enabled: data.result.Pictures.enabled, bisync: data.result.Pictures.bisync, destination: data.result.Pictures.destination });
-      this.setState("Videos", { enabled: data.result.Videos.enabled, bisync: data.result.Videos.bisync, destination: data.result.Videos.destination });
+      this.setState("Documents", data.result.Documents);
+      this.setState("Music", data.result.Music);
+      this.setState("Pictures", data.result.Pictures);
+      this.setState("Videos", data.result.Videos);
     } else {
       Logger.error(data);
     }
