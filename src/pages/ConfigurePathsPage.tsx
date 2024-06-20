@@ -6,13 +6,11 @@ import { RenderExistingPathButton } from "../components/RenderExistingPathButton
 import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
 import { ApiClient } from "../helpers/apiClient";
-import { ApplicationState } from "../helpers/state";
-import { ApplicationLibrarySyncState, LibrarySyncState } from "../helpers/libSyncState";
+import { ApplicationState, LibrarySyncState } from "../helpers/state";
 import { Translator } from "../helpers/translator";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   const appState = ApplicationState.useAppState();
-  const librarySyncState = ApplicationLibrarySyncState.useAppState();
 
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
@@ -86,8 +84,8 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
     <PanelSectionRow>
     <Container title={Translator.translate("library.sync")}>
       <LibrarySyncEntry title={"documents"} stateKey="Documents"/>
-      <LibrarySyncEntry title={"pictures"} stateKey="Pictures"/>
       <LibrarySyncEntry title={"music"} stateKey="Music"/>
+      <LibrarySyncEntry title={"pictures"} stateKey="Pictures"/>
       <LibrarySyncEntry title={"video"} stateKey="Videos"/>
     </Container>
     </PanelSectionRow>
@@ -107,19 +105,19 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
           <div style={{ display: "flex", flexShrink: 0, width: "fit-content"}}>
             <ToggleField
               label={Translator.translate("enabled")}
-              checked={librarySyncState[stateKey].enabled}
-              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {enabled: e}, true)}/>
+              checked={appState.library_sync[stateKey].enabled}
+              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {enabled: e}, true)}/>
             <ToggleField
               label={Translator.translate("bidirectional.sync")}
-              checked={librarySyncState[stateKey].bisync}
-              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {bisync: e}, true)}/>
+              checked={appState.library_sync[stateKey].bisync}
+              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {bisync: e}, true)}/>
           </div>
           <div style={{ flexGrow: 1 }}>
             <TextField
               disabled={false}
-              defaultValue={librarySyncState[stateKey].destination}
-              onChange={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {destination: e.target.value}, false)}
-              onBlur={(e) => ApplicationLibrarySyncState.setAppState(stateKey, {destination: e.target.value}, true)}/>
+              defaultValue={appState.library_sync[stateKey].destination}
+              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value}, false)}
+              onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value}, true)}/>
           </div>
         </div>
       </PanelSection>

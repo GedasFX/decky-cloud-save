@@ -9,7 +9,23 @@ type State = {
   experimental_menu: string;
   toast_auto_sync: string;
   destination_directory: string;
-  playing: string
+  playing: string;
+  library_sync: LibrarySyncState;
+};
+
+type ValueOf<T> = T[keyof T];
+
+export type LibrarySyncState = {
+  Documents: LibrarySyncStateEntry;
+  Music: LibrarySyncStateEntry;
+  Pictures: LibrarySyncStateEntry;
+  Videos: LibrarySyncStateEntry;
+};
+
+interface LibrarySyncStateEntry {
+  enabled: boolean;
+  bisync: boolean;
+  destination: string;
 };
 
 class AppState {
@@ -22,7 +38,13 @@ class AppState {
     experimental_menu: "false",
     toast_auto_sync: "true",
     destination_directory: "decky-cloud-save",
-    playing: "false"
+    playing: "false",
+    library_sync: {
+      Documents: { enabled: false, bisync: false, destination: "deck-libraries/Documents" },
+      Music: { enabled: false, bisync: false, destination: "deck-libraries/Music" },
+      Pictures: { enabled: false, bisync: false, destination: "deck-libraries/Pictures" },
+      Videos: { enabled: false, bisync: false, destination: "deck-libraries/Videos" },
+    },
   };
 
   private _serverApi: ServerAPI = null!;
@@ -47,21 +69,38 @@ class AppState {
 
     this._serverApi = serverApi;
 
-    const data = await serverApi.callPluginMethod<{}, string[][]>("get_config", {});
+    const data = await serverApi.callPluginMethod<{}, State>("get_config", {});
     if (data.success) {
-      data.result.forEach((e) => this.setState(e[0] as keyof State, e[1]));
+      for (const [key, value] of Object.entries(data.result)) {
+        this.setState(key as keyof State, value as ValueOf<State>);
+      }
     } else {
       Logger.error(data);
     }
   }
 
-  public setState = (key: keyof State, value: string, persist = false) => {
+  public setLibSyncState = (key: keyof LibrarySyncState, values: Partial<{ enabled: boolean; bisync: boolean; destination: string }>, persist = false) => {
+    let entry = this._currentState.library_sync[key];
+    if (values.enabled !== undefined) {
+      entry.enabled = values.enabled;
+    }
+    if (values.bisync !== undefined) {
+      entry.bisync = values.bisync;
+    }
+    if (values.destination !== undefined) {
+      entry.destination = values.destination;
+    }
+
+    this.setState("library_sync", this._currentState.library_sync, persist);
+  }
+
+  public setState = (key: keyof State, value: ValueOf<State>, persist = false) => {
     this._currentState = { ...this.currentState, [key]: value };
 
     Logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
-      this.serverApi.callPluginMethod<{ key: string; value: string }, null>("set_config", { key, value }).then(e => Logger.debug(e));
+      this.serverApi.callPluginMethod<{ key: string; value: ValueOf<State> }, null>("set_config", { key, value }).then(e => Logger.debug(e));
     }
 
     this._subscribers.forEach((e) => e.callback(this.currentState));
@@ -97,9 +136,9 @@ export class ApplicationState {
 
   private constructor(){
   }
-  
+
   private static appState = new AppState();
-  
+
   public static async initialize(serverApi: ServerAPI) {
     await this.appState.initialize(serverApi);
   }
@@ -125,6 +164,7 @@ export class ApplicationState {
     return ApplicationState.appState;
   }
   public static setAppState = ApplicationState.appState.setState;
+  public static setLibSyncState = ApplicationState.appState.setLibSyncState;
   public static setbisync_enabled = ApplicationState.appState.setbisync_enabled;
   public static getServerApi = () => ApplicationState.appState.serverApi;
 }

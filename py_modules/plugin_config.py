@@ -13,24 +13,38 @@ rclone_cfg = config_dir / "rclone.conf"
 cfg_syncpath_includes_file = config_dir / "sync_paths.txt"
 cfg_syncpath_excludes_file = config_dir / "sync_paths_excludes.txt"
 cfg_syncpath_filter_file = config_dir / "sync_paths_filter.txt"
-cfg_property_file = config_dir / "plugin.properties"
 
-library_sync_config = settings_manager(name="library_sync", settings_directory=decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
+config = settings_manager(name="config", settings_directory=decky_plugin.DECKY_PLUGIN_SETTINGS_DIR)
 
-def get_config():
+def get_cfg_property():
     """
-    Reads and parses the plugin configuration file.
+    Reads and parses the plugin.properties.
+    This is only used for migration from legacy config file and should not be used for any other purpose.
 
     Returns:
     list: A list of key-value pairs representing the configuration.
     """
+    cfg_property_file = config_dir / "plugin.properties"
+    if not cfg_property_file.is_file():
+        return []
     with open(cfg_property_file) as f:
         lines = f.readlines()
         lines = list(map(lambda x: x.strip().split('='), lines))
         decky_plugin.logger.debug("config %s", lines)
+        cfg_property_file.unlink()
         return lines
 
-def set_config(key: str, value: str):
+def get_config():
+    """
+    Retrieves the plugin configuration.
+
+    Returns:
+    dict: The plugin configuration.
+    """
+    config.read()
+    return config.settings
+
+def set_config(key: str, value):
     """
     Sets a configuration key-value pair in the plugin configuration file.
 
@@ -38,20 +52,9 @@ def set_config(key: str, value: str):
     key (str): The key to set.
     value (str): The value to set for the key.
     """
-    with open(cfg_property_file, "r") as f:
-        lines = f.readlines()
-    with open(cfg_property_file, "w") as f:
-        found = False
-        for line in lines:
-            if line.startswith(key + '='):
-                f.write(f"{key}={value}\n")
-                found = True
-            else:
-                f.write(line)
-        if not found:
-            f.write(f"{key}={value}\n")
+    config.setSetting(key, value)
 
-def get_config_item(name: str, default: str = None):
+def get_config_item(name: str, default = None):
     """
     Retrieves a configuration item by name.
 
@@ -62,7 +65,8 @@ def get_config_item(name: str, default: str = None):
     Returns:
     str: The value of the configuration item.
     """
-    return next((x[1] for x in get_config() if x[0] == name), default)
+    config.read()
+    return config.getSetting(name, default)
 
 def regenerate_filter_file():
     """
@@ -95,11 +99,11 @@ def get_library_sync_config(key: str = None):
     Returns:
     dict: The library sync configuration.
     """
-    library_sync_config.read()
+    config.read()
     if key:
-        return library_sync_config.getSetting(key, {"enabled": False, "bisync": False, "destination": f"deck-libraries/{key}"})
+        return config.getSetting("library_sync", {}).get(key, {"enabled": False, "bisync": False, "destination": f"deck-libraries/{key}"})
     else:
-        return library_sync_config.settings
+        return config.getSetting("library_sync", {})
 
 def set_library_sync_config(key: str, enabled: bool = None, bisync: bool = None, destination: str = None):
     """
@@ -110,15 +114,16 @@ def set_library_sync_config(key: str, enabled: bool = None, bisync: bool = None,
     enabled (bool): Whether the key is enabled.
     destination (str): The destination of the key.
     """
-    library_sync_config.read()
+    config.read()
     if enabled == None:
-        enabled = library_sync_config.getSetting(key, {}).get("enabled", False)
+        enabled = get_library_sync_config(key).get("enabled", False)
     if bisync == None:
-        bisync = library_sync_config.getSetting(key, {}).get("bisync", False)
+        bisync = get_library_sync_config(key).get(key, {}).get("bisync", False)
     if destination == None:
-        destination = library_sync_config.getSetting(key, {}).get("destination", f"deck-libraries/{key}")
-
-    library_sync_config.setSetting(key, {"enabled": enabled, "bisync": bisync, "destination": destination})
+        destination = get_library_sync_config(key).get(key, {}).get("destination", f"deck-libraries/{key}")
+    library_sync_config = get_library_sync_config()
+    library_sync_config.update({key: {"enabled": enabled, "bisync": bisync, "destination": destination}})
+    config.setSetting("library_sync", library_sync_config)
 
 def migrate():
     """
@@ -130,24 +135,31 @@ def migrate():
         cfg_syncpath_includes_file.touch()
     if not cfg_syncpath_excludes_file.is_file():
         cfg_syncpath_excludes_file.touch()
-    if not cfg_property_file.is_file():
-        cfg_property_file.touch()
     if not cfg_syncpath_filter_file.is_file():
         regenerate_filter_file()
 
-    config = get_config()
-    if not any(e[0] == "destination_directory" for e in config):
-        set_config("destination_directory", "decky-cloud-save")
-    if not any(e[0] == "bisync_enabled" for e in config):
-        set_config("bisync_enabled", "false")
-    if not any(e[0] == "log_level" for e in config):
-        set_config("log_level", "INFO")
-    if not any(e[0] == "sync_on_game_exit" for e in config):
-        set_config("sync_on_game_exit", "true")
-    if not any(e[0] == "toast_auto_sync" for e in config):
-        set_config("toast_auto_sync", "true")
+    # Migrate from plugin.properties to config.json
+    config_pairs_list = get_cfg_property()
+    for pair in config_pairs_list:
+        if pair[1] == "true":
+            pair[1] = True
+        elif pair[1] == "false":
+            pair[1] = False
+        set_config(pair[0], pair[1])
 
-    if not get_library_sync_config():
+    # Set default configurations
+    current_config = get_config()
+    if not "destination_directory" in current_config:
+        set_config("destination_directory", "decky-cloud-save")
+    if not "bisync_enabled" in current_config:
+        set_config("bisync_enabled", False)
+    if not "log_level" in current_config:
+        set_config("log_level", "INFO")
+    if not "sync_on_game_exit" in current_config:
+        set_config("sync_on_game_exit", True)
+    if not "toast_auto_sync" in current_config:
+        set_config("toast_auto_sync", True)
+    if not "library_sync" in current_config:
         set_library_sync_config("Documents")
         set_library_sync_config("Music")
         set_library_sync_config("Pictures")
