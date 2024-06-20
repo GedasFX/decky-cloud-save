@@ -25,7 +25,7 @@ class RcloneSyncManager:
         destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
         await self.sync_now_internal(
             ["/", f"backend:{destination_path}", "--filter-from", plugin_config.cfg_syncpath_filter_file],
-            plugin_config.get_config_item("bisync_enabled", "false") == "true",
+            plugin_config.get_config_item("bisync_enabled", False),
             winner,
             resync
         )
@@ -59,7 +59,7 @@ class RcloneSyncManager:
 
         args.extend(path_args)
         args.extend(["--copy-links"])
-        if bisync_enabled:
+        if bisync:
             if resync:
                 args.extend(["--resync-mode", winner, "--resync"])
             else:

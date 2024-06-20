@@ -109,14 +109,14 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
               onChange={(e) => ApplicationState.setLibSyncState(stateKey, {enabled: e}, true)}/>
             <ToggleField
               label={Translator.translate("bidirectional.sync")}
+              disabled={!appState.library_sync[stateKey].enabled}
               checked={appState.library_sync[stateKey].bisync}
               onChange={(e) => ApplicationState.setLibSyncState(stateKey, {bisync: e}, true)}/>
           </div>
           <div style={{ flexGrow: 1 }}>
             <TextField
-              disabled={false}
+              disabled={!appState.library_sync[stateKey].enabled}
               defaultValue={appState.library_sync[stateKey].destination}
-              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value}, false)}
               onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value}, true)}/>
           </div>
         </div>

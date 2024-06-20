@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { Logger } from "./logger";
 
 type State = {
-  sync_on_game_exit: string;
-  syncing: string;
-  bisync_enabled: string;
-  experimental_menu: string;
-  toast_auto_sync: string;
+  sync_on_game_exit: boolean;
+  syncing: boolean;
+  bisync_enabled: boolean;
+  experimental_menu: boolean;
+  toast_auto_sync: boolean;
   destination_directory: string;
-  playing: string;
+  playing: boolean;
   library_sync: LibrarySyncState;
 };
 
@@ -32,13 +32,13 @@ class AppState {
   private _subscribers: { id: number; callback: (e: State) => void }[] = [];
 
   private _currentState: State = {
-    syncing: "false",
-    sync_on_game_exit: "true",
-    bisync_enabled: "false",
-    experimental_menu: "false",
-    toast_auto_sync: "true",
+    syncing: false,
+    sync_on_game_exit: true,
+    bisync_enabled: false,
+    experimental_menu: false,
+    toast_auto_sync: true,
     destination_directory: "decky-cloud-save",
-    playing: "false",
+    playing: false,
     library_sync: {
       Documents: { enabled: false, bisync: false, destination: "deck-libraries/Documents" },
       Music: { enabled: false, bisync: false, destination: "deck-libraries/Music" },
@@ -100,7 +100,7 @@ class AppState {
     Logger.debug("Setting '" + key + "' to '" + value + "' with persistence: " + persist);
 
     if (persist) {
-      this.serverApi.callPluginMethod<{ key: string; value: ValueOf<State> }, null>("set_config", { key, value }).then(e => Logger.debug(e));
+      this.serverApi.callPluginMethod<{ key: string; value: ValueOf<State> }, null>("set_config", { key, value: this._currentState[key] }).then(e => Logger.debug(e));
     }
 
     this._subscribers.forEach((e) => e.callback(this.currentState));
