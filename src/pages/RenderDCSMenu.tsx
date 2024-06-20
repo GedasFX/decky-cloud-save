@@ -23,7 +23,7 @@ export const Content: VFC<{}> = () => {
   const [needsResync, setNeedsSync] = useState(false);
   setInterval(async () => {
     if (
-      (!ApplicationState.getAppState().currentState.playing )&&
+      (!ApplicationState.getAppState().currentState.playing) &&
       ApplicationState.getAppState().currentState.bisync_enabled &&
       (!ApplicationState.getAppState().currentState.syncing)
     ) {
