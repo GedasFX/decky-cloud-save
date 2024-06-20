@@ -28,7 +28,7 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
 
   return (
     <PanelSection>
-    <div style= {{ overflow: "auto", maxHeight: "calc(100vh - 80px)" }}>
+    <div style= {{ overflow: "auto", marginTop: "40px",maxHeight: "calc(100vh - 80px)" }}>
     <PanelSectionRow>
     <Container
       title={Translator.translate("sync.paths")}
