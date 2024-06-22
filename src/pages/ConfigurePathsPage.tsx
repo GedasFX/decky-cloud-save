@@ -1,4 +1,4 @@
-import { PanelSectionRow, PanelSection, TextField, ToggleField } from "decky-frontend-lib";
+import { showModal, ConfirmModal, PanelSectionRow, PanelSection, TextField, ToggleField } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
@@ -116,8 +116,18 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
           <div style={{ flexGrow: 1 }}>
             <TextField
               disabled={!appState.library_sync[stateKey].enabled}
-              defaultValue={appState.library_sync[stateKey].destination}
-              onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value}, true)}/>
+              value={appState.library_sync[stateKey].destination}
+              onClick={() => {
+                showModal(
+                  <ConfirmModal
+                      strTitle={Translator.translate(title)}
+                      onOK={() => ApplicationState.setLibSyncState(stateKey, {destination: appState.library_sync[stateKey].destination}, true)}>
+                      <TextField
+                        defaultValue={appState.library_sync[stateKey].destination}
+                        onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value})} />
+                  </ConfirmModal>
+                );
+              }}/>
           </div>
         </div>
       </PanelSection>
