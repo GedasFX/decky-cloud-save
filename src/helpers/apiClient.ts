@@ -128,15 +128,15 @@ export class ApiClient {
   private static async syncNowInternal(showToast: boolean, winner: string, resync: boolean = false): Promise<void> {
     Logger.info("Synchronizing");
     const start = new Date();
-    if (ApplicationState.getAppState().currentState.syncing === "true") {
+    if (ApplicationState.getAppState().currentState.syncing) {
       Toast.toast(Translator.translate("waiting.previous"), 2000);
-      while (ApplicationState.getAppState().currentState.syncing === "true") {
+      while (ApplicationState.getAppState().currentState.syncing) {
         await sleep(300);
       }
     }
 
     Storage.setSessionStorageItem("syncing", "true");
-    ApplicationState.setAppState("syncing", "true");
+    ApplicationState.setAppState("syncing", true);
     await ApplicationState.getServerApi().callPluginMethod("sync_now_internal", { winner, resync });
 
     let exitCode = 0;
@@ -164,7 +164,7 @@ export class ApiClient {
         pass = false;
         break;
     }
-    ApplicationState.setAppState("syncing", "false");
+    ApplicationState.setAppState("syncing", false);
     Storage.setSessionStorageItem("syncing", "false");
 
     let body;

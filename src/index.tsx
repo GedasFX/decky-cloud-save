@@ -18,10 +18,11 @@ declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
   Storage.clearAllSessionStorage()
-  ApplicationState.initialize(serverApi).then(async () => {
-    Backend.initialize(serverApi);
-    await Logger.initialize();
-    await Translator.initialize();
+  ApplicationState.initialize(serverApi).then(
+    async () => {
+      Backend.initialize(serverApi);
+      await Logger.initialize();
+      await Translator.initialize();
   });
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
@@ -31,11 +32,11 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
+    if (ApplicationState.getAppState().currentState.sync_on_game_exit) {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
       Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
-      
-      ApplicationState.setAppState("playing", String(e.bRunning));
+
+      ApplicationState.setAppState("playing", e.bRunning);
 
       let sync: boolean;
       if (gameInfo?.app_type === 1) { // Steam Games == 1
@@ -52,7 +53,7 @@ export default definePlugin((serverApi: ServerAPI) => {
       }
 
       if (sync) {
-        let toast = ApplicationState.getAppState().currentState.toast_auto_sync === "true";
+        let toast = ApplicationState.getAppState().currentState.toast_auto_sync;
         if (e.bRunning) {
           if (toast) {
             Toast.toast(Translator.translate("synchronizing.savedata"), 2000);

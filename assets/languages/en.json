@@ -49,5 +49,11 @@
     "sync.logs": "Sync logs",
     "no.available.logs": "No available logs",
     "deleting.locks.sync": "Deleting locks and syncing",
-    "delete.locks": "Delete locks"
+    "delete.locks": "Delete locks",
+    "library.sync": "Library Sync",
+    "documents": "Documents",
+    "music": "Music",
+    "pictures": "Pictures",
+    "videos": "Videos",
+    "enabled": "Enabled"
 }
