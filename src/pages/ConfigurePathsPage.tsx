@@ -1,4 +1,4 @@
-import { showModal, ConfirmModal, PanelSectionRow, PanelSection, TextField, ToggleField } from "decky-frontend-lib";
+import { showModal, ConfirmModal, Focusable, PanelSectionRow, PanelSection, TextField, ToggleField, Field } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
@@ -101,35 +101,39 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   function LibrarySyncEntry({ title, stateKey }: LibrarySyncEntryProps) {
     return (
       <PanelSection title={Translator.translate(title)}>
-        <div style={{ display: "flex" }}>
-          <div style={{ display: "flex", flexShrink: 0, width: "fit-content"}}>
-            <ToggleField
-              label={Translator.translate("enabled")}
-              checked={appState.library_sync[stateKey].enabled}
-              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {enabled: e}, true)}/>
-            <ToggleField
-              label={Translator.translate("bidirectional.sync")}
-              disabled={!appState.library_sync[stateKey].enabled}
-              checked={appState.library_sync[stateKey].bisync}
-              onChange={(e) => ApplicationState.setLibSyncState(stateKey, {bisync: e}, true)}/>
-          </div>
-          <div style={{ flexGrow: 1 }}>
-            <TextField
-              disabled={!appState.library_sync[stateKey].enabled}
-              value={appState.library_sync[stateKey].destination}
-              onClick={() => {
-                showModal(
-                  <ConfirmModal
-                      strTitle={Translator.translate(title)}
-                      onOK={() => ApplicationState.setLibSyncState(stateKey, {destination: appState.library_sync[stateKey].destination}, true)}>
-                      <TextField
-                        defaultValue={appState.library_sync[stateKey].destination}
-                        onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value})} />
-                  </ConfirmModal>
-                );
-              }}/>
-          </div>
-        </div>
+        <Field childrenContainerWidth="max">
+          <Focusable style={{ display: "flex" }}>
+            <div style={{ display: "flex", flexShrink: 0, width: "fit-content"}}>
+              <ToggleField
+                label={Translator.translate("enabled")}
+                highlightOnFocus={false}
+                checked={appState.library_sync[stateKey].enabled}
+                onChange={(e) => ApplicationState.setLibSyncState(stateKey, {enabled: e}, true)}/>
+              <ToggleField
+                label={Translator.translate("bidirectional.sync")}
+                highlightOnFocus={false}
+                disabled={!appState.library_sync[stateKey].enabled}
+                checked={appState.library_sync[stateKey].bisync}
+                onChange={(e) => ApplicationState.setLibSyncState(stateKey, {bisync: e}, true)}/>
+            </div>
+            <div style={{ flexGrow: 1 }}>
+              <TextField
+                disabled={!appState.library_sync[stateKey].enabled}
+                value={appState.library_sync[stateKey].destination}
+                onClick={() => {
+                  showModal(
+                    <ConfirmModal
+                        strTitle={Translator.translate(title)}
+                        onOK={() => ApplicationState.setLibSyncState(stateKey, {destination: appState.library_sync[stateKey].destination}, true)}>
+                        <TextField
+                          defaultValue={appState.library_sync[stateKey].destination}
+                          onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value})} />
+                    </ConfirmModal>
+                  );
+                }}/>
+            </div>
+          </Focusable>
+        </Field>
       </PanelSection>
     );
   }
