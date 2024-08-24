@@ -34,11 +34,11 @@ def get_last_sync_log() -> str:
     log: str = ""
     with open(decky_plugin.DECKY_PLUGIN_LOG) as f:
         for line in reversed(list(f)):
-            if(record==False):
-                if "Sync finished" in line:
+            if(record == False):
+                if "=== FINISHING SYNC ===" in line:
                     record = True
             else:
-                if "Running command: /home/deck/homebrew/plugins/decky-cloud-save/bin/rcloneLauncher" in line.strip():
+                if "=== STARTING SYNC ===" in line:
                     break
                 else:
                     log = line + '\n' + log  
@@ -53,7 +53,7 @@ def get_plugin_log() -> str:
     """
     log: str = ""
     with open(decky_plugin.DECKY_PLUGIN_LOG) as f:
-        for line in reversed(list(open(decky_plugin.DECKY_PLUGIN_LOG))):
+        for line in reversed(list(f)):
             log = line + '\n' + log  
             if "Logger initialized at level" in line.strip():
                 break

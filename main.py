@@ -65,11 +65,6 @@ class Plugin:
             "Executing: RcloneSyncManager.delete_lock_files()")
         return await self.manager_sync.delete_lock_files()
 
-    async def needs_resync(self):
-        decky_plugin.logger.debug(
-            "Executing: RcloneSyncManager.needs_resync()")
-        return await self.manager_sync.needs_resync()
-
 # Processes
 
     async def signal(self, pid: int, s: str):

@@ -5,6 +5,7 @@ import decky_plugin
 import plugin_config
 import os
 import os.path
+from glob import glob
 
 
 class RcloneSyncManager:
@@ -14,11 +15,9 @@ class RcloneSyncManager:
         """
         Deletes rclone lock files
         """
-        args = [decky_plugin.HOME + "/.cache/rclone/bisync/*.lck"]
-        cmd = ["rm", *args]
-        decky_plugin.logger.info(
-            "Running command: %s", subprocess.list2cmdline(cmd))
-        await create_subprocess_exec(*cmd)
+        decky_plugin.logger.info("Deleting lock files.")
+        for hgx in glob(decky_plugin.HOME + "/.cache/rclone/bisync/*.lck"):
+            os.remove(hgx)
 
     async def sync_now(self, winner: str, resync: bool):
         """
@@ -54,9 +53,11 @@ class RcloneSyncManager:
                     decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])
 
         cmd = [plugin_config.rclone_bin, *args]
+
+        decky_plugin.logger.info("=== STARTING SYNC ===")
+
         decky_plugin.logger.info(
             "Running command: %s", subprocess.list2cmdline(cmd))
-
         self.current_sync = await create_subprocess_exec(*cmd)
 
     async def probe(self):
@@ -68,18 +69,8 @@ class RcloneSyncManager:
         """
         if not self.current_sync:
             return 0
+        
+        if self.current_sync.returncode is not None:
+            decky_plugin.logger.info("=== FINISHING SYNC ===")
 
         return self.current_sync.returncode
-
-    async def needs_resync(self):
-        """
-        Checks if resync if needed.
-
-        Returns:
-        bool: is needed
-        """
-        dirPath = decky_plugin.HOME + "/.cache/rclone/bisync"
-        if not os.path.isdir(dirPath):
-            return True
-        else:
-            return len([name for name in os.listdir(dirPath)]) == 0

@@ -20,17 +20,6 @@ export const Content: VFC<{}> = () => {
     ApiClient.getCloudBackend().then((e) => setHasProvider(!!e));
   }, []);
 
-  const [needsResync, setNeedsSync] = useState(false);
-  setInterval(async () => {
-    if (
-      ApplicationState.getAppState().currentState.playing === "false" &&
-      ApplicationState.getAppState().currentState.bisync_enabled === "true" &&
-      ApplicationState.getAppState().currentState.syncing === "false"
-    ) {
-      setNeedsSync(await Backend.needsResync());
-    }
-  }, 1000);
-
   return (
     <>
       <Head />
@@ -40,16 +29,11 @@ export const Content: VFC<{}> = () => {
             layout="below"
             disabled={appState.syncing === "true" || !hasProvider}
             onClick={() => {
-              if (needsResync) {
-                ApiClient.resyncNow("path1");
-              } else {
-                ApiClient.syncNow(true);
-              }
+              ApiClient.syncNow(true);
             }}
           >
             <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>
-              {needsResync && Translator.translate("resync.now")}
-              {!needsResync && Translator.translate("sync.now")}
+              {Translator.translate("sync.now")}
             </DeckyStoreButton>
           </ButtonItem>
           {hasProvider === false && <small>{Translator.translate("provider.not.configured")}.</small>}
