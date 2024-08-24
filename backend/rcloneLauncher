@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 BIN_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-PLUGIN_DIR=$(realpath $BIN_DIR/..)
-CONFIG_DIR=$(realpath $PLUGIN_DIR/../../settings/$(basename $PLUGIN_DIR))
+PLUGIN_DIR=$(realpath "$BIN_DIR"/..)
+CONFIG_DIR=$(realpath "$PLUGIN_DIR"/../../settings/"$(basename "$PLUGIN_DIR")")
 
 exec "$BIN_DIR/rclone" "--config" "$CONFIG_DIR/rclone.conf" "$@"
 
