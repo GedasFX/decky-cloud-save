@@ -10,7 +10,6 @@ import { Backend } from "./helpers/backend";
 import { FaSave } from "react-icons/fa";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
-import RenderSyncErrorLogPage from "./pages/RenderSyncErrorLogPage";
 import RenderSyncLogPage from "./pages/RenderSyncLogPage";
 import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 
@@ -26,7 +25,6 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-configure-backend", () => <ConfigureBackendPage serverApi={serverApi} />, { exact: true });
-  serverApi.routerHook.addRoute("/dcs-error-sync-logs", () => <RenderSyncErrorLogPage />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-sync-logs", () => <RenderSyncLogPage />, { exact: true });
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
@@ -39,7 +37,7 @@ export default definePlugin((serverApi: ServerAPI) => {
       ApplicationState.setAppState("playing", String(e.bRunning));
 
       if (shouldSync(gameInfo)) {
-        syncGame(e.bRunning);
+        syncGame(e);
       }
     } else {
       Logger.info("No futher actions");
@@ -55,17 +53,16 @@ export default definePlugin((serverApi: ServerAPI) => {
       Storage.clearAllSessionStorage();
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
-      serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
       serverApi.routerHook.removeRoute("/dcs-sync-logs");
       serverApi.routerHook.removeRoute("/dcs-plugin-logs");
     },
   };
 });
 
-function syncGame(started: boolean) {
+function syncGame(e: LifetimeNotification) {
   const currentState = ApplicationState.getAppState().currentState;
   let toast = currentState.toast_auto_sync === "true";
-  if (started) {
+  if (e.bRunning) {
     // Only sync at start when bisync is enabled. No need to when its not.
     if (currentState.bisync_enabled === "true") {
       if (toast) {

@@ -169,18 +169,16 @@ export class ApiClient {
 
     let body;
     let time = 2000;
-    let action = () => { };
+    let action = () => { Navigation.Navigate("/dcs-sync-logs"); };
 
     const syncLogs = await Backend.getLastSyncLog();
     Storage.setSessionStorageItem("syncLogs", syncLogs);
 
     if (pass) {
       body = Translator.translate("sync.completed", { "time": timeDiff });
-      action = () => { Navigation.Navigate("/dcs-sync-logs"); };
     } else {
       body = Translator.translate("sync.failed");
-      time = 5000;
-      action = () => { Navigation.Navigate("/dcs-error-sync-logs"); };
+      time = 15000;
     }
 
     if (showToast || (!pass)) {
