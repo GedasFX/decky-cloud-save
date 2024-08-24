@@ -5,8 +5,8 @@ import { ApiClient } from "./helpers/apiClient";
 import { ApplicationState } from "./helpers/state";
 import { Content } from "./pages/RenderDCSMenu";
 import { Translator } from "./helpers/translator";
-import { Storage } from './helpers/storage';
-import { Backend } from './helpers/backend';
+import { Storage } from "./helpers/storage";
+import { Backend } from "./helpers/backend";
 import { FaSave } from "react-icons/fa";
 import ConfigurePathsPage from "./pages/ConfigurePathsPage";
 import ConfigureBackendPage from "./pages/ConfigureBackendPage";
@@ -17,7 +17,7 @@ import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
-  Storage.clearAllSessionStorage()
+  Storage.clearAllSessionStorage();
   ApplicationState.initialize(serverApi).then(async () => {
     Backend.initialize(serverApi);
     await Logger.initialize();
@@ -31,39 +31,18 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    if (ApplicationState.getAppState().currentState.sync_on_game_exit === "true") {
-      const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID)
+    const currentState = ApplicationState.getAppState().currentState;
+    if (currentState.sync_on_game_exit === "true") {
+      const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID);
       Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
-      
+
       ApplicationState.setAppState("playing", String(e.bRunning));
 
-      let sync: boolean;
-      if (gameInfo?.app_type === 1) { // Steam Games == 1
-        if (gameInfo?.local_per_client_data?.cloud_status === 1) { // Steam Cloud Enabled
-          sync = true;
-          Logger.info("Steam game without Steam Cloud, proceeding")
-        } else {
-          sync = false;
-          Logger.info("Steam game with Steam Cloud, skipping");
-        }
-      } else {
-        sync = true;
-        Logger.info("Non Steam game, proceeding");
-      }
-
-      if (sync) {
-        let toast = ApplicationState.getAppState().currentState.toast_auto_sync === "true";
-        if (e.bRunning) {
-          if (toast) {
-            Toast.toast(Translator.translate("synchronizing.savedata"), 2000);
-          }
-          ApiClient.syncOnLaunch(toast, e.nInstanceID); // nInstanceID is Linux Process PID
-        } else {
-          ApiClient.syncOnEnd(toast);
-        }
+      if (shouldSync(gameInfo)) {
+        syncGame(e.bRunning);
       }
     } else {
-      Logger.info("No futher actions")
+      Logger.info("No futher actions");
     }
   });
 
@@ -73,7 +52,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     icon: <FaSave />,
     onDismount() {
       removeGameExecutionListener();
-      Storage.clearAllSessionStorage()
+      Storage.clearAllSessionStorage();
       serverApi.routerHook.removeRoute("/dcs-configure-paths");
       serverApi.routerHook.removeRoute("/dcs-configure-backend");
       serverApi.routerHook.removeRoute("/dcs-error-sync-logs");
@@ -82,3 +61,36 @@ export default definePlugin((serverApi: ServerAPI) => {
     },
   };
 });
+
+function syncGame(started: boolean) {
+  const currentState = ApplicationState.getAppState().currentState;
+  let toast = currentState.toast_auto_sync === "true";
+  if (started) {
+    // Only sync at start when bisync is enabled. No need to when its not.
+    if (currentState.bisync_enabled === "true") {
+      if (toast) {
+        Toast.toast(Translator.translate("synchronizing.savedata"), 2000);
+      }
+      ApiClient.syncOnLaunch(toast, e.nInstanceID); // nInstanceID is Linux Process PID
+    }
+  } else {
+    ApiClient.syncOnEnd(toast);
+  }
+}
+
+function shouldSync(gameInfo: any) {
+  // Steam Games == 1
+  if (gameInfo?.app_type === 1) {
+    // Steam Cloud Enabled
+    if (gameInfo?.local_per_client_data?.cloud_status === 1) {
+      Logger.info("Steam game without Steam Cloud, proceeding");
+      return true;
+    } else {
+      Logger.info("Steam game with Steam Cloud, skipping");
+      return false;
+    }
+  } else {
+    Logger.info("Non Steam game, proceeding");
+    return true;
+  }
+}
