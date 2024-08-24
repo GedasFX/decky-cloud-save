@@ -108,3 +108,5 @@ def migrate():
         set_config("sync_on_game_exit", "true")
     if not any(e[0] == "toast_auto_sync" for e in config):
         set_config("toast_auto_sync", "true")
+    if not any(e[0] == "additional_sync_args" for e in config):
+        set_config("additional_sync_args", "")
