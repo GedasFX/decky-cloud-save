@@ -6,6 +6,7 @@ import plugin_config
 import os
 import os.path
 from glob import glob
+from pathlib import Path
 
 
 class RcloneSyncManager:
@@ -20,6 +21,24 @@ class RcloneSyncManager:
             os.remove(hgx)
 
     async def sync_now(self, winner: str, resync: bool):
+        destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
+        await self.sync_now_internal(
+            ["/", f"backend:{destination_path}", "--filter-from", plugin_config.cfg_syncpath_filter_file],
+            plugin_config.get_config_item("bisync_enabled", False),
+            winner,
+            resync
+        )
+
+        for k, v in plugin_config.get_library_sync_config().items():
+            if v.get("enabled", False):
+                await self.sync_now_internal(
+                    [str(Path.home() / k), f"backend:{v.get('destination', f'deck-libraries/{k}')}"],
+                    v.get("bisync", False),
+                    winner,
+                    resync
+                )
+
+    async def sync_now_internal(self, path_args: list, bisync: bool, winner: str, resync: bool):
         """
         Initiates a synchronization process using rclone.
 
@@ -30,21 +49,16 @@ class RcloneSyncManager:
         """
         args = []
 
-        bisync_enabled = plugin_config.get_config_item("bisync_enabled", "false") == "true"
-        destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
-        
-        additional_args = [x for x in plugin_config.get_config_item("additional_sync_args", "").split(' ') if x]
-
-        if bisync_enabled:
+        if bisync:
             args.extend(["bisync"])
             decky_plugin.logger.debug("Using bisync")
         else:
             args.extend(["copy"])
             decky_plugin.logger.debug("Using copy")
 
-        args.extend(["/", f"backend:{destination_path}", "--filter-from",
-                    plugin_config.cfg_syncpath_filter_file, "--copy-links"])
-        if bisync_enabled:
+        args.extend(path_args)
+        args.extend(["--copy-links"])
+        if bisync:
             if resync:
                 args.extend(["--resync-mode", winner, "--resync"])
             else:
@@ -53,7 +67,7 @@ class RcloneSyncManager:
         args.extend(["--transfers", "8", "--checkers", "16", "--log-file",
                     decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])
         
-        args.extend(additional_args)
+        args.extend(plugin_config.get_config_item("additional_sync_args", []))
 
         cmd = [plugin_config.rclone_bin, *args]
 

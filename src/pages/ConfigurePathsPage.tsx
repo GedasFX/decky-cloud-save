@@ -1,4 +1,4 @@
-import { PanelSectionRow, PanelSection, TextField } from "decky-frontend-lib";
+import { showModal, ConfirmModal, Focusable, PanelSectionRow, PanelSection, TextField, ToggleField, Field } from "decky-frontend-lib";
 import { useEffect, useState } from "react";
 import { PageProps } from "../helpers/types";
 import AddNewPathButton from "../components/AddNewPathButton";
@@ -6,11 +6,12 @@ import { RenderExistingPathButton } from "../components/RenderExistingPathButton
 import Container from "../components/Container";
 import { HelpAssistant } from "../components/HelpAssistant";
 import { ApiClient } from "../helpers/apiClient";
-import { ApplicationState } from "../helpers/state";
+import { ApplicationState, LibrarySyncState } from "../helpers/state";
 import { Translator } from "../helpers/translator";
 
 export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   const appState = ApplicationState.useAppState();
+
   const [includePaths, setIncludePaths] = useState<string[] | undefined>(undefined);
   const [excludePaths, setExcludePaths] = useState<string[] | undefined>(undefined);
 
@@ -24,6 +25,9 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
   useEffect(() => onPathsUpdated(), []);
 
   return (
+    <PanelSection>
+    <div style= {{ overflow: "auto", marginTop: "40px",maxHeight: "calc(100vh - 80px)" }}>
+    <PanelSectionRow>
     <Container
       title={Translator.translate("sync.paths")}
       help={
@@ -76,5 +80,61 @@ export default function ConfigurePathsPage({ serverApi }: PageProps<{}>) {
         ))}
       </PanelSection>
     </Container>
+    </PanelSectionRow>
+    <PanelSectionRow>
+    <Container title={Translator.translate("library.sync")}>
+      <LibrarySyncEntry title={"documents"} stateKey="Documents"/>
+      <LibrarySyncEntry title={"music"} stateKey="Music"/>
+      <LibrarySyncEntry title={"pictures"} stateKey="Pictures"/>
+      <LibrarySyncEntry title={"video"} stateKey="Videos"/>
+    </Container>
+    </PanelSectionRow>
+    </div>
+    </PanelSection>
   );
+
+  interface LibrarySyncEntryProps {
+    title: string;
+    stateKey: keyof LibrarySyncState;
+  }
+
+  function LibrarySyncEntry({ title, stateKey }: LibrarySyncEntryProps) {
+    return (
+      <PanelSection title={Translator.translate(title)}>
+        <Field childrenContainerWidth="max">
+          <Focusable style={{ display: "flex" }}>
+            <div style={{ display: "flex", flexShrink: 0, width: "fit-content"}}>
+              <ToggleField
+                label={Translator.translate("enabled")}
+                highlightOnFocus={false}
+                checked={appState.library_sync[stateKey].enabled}
+                onChange={(e) => ApplicationState.setLibSyncState(stateKey, {enabled: e}, true)}/>
+              <ToggleField
+                label={Translator.translate("bidirectional.sync")}
+                highlightOnFocus={false}
+                disabled={!appState.library_sync[stateKey].enabled}
+                checked={appState.library_sync[stateKey].bisync}
+                onChange={(e) => ApplicationState.setLibSyncState(stateKey, {bisync: e}, true)}/>
+            </div>
+            <div style={{ flexGrow: 1 }}>
+              <TextField
+                disabled={!appState.library_sync[stateKey].enabled}
+                value={appState.library_sync[stateKey].destination}
+                onClick={() => {
+                  showModal(
+                    <ConfirmModal
+                        strTitle={Translator.translate(title)}
+                        onOK={() => ApplicationState.setLibSyncState(stateKey, {destination: appState.library_sync[stateKey].destination}, true)}>
+                        <TextField
+                          defaultValue={appState.library_sync[stateKey].destination}
+                          onBlur={(e) => ApplicationState.setLibSyncState(stateKey, {destination: e.target.value})} />
+                    </ConfirmModal>
+                  );
+                }}/>
+            </div>
+          </Focusable>
+        </Field>
+      </PanelSection>
+    );
+  }
 }
