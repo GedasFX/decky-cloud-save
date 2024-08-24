@@ -2,6 +2,7 @@
   "name": "decky-cloud-save",
   "version": "1.4.1",
   "description": "Manage cloud saves for games that do not support it in [current year].",
+  "packageManager": "pnpm@9.8.0",
   "scripts": {
     "build": "shx rm -rf dist && rollup -c",
     "watch": "rollup -c -w",
