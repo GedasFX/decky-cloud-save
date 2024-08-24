@@ -28,11 +28,12 @@ class RcloneSyncManager:
         resync (bool): Whether to perform a resynchronization.
 
         """
-        bisync_enabled = plugin_config.get_config_item(
-            "bisync_enabled", "false") == "true"
-        destination_path = plugin_config.get_config_item(
-            "destination_directory", "decky-cloud-save")
         args = []
+
+        bisync_enabled = plugin_config.get_config_item("bisync_enabled", "false") == "true"
+        destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
+        
+        additional_args = [x for x in plugin_config.get_config_item("additional_sync_args", "").split(' ') if x]
 
         if bisync_enabled:
             args.extend(["bisync"])
@@ -51,6 +52,8 @@ class RcloneSyncManager:
 
         args.extend(["--transfers", "8", "--checkers", "16", "--log-file",
                     decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])
+        
+        args.extend(additional_args)
 
         cmd = [plugin_config.rclone_bin, *args]
 

@@ -133,6 +133,16 @@ If the bisync is used for the first time, and or data corruption occurs, you may
 
 If you wish to change the folder on how it appears on the remote, edit `~/homebrew/settings/decky-cloud-save/plugin.properties` file and replace `decky-cloud-save` with whichever name you wish. Be wary of path limitations unique to each provider.
 
+### Additional rclone arguments
+
+If you want to have additional arguments passed to rsync for your provider, you can specify them in `plugin.properties` with:
+
+```
+additional_sync_args=<Args>
+
+example:
+additional_sync_args=--onedrive-av-override
+```
 
 ## Acknowledgments
 
