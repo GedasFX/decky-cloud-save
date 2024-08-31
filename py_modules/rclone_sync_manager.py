@@ -32,6 +32,7 @@ class RcloneSyncManager:
 
         bisync_enabled = plugin_config.get_config_item("bisync_enabled", "false") == "true"
         destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
+        sync_root = plugin_config.get_config_item("sync_root", "/")
         
         additional_args = [x for x in plugin_config.get_config_item("additional_sync_args", "").split(' ') if x]
 
@@ -42,7 +43,7 @@ class RcloneSyncManager:
             args.extend(["copy"])
             decky_plugin.logger.debug("Using copy")
 
-        args.extend(["/", f"backend:{destination_path}", "--filter-from",
+        args.extend([sync_root, f"backend:{destination_path}", "--filter-from",
                     plugin_config.cfg_syncpath_filter_file, "--copy-links"])
         if bisync_enabled:
             if resync:

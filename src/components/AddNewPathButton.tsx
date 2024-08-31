@@ -2,7 +2,7 @@ import { ButtonItem, showContextMenu, Menu, MenuItem, FilePickerRes, showModal, 
 import { useState } from "react";
 import { PageProps } from "../helpers/types";
 import { Toast } from "../helpers/toast";
-import { Translator } from "../helpers/translator"
+import { Translator } from "../helpers/translator";
 
 export default function AddNewPathButton({ serverApi, onPathAdded, file }: PageProps<{ onPathAdded?: () => void; file: "includes" | "excludes" }>) {
   const [buttonDisabled, setButtonDisabled] = useState(false);

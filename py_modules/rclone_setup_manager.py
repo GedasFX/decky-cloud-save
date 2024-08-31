@@ -124,6 +124,9 @@ class RcloneSetupManager:
         Returns:
         int | str: The number of files if it's a directory, '9000+' if it exceeds the limit, or 0 if it's a file.
         """
+        if not path.startswith(plugin_config.get_config_item("sync_root", "/")):
+            raise Exception("Selection is outside of sync root.")
+
         if path.endswith("/**"):
             scan_single_dir = False
             path = path[:-3]
@@ -153,6 +156,9 @@ class RcloneSetupManager:
         file (str): The file to add the path to.
         """
         decky_plugin.logger.info("Adding Path to Sync: '%s', %s", path, file)
+
+        # Replace the beginning of path to replace the root.
+        path = path.replace(plugin_config.get_config_item("sync_root", "/"), "/", 1)
 
         file = plugin_config.cfg_syncpath_excludes_file if file == "excludes" else plugin_config.cfg_syncpath_includes_file
 
