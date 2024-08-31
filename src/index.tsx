@@ -29,6 +29,8 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
+    console.error("Decky Opening/Closing Game", e);
+
     const currentState = ApplicationState.getAppState().currentState;
     if (currentState.sync_on_game_exit === "true") {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID);
@@ -76,18 +78,12 @@ function syncGame(e: LifetimeNotification) {
 }
 
 function shouldSync(gameInfo: any) {
-  // Steam Games == 1
-  if (gameInfo?.app_type === 1) {
-    // Steam Cloud Enabled
-    if (gameInfo?.local_per_client_data?.cloud_status === 1) {
-      Logger.info("Steam game without Steam Cloud, proceeding");
-      return true;
-    } else {
-      Logger.info("Steam game with Steam Cloud, skipping");
-      return false;
-    }
+  if (gameInfo?.store_category.includes(23)) {
+    // 23 - Cloud Save
+    Logger.info("Steam game with Steam Cloud, skipping");
+    return false;
   } else {
-    Logger.info("Non Steam game, proceeding");
+    Logger.info("Non Steam game, or game without Steam Cloud, proceeding");
     return true;
   }
 }
