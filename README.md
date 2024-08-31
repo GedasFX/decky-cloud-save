@@ -144,9 +144,23 @@ example:
 additional_sync_args=--onedrive-av-override
 ```
 
+### Custom sync root
+
+By default the sync root is `/` for simplicity. If having it causes issues, you can change it to another place and create symlinks. Set `plugin.properties` value `sync_root` to be whatever you wish (e.g. `/home/deck/`). **IMPORTANT: This path must be absolute, and must end with a trailing `/`**
+
+Example, where 2 symlinks are created:
+
+```bash
+cd /home/deck/syncs
+ln -s /run/media/mmcblk0p1/Emulation/saves/ "$(pwd)/emulation-saves"
+ln -s "/home/deck/homebrew/settings/decky-cloud-save/" "$(pwd)/dcs-config"
+```
+
+In `plugin.properties`, when root is set to `/home/deck`, we can sync the folder `syncs`, and it would show up as `emulation-saves`, and `dcs-config` on the configured cloud provider.
+
 ## Acknowledgments
 
 Thank you to:
-* [Emiliopg91](https://github.com/Emiliopg91), [NL-TCH](https://github.com/NL-TCH) for bi-sync support!
+* [Emiliopg91](https://github.com/Emiliopg91), [NL-TCH](https://github.com/NL-TCH) for bi-sync support
 * [Decky Homebrew Community](https://github.com/SteamDeckHomebrew) for assistance with development!
 * [rclone](https://rclone.org/) for making this plugin possible!
