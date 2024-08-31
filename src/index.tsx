@@ -29,8 +29,6 @@ export default definePlugin((serverApi: ServerAPI) => {
   serverApi.routerHook.addRoute("/dcs-plugin-logs", () => <RenderPluginLogPage />, { exact: true });
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
-    console.error("Decky Opening/Closing Game", e);
-
     const currentState = ApplicationState.getAppState().currentState;
     if (currentState.sync_on_game_exit === "true") {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID);
