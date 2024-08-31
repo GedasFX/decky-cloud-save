@@ -161,6 +161,7 @@ In `plugin.properties`, when root is set to `/home/deck`, we can sync the folder
 ## Acknowledgments
 
 Thank you to:
-* [Emiliopg91](https://github.com/Emiliopg91), [NL-TCH](https://github.com/NL-TCH) for bi-sync support
+* [Emiliopg91](https://github.com/Emiliopg91), [NL-TCH](https://github.com/NL-TCH) for bi-sync support!
+* [AkazaRenn](https://github.com/AkazaRenn), for various support!
 * [Decky Homebrew Community](https://github.com/SteamDeckHomebrew) for assistance with development!
 * [rclone](https://rclone.org/) for making this plugin possible!
