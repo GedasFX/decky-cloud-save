@@ -30,9 +30,10 @@ class RcloneSyncManager:
                     resync
                 )
 
+        sync_root = plugin_config.get_config_item("sync_root", "/")
         destination_path = plugin_config.get_config_item("destination_directory", "decky-cloud-save")
         await self.sync_now_internal(
-            ["/", f"backend:{destination_path}", "--filter-from", plugin_config.cfg_syncpath_filter_file],
+            [sync_root, f"backend:{destination_path}", "--filter-from", plugin_config.cfg_syncpath_filter_file],
             plugin_config.get_config_item("bisync_enabled", False),
             winner,
             resync
@@ -66,7 +67,7 @@ class RcloneSyncManager:
 
         args.extend(["--transfers", "8", "--checkers", "16", "--log-file",
                     decky_plugin.DECKY_PLUGIN_LOG, "--log-format", "none", "-v"])
-        
+
         args.extend(plugin_config.get_config_item("additional_sync_args", []))
 
         cmd = [plugin_config.rclone_bin, *args]
@@ -86,7 +87,7 @@ class RcloneSyncManager:
         """
         if not self.current_sync:
             return 0
-        
+
         if self.current_sync.returncode is not None:
             decky_plugin.logger.info("=== FINISHING SYNC ===")
 

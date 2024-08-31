@@ -1,6 +1,6 @@
 {
   "name": "decky-cloud-save",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Manage cloud saves for games that do not support it in [current year].",
   "packageManager": "pnpm@9.8.0",
   "scripts": {

@@ -161,6 +161,8 @@ def migrate():
         set_config("toast_auto_sync", True)
     if not "additional_sync_args" in current_config:
         set_config("additional_sync_args", [])
+    if not "sync_root" in current_config:
+        set_config("sync_root", "/")
     if not "library_sync" in current_config:
         set_library_sync_config("Documents")
         set_library_sync_config("Music")
