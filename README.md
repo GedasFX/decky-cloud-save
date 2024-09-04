@@ -156,7 +156,7 @@ ln -s /run/media/mmcblk0p1/Emulation/saves/ "$(pwd)/emulation-saves"
 ln -s "/home/deck/homebrew/settings/decky-cloud-save/" "$(pwd)/dcs-config"
 ```
 
-In `plugin.properties`, when root is set to `/home/deck`, we can sync the folder `syncs`, and it would show up as `emulation-saves`, and `dcs-config` on the configured cloud provider.
+In `plugin.properties`, when root is set to `/home/deck/`, we can sync the folder `syncs`, and it would show up as `emulation-saves`, and `dcs-config` on the configured cloud provider.
 
 If you had paths defined earlier, you will have to adjust them accordingly.
 
