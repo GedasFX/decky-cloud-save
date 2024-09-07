@@ -27,12 +27,12 @@ export const Content: VFC<{}> = () => {
         <PanelSectionRow>
           <ButtonItem
             layout="below"
-            disabled={appState.syncing === "true" || !hasProvider}
+            disabled={appState.syncing || (!hasProvider)}
             onClick={() => {
               ApiClient.syncNow(true);
             }}
           >
-            <DeckyStoreButton icon={<FaSave className={appState.syncing === "true" ? "dcs-rotate" : ""} />}>
+            <DeckyStoreButton icon={<FaSave className={appState.syncing ? "dcs-rotate" : ""} />}>
               {Translator.translate("sync.now")}
             </DeckyStoreButton>
           </ButtonItem>
@@ -44,16 +44,16 @@ export const Content: VFC<{}> = () => {
         <PanelSectionRow>
           <ToggleField
             label={Translator.translate("sync.start.stop")}
-            checked={appState.sync_on_game_exit === "true"}
-            onChange={(e) => ApplicationState.setAppState("sync_on_game_exit", e ? "true" : "false", true)}
+            checked={appState.sync_on_game_exit}
+            onChange={(e) => ApplicationState.setAppState("sync_on_game_exit", e, true)}
           />
         </PanelSectionRow>
         <PanelSectionRow>
           <ToggleField
-            disabled={appState.sync_on_game_exit != "true"}
+            disabled={!appState.sync_on_game_exit}
             label={Translator.translate("toast.auto.sync")}
-            checked={appState.toast_auto_sync === "true"}
-            onChange={(e) => ApplicationState.setAppState("toast_auto_sync", e ? "true" : "false", true)}
+            checked={appState.toast_auto_sync}
+            onChange={(e) => ApplicationState.setAppState("toast_auto_sync", e, true)}
           />
         </PanelSectionRow>
 
@@ -103,7 +103,7 @@ export const Content: VFC<{}> = () => {
         <PanelSectionRow>
           <ButtonItem
             layout="below"
-            disabled={appState.syncing === "true" || !hasProvider}
+            disabled={appState.syncing || (!hasProvider)}
             onClick={() => {
               (async () => {
                 let logs = await Backend.getLastSyncLog();
@@ -124,8 +124,8 @@ export const Content: VFC<{}> = () => {
         <PanelSectionRow>
           <ToggleField
             label={Translator.translate("bidirectional.sync")}
-            checked={appState.bisync_enabled === "true"}
-            onChange={(e) => ApplicationState.setAppState("bisync_enabled", e ? "true" : "false", true)}
+            checked={appState.bisync_enabled}
+            onChange={(e) => ApplicationState.setAppState("bisync_enabled", e, true)}
           />
         </PanelSectionRow>
       </PanelSection>
