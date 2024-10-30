@@ -16,11 +16,12 @@ import RenderPluginLogPage from "./pages/RenderPluginLogPage";
 declare const appStore: any;
 
 export default definePlugin((serverApi: ServerAPI) => {
-  Storage.clearAllSessionStorage();
-  ApplicationState.initialize(serverApi).then(async () => {
-    Backend.initialize(serverApi);
-    await Logger.initialize();
-    await Translator.initialize();
+  Storage.clearAllSessionStorage()
+  ApplicationState.initialize(serverApi).then(
+    async () => {
+      Backend.initialize(serverApi);
+      await Logger.initialize();
+      await Translator.initialize();
   });
 
   serverApi.routerHook.addRoute("/dcs-configure-paths", () => <ConfigurePathsPage serverApi={serverApi} />, { exact: true });
@@ -30,7 +31,7 @@ export default definePlugin((serverApi: ServerAPI) => {
 
   const { unregister: removeGameExecutionListener } = SteamClient.GameSessions.RegisterForAppLifetimeNotifications((e: LifetimeNotification) => {
     const currentState = ApplicationState.getAppState().currentState;
-    if (currentState.sync_on_game_exit === "true") {
+    if (currentState.sync_on_game_exit) {
       const gameInfo = appStore.GetAppOverviewByGameID(e.unAppID);
       Logger.info((e.bRunning ? "Starting" : "Stopping") + " game '" + gameInfo.display_name + "' (" + e.unAppID + ")");
 
@@ -61,10 +62,10 @@ export default definePlugin((serverApi: ServerAPI) => {
 
 function syncGame(e: LifetimeNotification) {
   const currentState = ApplicationState.getAppState().currentState;
-  let toast = currentState.toast_auto_sync === "true";
+  let toast = currentState.toast_auto_sync;
   if (e.bRunning) {
     // Only sync at start when bisync is enabled. No need to when its not.
-    if (currentState.bisync_enabled === "true") {
+    if (currentState.bisync_enabled) {
       if (toast) {
         Toast.toast(Translator.translate("synchronizing.savedata"), 2000);
       }
