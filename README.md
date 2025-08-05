@@ -1,3 +1,11 @@
+> [!WARNING]  
+> **This plugin is no longer maintained**. It evolved into something I never intended it to be, is a nightmare to maintain, and it really just deserves a rewrite. And it's exactly what it got!
+>
+> 1. [Decky Ludusavi](https://github.com/GedasFX/decky-ludusavi) - Successor to this project. It utilizes [ludusavi](https://github.com/mtkennerly/ludusavi), a popular backup tool for most of its functionality. Supports save versioning, game aliases, per-game backups and more. Hihgly recommend checking it out.
+> 2. [SDH-GameSync](https://github.com/AkazaRenn/SDH-GameSync) - Another spiritual successor, but instead of a complete rewrite using new tools, it focuses on improving the original. Has cool features such as screenshot sync, per-game backups, and keeps all of the features of DCS.
+>
+> I am planning to pull it from the store in early 2026.
+
 # Decky Cloud Save
 
 A plugin based on [rclone](https://rclone.org/), which allows users to back-up game saves to the cloud. Supports [OneDrive](https://onedrive.live.com/), [Google Drive](https://drive.google.com/), [Dropbox](https://www.dropbox.com/), and [many more](#other-providers)!
